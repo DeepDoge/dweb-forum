@@ -1,0 +1,3 @@
+[submodule "src/lib/kicho-ui"]
+	path = src/lib/kicho-ui
+	url = https://github.com/DeepDoge/kicho-ui.git
