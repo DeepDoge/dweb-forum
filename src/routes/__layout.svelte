@@ -22,12 +22,13 @@
     async function onHashChange() {
         switch ($pageHash) {
             case '"#/$/post"':
-                return (lastFoundPage = await import("$/pages/$/post.svelte"));
+                return (lastFoundPage = (await import("$/pages/$/post.svelte")).default);
             case "#":
             case "#/":
-                return (lastFoundPage = await import("$/pages/index.svelte"));
+                return (lastFoundPage = (await import("$/pages/index.svelte")).default);
             default:
-                if ($pageHash.length === 44 && $pageHash.startsWith("#/0x")) return (lastFoundPage = await import("$/pages/[address].svelte"));
+                if ($pageHash.length === 44 && $pageHash.startsWith("#/0x"))
+                    return (lastFoundPage = (await import("$/pages/[address].svelte")).default);
                 break;
         }
     }
@@ -42,7 +43,9 @@
                 {#key $provider.network.chainId}
                     <Header />
                     <main>
-                        <svelte:component this={lastFoundPage} />
+                        {#if lastFoundPage}
+                            <svelte:component this={lastFoundPage} />
+                        {/if}
                         <KModalHashRoute hash="#/$/publish">
                             <PublishPost on:done={() => history.back()} />
                         </KModalHashRoute>
