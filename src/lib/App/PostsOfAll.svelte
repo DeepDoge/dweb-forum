@@ -1,5 +1,6 @@
 <script lang="ts">
     import { appContract } from "$/plugins/wallet";
+import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import { BigNumber } from "ethers";
 
     async function getPosts(from: BigNumber, limit: number) {
@@ -12,7 +13,7 @@
             posts.push(await appContract.posts(i));
         }
 
-        return posts;
+        return posts as (Awaited<ReturnType<typeof appContract['posts']>>)[];
     }
 
     const posts = getPosts(BigNumber.from(0), 10);
@@ -21,9 +22,32 @@
 {#await posts}
     Getting posts...
 {:then posts}
+    <div class="posts">
     {#each posts as post (post.id)}
-        <pre>
-            {JSON.stringify(post)}
-        </pre>
+        <div class="post">
+            <KBoxEffect radius="rounded" type="filled" blur color="mode">
+                <p>{post.content}</p>
+            </KBoxEffect>
+        </div>
     {/each}
+</div>
 {/await}
+
+
+<style>
+    .posts {
+        display: grid;
+        gap: 2em;
+        justify-content: center;
+        grid-template-columns: min(100%, 30em);
+    }
+
+    .post {
+        display: grid;
+        padding: var(--k-padding);
+    }
+
+    .post p {
+        word-break: break-all;
+    }
+</style>

@@ -71,7 +71,7 @@
         inset: 0;
         background-size: cover;
         background-image: linear-gradient(to right bottom, var(--k-color-master) 20%, transparent);
-        filter: blur(10rem) opacity(0.25);
+        filter: blur(10rem) opacity(0.1);
     }
 
     footer {

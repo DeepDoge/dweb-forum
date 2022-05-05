@@ -34,14 +34,12 @@
 <!-- svelte-ignore missing-declaration -->
 <form on:submit|preventDefault={(e) => publish({ content: new FormData(e.currentTarget).get("content").toString() })} class="publish-post">
     <KTextField name="content" disabled={publishing} label="Content" />
-    <KButton disabled={publishing}>{publishing ? "Posting..." : "Post"}</KButton>
+    <KButton size="larger" disabled={publishing}>{publishing ? "Posting..." : "Post"}</KButton>
 </form>
 
 <style>
     form {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
+        display: grid;
         gap: 0.5em;
     }
 </style>
