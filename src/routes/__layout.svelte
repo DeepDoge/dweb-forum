@@ -3,6 +3,7 @@
     import { account, isContractsReady, provider } from "$/plugins/wallet";
     import ClaimName from "$lib/App/ClaimName.svelte";
     import PublishPost from "$lib/App/PublishPost.svelte";
+    import { kButtonDefaults } from "$lib/kicho-ui/components/KButton.svelte";
     import KModalHashRoute from "$lib/kicho-ui/components/KModalHashRoute.svelte";
     import { writable } from "svelte/store";
     import Header from "./_header.svelte";
@@ -23,13 +24,10 @@
         switch ($pageHash) {
             case '"#/$/post"':
                 return (lastFoundPage = (await import("$/pages/$/post.svelte")).default);
-            case "#":
-            case "#/":
-                return (lastFoundPage = (await import("$/pages/index.svelte")).default);
             default:
                 if ($pageHash.length === 44 && $pageHash.startsWith("#/0x"))
                     return (lastFoundPage = (await import("$/pages/[address].svelte")).default);
-                break;
+                return (lastFoundPage = (await import("$/pages/index.svelte")).default);
         }
     }
 </script>
@@ -67,13 +65,6 @@
 </layout>
 
 <style>
-    layout {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        gap: calc(var(--gap) * 2.5);
-    }
-
     layout::before {
         content: "";
         position: fixed;

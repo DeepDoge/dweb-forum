@@ -9,22 +9,21 @@
     <div class="account">
         <div class="account-info">
             <span class="account-name"><ClaimedNameOf address={$account} /></span>
-            <a href="#/$/claim-name" alt={null} class="account-address" title="Claim name for: {$account}">
-                {$account.substring(0, 10)}...{$account.slice(-5)}
-            </a>
-
+            <KButton type="text" href="#/$/claim-name" title="Claim name for: {$account}">
+                {$account.substring(0, 16)}...{$account.slice(-8)}
+            </KButton>
             <div class="account-balance">Balance: <b><Balance /></b></div>
         </div>
 
-        <div class="publish-button" title="Publish new content">
-            <KButton on:click={() => (location.hash = "#/$/publish")}>+</KButton>
-        </div>
+        <KButton type="text" size="x-larger" title="Publish new content" on:click={() => (location.hash = "#/$/publish")}>+</KButton>
     </div>
 </header>
 
 <style>
-    .publish-button {
-        font-size: 2em;
+    header {
+        display: grid;
+        justify-content: start;
+        grid-template-columns: min(30em, 100%);
     }
 
     .account {
@@ -48,8 +47,14 @@
         overflow: hidden;
     }
 
-    .account-info > * {
-        display: block;
+    .account-info {
+        display: grid;
+        justify-items: start;
+        grid-template-columns: 1fr;
+    }
+
+    .account-info > :global(*) {
+        max-width: 100%;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
