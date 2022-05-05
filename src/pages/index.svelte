@@ -1,14 +1,26 @@
 <script>
-    import KTest from "$lib/kicho-ui/components/effects/KTest.svelte";
+    import KBoxEffect from "$/lib/kicho-ui/components/effects/KBoxEffect.svelte";
 </script>
 
 <div id="page">
     <div class="test">
-        <KTest radius="rounded" blur glow="border" border color="gradient" ripple size="xx-larger">
-            <div>
-                Test
-            </div>
-        </KTest>
+        <KBoxEffect radius="rounded" background blur glow="border" border color="gradient" ripple size="xx-larger">
+            <div>Test</div>
+        </KBoxEffect>
+    </div>
+    <div class="test">
+        <KBoxEffect radius="rounded" background blur glow="border" border color="gradient" ripple size="xx-larger">
+            <div>Test</div>
+            <div>Test</div>
+        </KBoxEffect>
+    </div>
+    <div class="test">
+        <KBoxEffect>
+            <div>Test</div>
+        </KBoxEffect>
+    </div>
+    <div class="test">
+        <div>Test</div>
     </div>
 </div>
 

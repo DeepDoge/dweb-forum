@@ -25,7 +25,7 @@ import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     <div class="posts">
     {#each posts as post (post.id)}
         <div class="post">
-            <KBoxEffect radius="rounded" type="filled" blur color="mode">
+            <KBoxEffect radius="rounded" background blur color="mode">
                 <p>{post.content}</p>
             </KBoxEffect>
         </div>
