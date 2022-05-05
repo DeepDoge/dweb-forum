@@ -1,8 +1,8 @@
 <script lang="ts">
     import { appContract } from "$/plugins/wallet";
     import { catchContract } from "$/plugins/wallet/catch";
-import KButton from "$lib/kicho-ui/components/KButton.svelte";
-import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
+    import KButton from "$lib/kicho-ui/components/KButton.svelte";
+    import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import { createEventDispatcher } from "svelte";
 
     const dispatcher = createEventDispatcher();
@@ -24,14 +24,12 @@ import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
 
 <form class="claim-name-container" on:submit|preventDefault={setName}>
     <KTextField bind:value={text} disabled={claming} label="Claim Name" />
-    <KButton disabled={claming}>{claming ? "Claiming..." : "Claim"}</KButton>
+    <KButton glow="border" disabled={claming}>{claming ? "Claiming..." : "Claim"}</KButton>
 </form>
 
 <style>
     .claim-name-container {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
+        display: grid;
         gap: 0.5em;
     }
 </style>

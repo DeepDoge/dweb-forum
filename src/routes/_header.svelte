@@ -2,22 +2,22 @@
     import { account } from "$/plugins/wallet";
     import Balance from "$lib/App/Balance.svelte";
     import ClaimedNameOf from "$lib/App/ClaimedNameOf.svelte";
-    import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
+    import KTest from "$lib/kicho-ui/components/effects/KTest.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
 </script>
 
 <header>
     <div class="account">
-        <KBoxEffect type="filled" color="mode" blur>
+        <KTest background={false} color="gradient" border glow="border" blur>
             <div class="account-info">
                 <span class="account-name"><ClaimedNameOf address={$account} /></span>
-                <KButton type="text" href="#/$/claim-name" title="Claim name for: {$account}">
+                <KButton text href="#/$/claim-name" title="Claim name for: {$account}">
                     <span class="account-address" data-start={$account.substring(0, 39)} data-end={$account.substring(39)} />
                 </KButton>
                 <div class="account-balance">Balance: <b><Balance /></b></div>
             </div>
-            <KButton type="text" size="x-larger" title="Publish new content" on:click={() => (location.hash = "#/$/publish")}>+</KButton>
-        </KBoxEffect>
+            <KButton text size="x-larger" title="Publish new content" on:click={() => (location.hash = "#/$/publish")}>+</KButton>
+        </KTest>
     </div>
 </header>
 
