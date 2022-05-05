@@ -10,11 +10,10 @@
         <div class="account-info">
             <span class="account-name"><ClaimedNameOf address={$account} /></span>
             <KButton type="text" href="#/$/claim-name" title="Claim name for: {$account}">
-                {$account.substring(0, 16)}...{$account.slice(-8)}
+                <span class="account-address" data-start={$account.substring(0, 39)} data-end={$account.substring(39)} />
             </KButton>
             <div class="account-balance">Balance: <b><Balance /></b></div>
         </div>
-
         <KButton type="text" size="x-larger" title="Publish new content" on:click={() => (location.hash = "#/$/publish")}>+</KButton>
     </div>
 </header>
@@ -22,24 +21,21 @@
 <style>
     header {
         display: grid;
-        justify-content: start;
-        grid-template-columns: min(30em, 100%);
+        grid-template-columns: min(22em, 100%);
     }
 
     .account {
         display: grid;
         grid-auto-flow: column;
-        justify-content: start;
-        align-items: center;
-        width: auto;
-        gap: 0.5em;
+        grid-template-columns: auto 1fr 4em;
+        align-items: stretch;
+        gap: var(--k-padding);
         max-width: 100%;
     }
 
     .account::before {
         content: "";
         width: 0.5em;
-        height: 75%;
         aspect-ratio: 1/1;
         background: var(--k-color-gradient);
         background-position: center;
@@ -50,6 +46,8 @@
     .account-info {
         display: grid;
         justify-items: start;
+        align-content: center;
+        align-items: center;
         grid-template-columns: 1fr;
     }
 
@@ -58,5 +56,28 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+    }
+
+    .account-address {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+    }
+
+    .account-address::before {
+        content: attr(data-start);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex-shrink: 1;
+    }
+
+    .account-address::after {
+        content: attr(data-end);
+        white-space: nowrap;
+        flex-basis: content;
+        flex-grow: 0;
+        flex-shrink: 0;
     }
 </style>

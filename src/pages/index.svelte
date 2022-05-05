@@ -1,12 +1,9 @@
-<script lang="ts">
+<script>
     import PostsOfAll from "$lib/App/PostsOfAll.svelte";
-    import KButton from "$lib/kicho-ui/components/KButton.svelte";
-
-    let value = 1;
-    setInterval(() => value++);
 </script>
 
 <div id="page">
+    <PostsOfAll />
 </div>
 
 <style>
