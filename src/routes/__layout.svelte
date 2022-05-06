@@ -46,7 +46,7 @@
                         <KModalHashRoute hash="#/$/publish">
                             <PublishPost on:done={() => history.back()} />
                         </KModalHashRoute>
-                        <KModalHashRoute hash="#/$/claim-name">
+                        <KModalHashRoute hash="#/$/claim-name" size="15em">
                             <ClaimName on:done={() => history.back()} />
                         </KModalHashRoute>
                     </main>

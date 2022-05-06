@@ -33,7 +33,7 @@
 <KDialog {dialogManager} />
 <!-- svelte-ignore missing-declaration -->
 <form on:submit|preventDefault={(e) => publish({ content: new FormData(e.currentTarget).get("content").toString() })} class="publish-post">
-    <KTextField name="content" disabled={publishing} label="Content" />
+    <KTextField type="textarea" name="content" disabled={publishing} label="Content" />
     <KButton size="larger" disabled={publishing}>{publishing ? "Posting..." : "Post"}</KButton>
 </form>
 
