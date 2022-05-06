@@ -8,7 +8,7 @@
 
 <header>
     <div class="account">
-        <KBoxEffect color="gradient" border glow="border" blur>
+        <KBoxEffect color="gradient" border glow blur radius="tile">
             <div class="account-info">
                 <span class="account-name"><ClaimedNameOf address={$account} /></span>
                 <KButton text href="#/$/claim-name" title="Claim name for: {$account}">

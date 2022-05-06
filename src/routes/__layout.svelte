@@ -1,9 +1,8 @@
 <script context="module" lang="ts">
     import "$/lib/kicho-ui/root.css";
-    import { account, isContractsReady, provider } from "$/plugins/wallet";
+    import { account,isContractsReady,provider } from "$/plugins/wallet";
     import ClaimName from "$lib/App/ClaimName.svelte";
     import PublishPost from "$lib/App/PublishPost.svelte";
-    import { kButtonDefaults } from "$lib/kicho-ui/components/KButton.svelte";
     import KModalHashRoute from "$lib/kicho-ui/components/KModalHashRoute.svelte";
     import { writable } from "svelte/store";
     import Header from "./_header.svelte";
@@ -71,7 +70,7 @@
         inset: 0;
         background-size: cover;
         background-image: linear-gradient(to right bottom, var(--k-color-master) 20%, transparent);
-        filter: blur(10rem) opacity(0.1);
+        filter: blur(10rem) opacity(0.2);
     }
 
     footer {
