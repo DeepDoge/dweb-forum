@@ -1,4 +1,4 @@
 /chain-secrets.*
 /cache
 /artifacts
-/typechain
+/typechain-types

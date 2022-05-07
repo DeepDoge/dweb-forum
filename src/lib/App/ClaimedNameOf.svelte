@@ -26,7 +26,7 @@
     function dispose(address: string) {
         address = address?.toLowerCase();
         console.log("before dispose", address, caches);
-        if (!caches[address]) return
+        if (!caches[address]) return;
         --caches[address].listenerCount;
         const isDisposable = () => caches[address] && caches[address].listenerCount === 0;
         if (isDisposable()) {

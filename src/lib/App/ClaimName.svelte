@@ -24,7 +24,7 @@
 
 <form class="claim-name-container" on:submit|preventDefault={setName}>
     <KTextField bind:value={text} disabled={claming} label="Claim Name" />
-    <KButton glow="border" disabled={claming}>{claming ? "Claiming..." : "Claim"}</KButton>
+    <KButton glow disabled={claming}>{claming ? "Claiming..." : "Claim"}</KButton>
 </form>
 
 <style>

@@ -1,8 +1,8 @@
 <script>
+    import KBoxEffect from "$/lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import { account } from "$/plugins/wallet";
     import Balance from "$lib/App/Balance.svelte";
     import ClaimedNameOf from "$lib/App/ClaimedNameOf.svelte";
-    import KBoxEffect from "$/lib/kicho-ui/components/effects/KBoxEffect.svelte"
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
 </script>
 

@@ -2,6 +2,11 @@
 /* tslint:disable */
 /* eslint-disable */
 import type {
+  EventFragment, FunctionFragment,
+  Result
+} from "@ethersproject/abi"
+import type { Listener, Provider } from "@ethersproject/providers"
+import type {
   BaseContract,
   BigNumber,
   BigNumberish,
@@ -12,37 +17,29 @@ import type {
   PayableOverrides,
   PopulatedTransaction,
   Signer,
-  utils,
-} from "ethers";
+  utils
+} from "ethers"
 import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
-import type {
-  TypedEventFilter,
-  TypedEvent,
-  TypedListener,
-  OnEvent,
-} from "./common";
+  OnEvent, TypedEvent, TypedEventFilter, TypedListener
+} from "./common"
 
-export interface AppInterface extends utils.Interface {
+export interface AppInterface extends utils.Interface
+{
   functions: {
-    "PUBLISH_GAS()": FunctionFragment;
-    "addTagToPost(uint256,string,bool)": FunctionFragment;
-    "claimName(string)": FunctionFragment;
-    "ownerTimeline(address,uint256)": FunctionFragment;
-    "ownerTimelineLength(address)": FunctionFragment;
-    "postTagScore(uint256,string)": FunctionFragment;
-    "posts(uint256)": FunctionFragment;
-    "postsLength()": FunctionFragment;
-    "publishPost(string)": FunctionFragment;
-    "tagTimeline(string,uint256)": FunctionFragment;
-    "tagTimelineIncludes(string,uint256)": FunctionFragment;
-    "topTagsOfPost(uint256,uint256)": FunctionFragment;
-    "walletToNameMap(address)": FunctionFragment;
-  };
+    "PUBLISH_GAS()": FunctionFragment
+    "addTagToPost(uint256,string,bool)": FunctionFragment
+    "claimName(string)": FunctionFragment
+    "ownerTimeline(address,uint256)": FunctionFragment
+    "ownerTimelineLength(address)": FunctionFragment
+    "postTagScore(uint256,string)": FunctionFragment
+    "posts(uint256)": FunctionFragment
+    "postsLength()": FunctionFragment
+    "publishPost(string)": FunctionFragment
+    "tagTimeline(string,uint256)": FunctionFragment
+    "tagTimelineIncludes(string,uint256)": FunctionFragment
+    "topTagsOfPost(uint256,uint256)": FunctionFragment
+    "walletToNameMap(address)": FunctionFragment
+  }
 
   getFunction(
     nameOrSignatureOrTopic:
@@ -59,486 +56,488 @@ export interface AppInterface extends utils.Interface {
       | "tagTimelineIncludes"
       | "topTagsOfPost"
       | "walletToNameMap"
-  ): FunctionFragment;
+  ): FunctionFragment
 
   encodeFunctionData(
     functionFragment: "PUBLISH_GAS",
     values?: undefined
-  ): string;
+  ): string
   encodeFunctionData(
     functionFragment: "addTagToPost",
     values: [BigNumberish, string, boolean]
-  ): string;
-  encodeFunctionData(functionFragment: "claimName", values: [string]): string;
+  ): string
+  encodeFunctionData(functionFragment: "claimName", values: [string]): string
   encodeFunctionData(
     functionFragment: "ownerTimeline",
     values: [string, BigNumberish]
-  ): string;
+  ): string
   encodeFunctionData(
     functionFragment: "ownerTimelineLength",
     values: [string]
-  ): string;
+  ): string
   encodeFunctionData(
     functionFragment: "postTagScore",
     values: [BigNumberish, string]
-  ): string;
-  encodeFunctionData(functionFragment: "posts", values: [BigNumberish]): string;
+  ): string
+  encodeFunctionData(functionFragment: "posts", values: [BigNumberish]): string
   encodeFunctionData(
     functionFragment: "postsLength",
     values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "publishPost", values: [string]): string;
+  ): string
+  encodeFunctionData(functionFragment: "publishPost", values: [string]): string
   encodeFunctionData(
     functionFragment: "tagTimeline",
     values: [string, BigNumberish]
-  ): string;
+  ): string
   encodeFunctionData(
     functionFragment: "tagTimelineIncludes",
     values: [string, BigNumberish]
-  ): string;
+  ): string
   encodeFunctionData(
     functionFragment: "topTagsOfPost",
     values: [BigNumberish, BigNumberish]
-  ): string;
+  ): string
   encodeFunctionData(
     functionFragment: "walletToNameMap",
     values: [string]
-  ): string;
+  ): string
 
   decodeFunctionResult(
     functionFragment: "PUBLISH_GAS",
     data: BytesLike
-  ): Result;
+  ): Result
   decodeFunctionResult(
     functionFragment: "addTagToPost",
     data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "claimName", data: BytesLike): Result;
+  ): Result
+  decodeFunctionResult(functionFragment: "claimName", data: BytesLike): Result
   decodeFunctionResult(
     functionFragment: "ownerTimeline",
     data: BytesLike
-  ): Result;
+  ): Result
   decodeFunctionResult(
     functionFragment: "ownerTimelineLength",
     data: BytesLike
-  ): Result;
+  ): Result
   decodeFunctionResult(
     functionFragment: "postTagScore",
     data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "posts", data: BytesLike): Result;
+  ): Result
+  decodeFunctionResult(functionFragment: "posts", data: BytesLike): Result
   decodeFunctionResult(
     functionFragment: "postsLength",
     data: BytesLike
-  ): Result;
+  ): Result
   decodeFunctionResult(
     functionFragment: "publishPost",
     data: BytesLike
-  ): Result;
+  ): Result
   decodeFunctionResult(
     functionFragment: "tagTimeline",
     data: BytesLike
-  ): Result;
+  ): Result
   decodeFunctionResult(
     functionFragment: "tagTimelineIncludes",
     data: BytesLike
-  ): Result;
+  ): Result
   decodeFunctionResult(
     functionFragment: "topTagsOfPost",
     data: BytesLike
-  ): Result;
+  ): Result
   decodeFunctionResult(
     functionFragment: "walletToNameMap",
     data: BytesLike
-  ): Result;
+  ): Result
 
   events: {
-    "NameClaimed(address,string)": EventFragment;
-  };
+    "NameClaimed(address,string)": EventFragment
+  }
 
-  getEvent(nameOrSignatureOrTopic: "NameClaimed"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "NameClaimed"): EventFragment
 }
 
-export interface NameClaimedEventObject {
-  owner: string;
-  name: string;
+export interface NameClaimedEventObject
+{
+  owner: string
+  name: string
 }
 export type NameClaimedEvent = TypedEvent<
   [string, string],
   NameClaimedEventObject
->;
+>
 
-export type NameClaimedEventFilter = TypedEventFilter<NameClaimedEvent>;
+export type NameClaimedEventFilter = TypedEventFilter<NameClaimedEvent>
 
-export interface App extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+export interface App extends BaseContract
+{
+  connect(signerOrProvider: Signer | Provider | string): this
+  attach(addressOrName: string): this
+  deployed(): Promise<this>
 
-  interface: AppInterface;
+  interface: AppInterface
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
     toBlock?: string | number | undefined
-  ): Promise<Array<TEvent>>;
+  ): Promise<Array<TEvent>>
 
   listeners<TEvent extends TypedEvent>(
     eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
+  ): Array<TypedListener<TEvent>>
+  listeners(eventName?: string): Array<Listener>
   removeAllListeners<TEvent extends TypedEvent>(
     eventFilter: TypedEventFilter<TEvent>
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+  ): this
+  removeAllListeners(eventName?: string): this
+  off: OnEvent<this>
+  on: OnEvent<this>
+  once: OnEvent<this>
+  removeListener: OnEvent<this>
 
   functions: {
-    PUBLISH_GAS(overrides?: CallOverrides): Promise<[BigNumber]>;
+    PUBLISH_GAS(overrides?: CallOverrides): Promise<[BigNumber]>
 
     addTagToPost(
       postId: BigNumberish,
       tag: string,
       calculateForTopTags: boolean,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    ): Promise<ContractTransaction>
 
     claimName(
       name: string,
       overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    ): Promise<ContractTransaction>
 
     ownerTimeline(
       arg0: string,
       arg1: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    ): Promise<[BigNumber]>
 
     ownerTimelineLength(
       owner: string,
       overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    ): Promise<[BigNumber]>
 
     postTagScore(
       arg0: BigNumberish,
       arg1: string,
       overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    ): Promise<[BigNumber]>
 
     posts(
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, string, string] & {
-        id: BigNumber;
-        content: string;
-        owner: string;
+        id: BigNumber
+        content: string
+        owner: string
       }
-    >;
+    >
 
-    postsLength(overrides?: CallOverrides): Promise<[BigNumber]>;
+    postsLength(overrides?: CallOverrides): Promise<[BigNumber]>
 
     publishPost(
       content: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    ): Promise<ContractTransaction>
 
     tagTimeline(
       arg0: string,
       arg1: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    ): Promise<[BigNumber]>
 
     tagTimelineIncludes(
       arg0: string,
       arg1: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[boolean]>;
+    ): Promise<[boolean]>
 
     topTagsOfPost(
       arg0: BigNumberish,
       arg1: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[string, BigNumber] & { tag: string; score: BigNumber }>;
+    ): Promise<[string, BigNumber] & { tag: string; score: BigNumber }>
 
-    walletToNameMap(arg0: string, overrides?: CallOverrides): Promise<[string]>;
-  };
+    walletToNameMap(arg0: string, overrides?: CallOverrides): Promise<[string]>
+  }
 
-  PUBLISH_GAS(overrides?: CallOverrides): Promise<BigNumber>;
+  PUBLISH_GAS(overrides?: CallOverrides): Promise<BigNumber>
 
   addTagToPost(
     postId: BigNumberish,
     tag: string,
     calculateForTopTags: boolean,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  ): Promise<ContractTransaction>
 
   claimName(
     name: string,
     overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  ): Promise<ContractTransaction>
 
   ownerTimeline(
     arg0: string,
     arg1: BigNumberish,
     overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  ): Promise<BigNumber>
 
   ownerTimelineLength(
     owner: string,
     overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  ): Promise<BigNumber>
 
   postTagScore(
     arg0: BigNumberish,
     arg1: string,
     overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  ): Promise<BigNumber>
 
   posts(
     arg0: BigNumberish,
     overrides?: CallOverrides
   ): Promise<
     [BigNumber, string, string] & {
-      id: BigNumber;
-      content: string;
-      owner: string;
+      id: BigNumber
+      content: string
+      owner: string
     }
-  >;
+  >
 
-  postsLength(overrides?: CallOverrides): Promise<BigNumber>;
+  postsLength(overrides?: CallOverrides): Promise<BigNumber>
 
   publishPost(
     content: string,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  ): Promise<ContractTransaction>
 
   tagTimeline(
     arg0: string,
     arg1: BigNumberish,
     overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  ): Promise<BigNumber>
 
   tagTimelineIncludes(
     arg0: string,
     arg1: BigNumberish,
     overrides?: CallOverrides
-  ): Promise<boolean>;
+  ): Promise<boolean>
 
   topTagsOfPost(
     arg0: BigNumberish,
     arg1: BigNumberish,
     overrides?: CallOverrides
-  ): Promise<[string, BigNumber] & { tag: string; score: BigNumber }>;
+  ): Promise<[string, BigNumber] & { tag: string; score: BigNumber }>
 
-  walletToNameMap(arg0: string, overrides?: CallOverrides): Promise<string>;
+  walletToNameMap(arg0: string, overrides?: CallOverrides): Promise<string>
 
   callStatic: {
-    PUBLISH_GAS(overrides?: CallOverrides): Promise<BigNumber>;
+    PUBLISH_GAS(overrides?: CallOverrides): Promise<BigNumber>
 
     addTagToPost(
       postId: BigNumberish,
       tag: string,
       calculateForTopTags: boolean,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<void>
 
-    claimName(name: string, overrides?: CallOverrides): Promise<void>;
+    claimName(name: string, overrides?: CallOverrides): Promise<void>
 
     ownerTimeline(
       arg0: string,
       arg1: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<BigNumber>
 
     ownerTimelineLength(
       owner: string,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<BigNumber>
 
     postTagScore(
       arg0: BigNumberish,
       arg1: string,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<BigNumber>
 
     posts(
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, string, string] & {
-        id: BigNumber;
-        content: string;
-        owner: string;
+        id: BigNumber
+        content: string
+        owner: string
       }
-    >;
+    >
 
-    postsLength(overrides?: CallOverrides): Promise<BigNumber>;
+    postsLength(overrides?: CallOverrides): Promise<BigNumber>
 
-    publishPost(content: string, overrides?: CallOverrides): Promise<void>;
+    publishPost(content: string, overrides?: CallOverrides): Promise<void>
 
     tagTimeline(
       arg0: string,
       arg1: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<BigNumber>
 
     tagTimelineIncludes(
       arg0: string,
       arg1: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<boolean>;
+    ): Promise<boolean>
 
     topTagsOfPost(
       arg0: BigNumberish,
       arg1: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[string, BigNumber] & { tag: string; score: BigNumber }>;
+    ): Promise<[string, BigNumber] & { tag: string; score: BigNumber }>
 
-    walletToNameMap(arg0: string, overrides?: CallOverrides): Promise<string>;
-  };
+    walletToNameMap(arg0: string, overrides?: CallOverrides): Promise<string>
+  }
 
   filters: {
     "NameClaimed(address,string)"(
       owner?: string | null,
       name?: null
-    ): NameClaimedEventFilter;
-    NameClaimed(owner?: string | null, name?: null): NameClaimedEventFilter;
-  };
+    ): NameClaimedEventFilter
+    NameClaimed(owner?: string | null, name?: null): NameClaimedEventFilter
+  }
 
   estimateGas: {
-    PUBLISH_GAS(overrides?: CallOverrides): Promise<BigNumber>;
+    PUBLISH_GAS(overrides?: CallOverrides): Promise<BigNumber>
 
     addTagToPost(
       postId: BigNumberish,
       tag: string,
       calculateForTopTags: boolean,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    ): Promise<BigNumber>
 
     claimName(
       name: string,
       overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    ): Promise<BigNumber>
 
     ownerTimeline(
       arg0: string,
       arg1: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<BigNumber>
 
     ownerTimelineLength(
       owner: string,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<BigNumber>
 
     postTagScore(
       arg0: BigNumberish,
       arg1: string,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<BigNumber>
 
-    posts(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
+    posts(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>
 
-    postsLength(overrides?: CallOverrides): Promise<BigNumber>;
+    postsLength(overrides?: CallOverrides): Promise<BigNumber>
 
     publishPost(
       content: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    ): Promise<BigNumber>
 
     tagTimeline(
       arg0: string,
       arg1: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<BigNumber>
 
     tagTimelineIncludes(
       arg0: string,
       arg1: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<BigNumber>
 
     topTagsOfPost(
       arg0: BigNumberish,
       arg1: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<BigNumber>
 
     walletToNameMap(
       arg0: string,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-  };
+    ): Promise<BigNumber>
+  }
 
   populateTransaction: {
-    PUBLISH_GAS(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    PUBLISH_GAS(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
     addTagToPost(
       postId: BigNumberish,
       tag: string,
       calculateForTopTags: boolean,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    ): Promise<PopulatedTransaction>
 
     claimName(
       name: string,
       overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    ): Promise<PopulatedTransaction>
 
     ownerTimeline(
       arg0: string,
       arg1: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    ): Promise<PopulatedTransaction>
 
     ownerTimelineLength(
       owner: string,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    ): Promise<PopulatedTransaction>
 
     postTagScore(
       arg0: BigNumberish,
       arg1: string,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    ): Promise<PopulatedTransaction>
 
     posts(
       arg0: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    ): Promise<PopulatedTransaction>
 
-    postsLength(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    postsLength(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
     publishPost(
       content: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    ): Promise<PopulatedTransaction>
 
     tagTimeline(
       arg0: string,
       arg1: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    ): Promise<PopulatedTransaction>
 
     tagTimelineIncludes(
       arg0: string,
       arg1: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    ): Promise<PopulatedTransaction>
 
     topTagsOfPost(
       arg0: BigNumberish,
       arg1: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    ): Promise<PopulatedTransaction>
 
     walletToNameMap(
       arg0: string,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-  };
+    ): Promise<PopulatedTransaction>
+  }
 }

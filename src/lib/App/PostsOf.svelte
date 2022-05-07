@@ -7,11 +7,11 @@
     async function getPosts(from: BigNumber, limit: BigNumber) {
         const posts = [];
         const length = await appContract.ownerTimelineLength(address);
-        
+
         const end = from.add(limit);
 
         for (let i = from; i < (length.gt(end) ? length : end); i = i.add(1)) {
-            const postIndex = await appContract.ownerTimeline(address, i)
+            const postIndex = await appContract.ownerTimeline(address, i);
             posts.push(await appContract.posts(postIndex));
         }
 
