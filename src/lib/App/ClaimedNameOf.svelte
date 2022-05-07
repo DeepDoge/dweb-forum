@@ -13,10 +13,10 @@
         if (!caches[address]) {
             console.log(address, "new");
             caches[address] = { listenerCount: 0, value: writable(null), offListener: null };
-            caches[address].offListener = listenContract(appContract, appContract.filters.NameClaimed(address), (owner, newName, event) =>
+            caches[address].offListener = listenContract(appContract, appContract.filters.NicknameClaimed(address), (owner, newName, event) =>
                 caches[address].value.set(newName)
             );
-            appContract.walletToNameMap(address).then((value) => caches[address].value.set(value));
+            appContract.walletToNicknameMap(address).then((value) => caches[address].value.set(value));
         }
         caches[address].listenerCount++;
         console.log("a", caches);
@@ -50,6 +50,7 @@
 
     export let address: string;
     let name: Writable<string> = null;
+    $: nameText = ($name || "Anonymous").trim()
 
     let addressCache = address;
     $: onAddressChange(address);
@@ -66,4 +67,6 @@
     onDestroy(() => address && dispose(address));
 </script>
 
-{($name || "Anonymous").trim()}
+<span title={nameText}>
+{nameText}
+</span>

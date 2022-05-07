@@ -26,7 +26,8 @@
 		"juanblanco.solidity",
 		"tintinweb.vscode-inline-bookmarks",
 		"tintinweb.vscode-ethover",
-		"github.vscode-pull-request-github"
+		"github.vscode-pull-request-github",
+		"idrabenia.solidity-solhint"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

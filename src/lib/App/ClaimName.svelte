@@ -7,12 +7,12 @@
 
     const dispatcher = createEventDispatcher();
 
-    let text = "";
+    let nickname = "";
     let claming = false;
     async function setName() {
         claming = true;
         try {
-            await (await appContract.claimName(text)).wait(1);
+            await (await appContract.claimNickname(nickname)).wait(1);
             dispatcher("done");
         } catch (error) {
             catchContract(error);
@@ -23,7 +23,7 @@
 </script>
 
 <form class="claim-name-container" on:submit|preventDefault={setName}>
-    <KTextField bind:value={text} disabled={claming} label="Claim Name" />
+    <KTextField bind:value={nickname} disabled={claming} label="Claim Name" />
     <KButton glow disabled={claming}>{claming ? "Claiming..." : "Claim"}</KButton>
 </form>
 

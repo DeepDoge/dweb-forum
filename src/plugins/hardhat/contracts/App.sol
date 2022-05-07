@@ -2,26 +2,24 @@
 pragma solidity ^0.8.0;
 
 contract App {
-    mapping(address => string) public walletToNameMap;
-    mapping(string => address) nameToWalletMap;
+    mapping(address => string) public walletToNicknameMap;
+    event NicknameClaimed(address indexed owner, string nickname);
 
-    event NameClaimed(address indexed owner, string name);
-
-    function claimName(string memory name) public {
+    function claimNickname(string memory nickname) public {
         require(
-            bytes(name).length <= 64,
+            bytes(nickname).length <= 64,
             "Length can't be longer than 64 ASCII characters."
         );
-        require(nameToWalletMap[name] == address(0x0), "Already claimed.");
-
-        string memory currentName = walletToNameMap[msg.sender];
-        if (bytes(currentName).length > 0) delete nameToWalletMap[currentName];
-
-        walletToNameMap[msg.sender] = name;
-        nameToWalletMap[name] = msg.sender;
-        emit NameClaimed(msg.sender, name);
+        walletToNicknameMap[msg.sender] = nickname;
+        emit NicknameClaimed(msg.sender, nickname);
     }
 
+    struct Post {
+        uint256 id;
+        string content; // can be a markdown or anything else, parsed by client
+        address owner;
+        uint256 publishTime;
+    }
     Post[] public posts;
 
     function postsLength() public view returns (uint256) {
@@ -34,12 +32,6 @@ contract App {
         return ownerTimeline[owner].length;
     }
 
-    struct Post {
-        uint256 id;
-        string content; // can be a markdown or anything else, parsed by client
-        address owner;
-    }
-
     uint256 public constant PUBLISH_GAS = 100;
 
     function publishPost(string memory content) public payable {
@@ -47,20 +39,21 @@ contract App {
         require(msg.value >= cost, "Not enough fee paid to post.");
         payable(msg.sender).transfer(msg.value - cost);
         ownerTimeline[msg.sender].push() = posts.length;
-        posts.push() = Post(posts.length, content, msg.sender);
+        posts.push() = Post(posts.length, content, msg.sender, block.timestamp);
     }
+
+    mapping(uint256 => mapping(string => uint256)) public postTagScore;
+
+    mapping(string => uint256[]) public tagTimeline;
+    mapping(string => mapping(uint256 => bool)) public tagTimelineIncludes;
 
     struct TopTag {
         string tag;
         uint256 score;
     }
 
-    uint256 constant TOP_TAG_COUNT = 4;
-
-    mapping(uint256 => mapping(string => uint256)) public postTagScore;
+    uint256 public constant TOP_TAG_COUNT = 4;
     mapping(uint256 => TopTag[TOP_TAG_COUNT]) public topTagsOfPost;
-    mapping(string => mapping(uint256 => bool)) public tagTimelineIncludes;
-    mapping(string => uint256[]) public tagTimeline;
 
     function addTagToPost(
         uint256 postId,
@@ -71,35 +64,13 @@ contract App {
         uint256 score = postTagScore[postId][tag] + msg.value;
         postTagScore[postId][tag] = score;
 
-        if (calculateForTopTags) {
-            uint256 topTagIndex = TOP_TAG_COUNT;
-            uint256 i = TOP_TAG_COUNT - 1;
-            uint256 next;
-            TopTag memory nextTopTag;
-            TopTag memory topTag;
-            while (i >= 0) {
-                next = i - 1;
-                nextTopTag = topTagsOfPost[postId][next];
-
-                if (score > topTag.score) {
-                    topTagIndex = i;
-                    if (score > nextTopTag.score)
-                        topTagsOfPost[postId][i] = nextTopTag;
-                    else break;
-                } else break;
-
-                i = next;
-                topTag = nextTopTag;
-            }
-
-            if (topTagIndex < TOP_TAG_COUNT) {
-                topTagsOfPost[postId][topTagIndex] = TopTag(tag, score);
-
-                if (!tagTimelineIncludes[tag][postId]) {
-                    tagTimeline[tag].push() = postId;
-                    tagTimelineIncludes[tag][postId] = true;
+        if (calculateForTopTags)
+            for (uint256 rank = 0; rank < TOP_TAG_COUNT; rank++)
+                if (score > topTagsOfPost[postId][rank].score) {
+                    for (uint256 x = TOP_TAG_COUNT - 1; x > rank; x--)
+                        topTagsOfPost[postId][x] = topTagsOfPost[postId][x - 1];
+                    topTagsOfPost[postId][rank] = TopTag(tag, score);
+                    break;
                 }
-            }
-        }
     }
 }

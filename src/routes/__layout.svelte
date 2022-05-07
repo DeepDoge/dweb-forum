@@ -43,7 +43,7 @@
                         {#if lastFoundPage}
                             <svelte:component this={lastFoundPage} />
                         {/if}
-                        <KModalHashRoute hash="#/$/publish">
+                        <KModalHashRoute hash="#/$/publish" size="25em">
                             <PublishPost on:done={() => history.back()} />
                         </KModalHashRoute>
                         <KModalHashRoute hash="#/$/claim-name" size="15em">
