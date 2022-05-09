@@ -13,7 +13,13 @@
 	},
 
 	// Set *default* container specific settings.json values on container create.
-	"settings": {},
+	"settings": {
+		"prettier.printWidth": 150,
+		"prettier.tabWidth": 4,
+		"[solidity]": {
+			"editor.defaultFormatter": "esbenp.prettier-vscode"
+		}
+	},
 
 
 	// Add the IDs of extensions you want installed when the container is created.
@@ -23,11 +29,9 @@
 		"eamodio.gitlens",
 		"svelte.svelte-vscode",
 		"irongeek.vscode-env",
-		"juanblanco.solidity",
-		"tintinweb.vscode-inline-bookmarks",
-		"tintinweb.vscode-ethover",
 		"github.vscode-pull-request-github",
-		"idrabenia.solidity-solhint"
+		"esbenp.prettier-vscode",
+		"JuanBlanco.solidity"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
