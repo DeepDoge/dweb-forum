@@ -1,9 +1,12 @@
 <script lang="ts">
     import { getPost } from "$/plugins/api";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
+    import PostTimeline from "./PostTimeline.svelte";
     import ProfileInline from "./ProfileInline.svelte";
 
     export let postIndex: Parameters<typeof getPost>[0];
+    export let showReplies = false;
+
     let post: Awaited<ReturnType<typeof getPost>> = null;
     $: postIndex && updatePost();
     async function updatePost() {
@@ -15,8 +18,8 @@
 
 {#if post}
     <article>
-        <KBoxEffect background border glow radius="rounded">
-            <div class="post">
+        <div class="post">
+            <KBoxEffect background border glow radius="rounded">
                 <header>
                     <ProfileInline address={$post.owner} />
                     <div class="date-time">
@@ -29,8 +32,15 @@
                     <p>{$post.content}</p>
                 </div>
                 <div class="tags" />
+            </KBoxEffect>
+        </div>
+        {#if showReplies}
+            <div class="replies">
+                <PostTimeline timelineId={{ idType: 1, id: postIndex }} let:postIndex>
+                    <svelte:self {postIndex} />
+                </PostTimeline>
             </div>
-        </KBoxEffect>
+        {/if}
     </article>
 {/if}
 
@@ -38,6 +48,9 @@
     .post {
         display: grid;
         padding: calc(var(--k-padding) * 4);
+    }
+    .replies {
+        padding-left: calc(var(--k-padding) * 2);
     }
 
     header {

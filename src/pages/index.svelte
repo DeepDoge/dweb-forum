@@ -1,10 +1,12 @@
 <script>
-    import PostsOfAll from "$lib/App/PostsOfAll.svelte";
+    import Post from "$lib/App/Post.svelte";
     import PostTimeline from "$lib/App/PostTimeline.svelte";
 </script>
 
 <div id="page">
-    <PostTimeline timelineId={{ id: 0, idType: 0 }} />
+    <PostTimeline timelineId={{ id: 0, idType: 0 }} let:postIndex>
+        <Post {postIndex} showReplies></Post>
+    </PostTimeline>
 </div>
 
 <style>
