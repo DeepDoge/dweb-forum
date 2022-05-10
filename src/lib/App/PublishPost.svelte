@@ -13,14 +13,15 @@
         try {
             publishing = true;
             const gasPrice = await $provider.getGasPrice();
-            await appContract.publishPost({ idType: 0, id: 0 }, params.content, {
+            await (await appContract.publishPost({ idType: 1, id: 1 }, params.content, {
                 value: gasPrice
                     .mul(2)
                     .mul(await appContract.PUBLISH_GAS())
                     .mul(100)
                     .div(99),
                 gasPrice,
-            });
+            })).wait(1);
+
             dispatchEvent("done");
         } catch (error) {
             await dialogManager.alert(error.message);

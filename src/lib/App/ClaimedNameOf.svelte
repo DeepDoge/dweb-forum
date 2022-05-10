@@ -49,14 +49,17 @@
     import { writable, Writable } from "svelte/store";
 
     export let address: string;
-    let name: Writable<string> = null;
-    $: nameText = ($name || "Anonymous").trim()
+    let name: Writable<string> = null
 
     let addressCache = address;
     $: onAddressChange(address);
 
     function onAddressChange(newAddress: string) {
-        if (newAddress) name = getName(newAddress);
+        if (newAddress) 
+        {
+            name = getName(newAddress);
+
+        }
         else {
             dispose(addressCache);
             name = null;
@@ -67,6 +70,6 @@
     onDestroy(() => address && dispose(address));
 </script>
 
-<span title={nameText}>
-{nameText}
+<span title={$name?.trim() || "Anonymous"}>
+    {$name?.trim() || "Anonymous"}
 </span>
