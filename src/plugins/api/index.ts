@@ -23,13 +23,14 @@ export async function getTimeline(id: Parameters<typeof appContract['timelineLen
     async function loadMore()
     {
         timelineCache = await appContract.getTimeline(id)
-        if (downIndex.lt(timelineCache.startIndex)) return
+        if (downIndex.lt(timelineCache.startIndex)) return false
 
         const link = await appContract.getTimelinePost(id, downIndex)
-        if (!link) return
         
         downIndex = downIndex.lte(timelineCache.startIndex) ? BigNumber.from(-1) : link.beforePostIndex
         postIndexes.update((old) => ([...old, link.postIndex]))
+
+        return true
     }
 
     let upIndex = pivot;
@@ -37,13 +38,14 @@ export async function getTimeline(id: Parameters<typeof appContract['timelineLen
     async function loadNewer()
     {
         timelineCache = await appContract.getTimeline(id)
-        if (upIndex.gt(timelineCache.endIndex)) return;
+        if (upIndex.gt(timelineCache.endIndex)) return false;
 
         const link = await appContract.getTimelinePost(id, upIndex)
-        if (!link) return
 
         upIndex = link.afterPostIndex.eq(0) ? upIndex.add(1) : link.afterPostIndex
         postIndexes.update((old) => ([link.postIndex, ...old]))
+
+        return true
     }
 
 
