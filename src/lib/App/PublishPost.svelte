@@ -13,7 +13,7 @@
         try {
             publishing = true;
             const gasPrice = await $provider.getGasPrice();
-            await appContract.publishPost({ idType: 1, id: 1 }, params.content, {
+            await appContract.publishPost({ idType: 0, id: 0 }, params.content, {
                 value: gasPrice
                     .mul(2)
                     .mul(await appContract.PUBLISH_GAS())
