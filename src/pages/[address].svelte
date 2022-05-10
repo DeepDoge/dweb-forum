@@ -1,7 +1,6 @@
 <script lang="ts">
     import { page } from "$app/stores";
     import ClaimedNameOf from "$lib/App/ClaimedNameOf.svelte";
-    import PostsOf from "$lib/App/PostsOf.svelte";
 
     $: address = $page.url.hash.substring("#/".length);
 </script>
@@ -19,7 +18,7 @@
 
     <div class="content">
         <div class="published">
-            <PostsOf {address} />
+            
         </div>
     </div>
 </div>

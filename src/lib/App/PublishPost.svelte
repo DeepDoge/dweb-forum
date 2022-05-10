@@ -3,6 +3,7 @@
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KDialog, { createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
+import { BigNumber } from "ethers";
     import { createEventDispatcher } from "svelte";
 
     const dispatchEvent = createEventDispatcher();
@@ -13,7 +14,7 @@
         try {
             publishing = true;
             const gasPrice = await $provider.getGasPrice();
-            await appContract.publishPost(params.content, {
+            await appContract.publishPost({ idType: 0, id: 0 }, params.content, {
                 value: gasPrice
                     .mul(2)
                     .mul(await appContract.PUBLISH_GAS())

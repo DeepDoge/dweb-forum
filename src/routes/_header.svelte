@@ -9,7 +9,7 @@
 
 <header>
     <div class="account">
-        <KBoxEffect color="gradient" border glow blur radius="tile">
+        <KBoxEffect color="gradient" border glow blur radius="tile" contentBorderDirection="horizontal">
             <div class="account-info">
                 <span class="account-name"><ClaimedNameOf address={$account} /></span>
                 <KButton text href="#/$/claim-name" title="Claim name for: {$account}">
@@ -17,7 +17,7 @@
                         <AddressOf address={$account} />
                     </div>
                 </KButton>
-                <div class="account-balance">Balance: <b><Balance /></b></div>
+                <span class="account-balance">Balance: <b><Balance /></b></span>
             </div>
             <KButton text size="x-larger" title="Publish new content" on:click={() => (location.hash = "#/$/publish")}>+</KButton>
         </KBoxEffect>
@@ -50,5 +50,9 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+    }
+
+    .account-address {
+        display: grid;
     }
 </style>

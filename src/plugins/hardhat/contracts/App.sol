@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity 0.8.13;
+pragma solidity ^0.8.0;
 
 contract App {
     /* 
@@ -21,6 +21,44 @@ contract App {
     Post
     ==========================
     */
+
+    mapping(TimelineIdType => mapping(uint256 => Timeline)) timelines;
+    enum TimelineIdType {
+        Normal,
+        Reply
+    }
+    struct TimelineId {
+        TimelineIdType idType;
+        uint256 id;
+    }
+    struct Timeline {
+        PostLink[] postLinks;
+        uint256 startIndex;
+        uint256 endIndex;
+    }
+    struct PostLink {
+        uint256 postIndex;
+        uint256 beforePostIndex;
+        uint256 afterPostIndex;
+    }
+
+    function _getTimeline(TimelineId memory timelineId) private view returns (Timeline storage) {
+        return timelines[timelineId.idType][timelineId.id];
+    }
+
+    function getTimeline(TimelineId memory timelineId) public view returns (Timeline memory) {
+        return timelines[timelineId.idType][timelineId.id];
+    }
+
+    function getTimelinePost(TimelineId memory timelineId, uint256 timelinePostIndex) public view returns (PostLink memory) {
+        Timeline storage timeline = _getTimeline(timelineId);
+        return timeline.postLinks[timelinePostIndex];
+    }
+
+    function timelineLength(TimelineId memory timelineId) public view returns (uint256) {
+        return _getTimeline(timelineId).postLinks.length;
+    }
+
     Post[] public posts;
     struct Post {
         uint256 id;
@@ -33,31 +71,6 @@ contract App {
         return posts.length;
     }
 
-    mapping(TimelineIdType => mapping(uint256 => TimelinePost[])) timelines;
-    enum TimelineIdType
-    {
-        Normal,
-        Reply
-    }
-    struct TimelineId
-    {
-        TimelineIdType idType;
-        uint256 id;
-    }
-    function getTimeline(TimelineId memory timelineId) private view returns (TimelinePost[] storage)
-    {
-        return timelines[timelineId.idType][timelineId.id];
-    }
-    struct TimelinePost {
-        uint256 postIndex;
-        uint256 beforePostIndex;
-        uint256 afterPostIndex;
-    }
-
-    function timelineLength(TimelineId memory timelineId) public view returns (uint256) {
-        return getTimeline(timelineId).length;
-    }
-
     uint256 public constant PUBLISH_GAS = 100;
 
     function publishPost(TimelineId memory timelineId, string memory content) public payable {
@@ -67,22 +80,29 @@ contract App {
 
         uint256 index = posts.length;
         posts.push() = Post(index, content, msg.sender, block.timestamp);
+
         addPostToTimeline(timelineId, index);
     }
 
     function addPostToTimeline(TimelineId memory timelineId, uint256 postIndex) private {
-        TimelinePost[] storage timeline = getTimeline(timelineId);
-        uint256 index = timeline.length;
-        timeline.push() = TimelinePost(postIndex, index - 1, 0);
-        timeline[index - 1].afterPostIndex = index;
+        Timeline storage timeline = _getTimeline(timelineId);
+        uint256 index = timeline.postLinks.length;
+        timeline.postLinks.push() = PostLink(postIndex, timeline.endIndex, 0);
+        timeline.postLinks[timeline.endIndex].afterPostIndex = index;
+        timeline.endIndex = index;
     }
 
     function hidePostOnTimeline(TimelineId memory timelineId, uint256 postOnTimelineIndex) public {
-        TimelinePost[] storage timeline = getTimeline(timelineId);
-        require(posts[timeline[postOnTimelineIndex].postIndex].owner == msg.sender, "You are not the owner.");
-        if (postOnTimelineIndex > 0) timeline[postOnTimelineIndex - 1].afterPostIndex = timeline[postOnTimelineIndex].afterPostIndex;
-        if (postOnTimelineIndex < timeline.length - 1)
-            timeline[postOnTimelineIndex + 1].beforePostIndex = timeline[postOnTimelineIndex].beforePostIndex;
+        Timeline storage timeline = _getTimeline(timelineId);
+        PostLink memory link = timeline.postLinks[postOnTimelineIndex];
+        if (timeline.startIndex == postOnTimelineIndex) {
+            timeline.startIndex = link.afterPostIndex;
+        } else if (timeline.endIndex == postOnTimelineIndex) {
+            timeline.endIndex = link.beforePostIndex;
+        } else {
+            timeline.postLinks[link.beforePostIndex].afterPostIndex = link.afterPostIndex;
+            timeline.postLinks[link.afterPostIndex].beforePostIndex = link.beforePostIndex;
+        }
     }
 
     /* 
@@ -90,7 +110,7 @@ contract App {
     Tag
     ==========================
     */
-/*     mapping(uint256 => mapping(string => uint256)) public postTagScore;
+    /*     mapping(uint256 => mapping(string => uint256)) public postTagScore;
 
     mapping(string => uint256[]) public tagTimeline;
     mapping(string => mapping(uint256 => bool)) public tagTimelineIncludes;

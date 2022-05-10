@@ -4,9 +4,7 @@
 </script>
 
 <div id="page">
-    <PostsOfAll let:posts>
-        <PostTimeline {posts} />
-    </PostsOfAll>
+    <PostTimeline timelineId={{ id: 0, idType: 0 }} />
 </div>
 
 <style>
