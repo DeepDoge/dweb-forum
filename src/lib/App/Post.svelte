@@ -31,14 +31,15 @@
         <div class="post">
             <KBoxEffect border background glow radius="tile">
                 <header>
+                    <KBoxEffect background radius="tile">
                     <div class="name">
                         <ClaimedNameOf address={$post.owner} />
                     </div>
                     <div class="date-time">
                         <span class="date text-inline">{date.toDateString()} {date.toLocaleTimeString()}</span>
                     </div>
+                </KBoxEffect>
                 </header>
-                <hr />
                 <div class="content text-multiline">
                     <p>{$post.content}</p>
                 </div>
@@ -78,7 +79,7 @@
 
     .post {
         display: grid;
-        padding: calc(var(--k-padding) * 1);
+        padding: calc(var(--k-padding) * .5);
     }
     .replies {
         padding-left: calc(var(--k-padding) * 4);
@@ -89,6 +90,9 @@
         grid-template-columns: 1fr auto;
         align-items: center;
         gap: var(--k-padding);
+        padding: 0 var(--k-padding);
+
+        font-size: var(--k-font-smaller);
     }
 
     .name {
@@ -99,7 +103,6 @@
         display: grid;
         justify-items: end;
         font-size: var(--k-font-xx-smaller);
-        opacity: 0.75;
     }
 
     .content {
@@ -112,8 +115,8 @@
         -webkit-box-orient: vertical;
         -moz-box-orient: vertical;
         overflow: hidden;
-
-        padding: var(--k-padding);
+        font-size: var(--k-font-larger);
+        padding: calc(var(--k-padding) * 2) calc(var(--k-padding) * 1);
     }
 
     .tags {

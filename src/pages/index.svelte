@@ -1,11 +1,14 @@
-<script>
+<script lang="ts">
     import { getTimeline } from "$/plugins/api";
     import Post from "$lib/App/Post.svelte";
     import Posts from "$lib/App/Posts.svelte";
+
+    const timelinePromise = getTimeline({ idType: 0, id: 0 })
+    timelinePromise.then(async (timeline) => await timeline.loadNewer())
 </script>
 
 <div id="page">
-    {#await getTimeline({ idType: 0, id: 0 }) then timeline}
+    {#await timelinePromise then timeline}
         <Posts {timeline} let:postIndex>
             <Post {postIndex} showReplies />
         </Posts>

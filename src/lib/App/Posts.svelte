@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { getTimeline } from "$/plugins/api";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
+import KIntersectionObserver from "$lib/kicho-ui/components/KIntersectionObserver.svelte";
     export let timeline: Awaited<ReturnType<typeof getTimeline>>;
     $: postIndexes = timeline?.postIndexes;
 </script>
@@ -12,7 +13,9 @@
             <slot {postIndex} />
         {/each}
     </div>
-    <KButton text on:click={async () => console.log(await timeline.loadMore())}>Load More</KButton>
+    <KIntersectionObserver on:change={async (intersecting) => intersecting && await timeline.loadMore()}>
+        <KButton text on:click={async () => console.log(await timeline.loadMore())}>Load More</KButton>
+    </KIntersectionObserver>
 {/if}
 
 <style>
