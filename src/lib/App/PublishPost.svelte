@@ -2,7 +2,7 @@
     import { appContract,provider } from "$/plugins/wallet";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KDialog,{ createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
-import KLoading from "$lib/kicho-ui/components/KLoading.svelte";
+import KLoading from "$lib/kicho-ui/components/effects/KLoadingEffect.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import { createEventDispatcher } from "svelte";
 

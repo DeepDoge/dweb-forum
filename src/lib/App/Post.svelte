@@ -1,7 +1,7 @@
 <script lang="ts">
     import { getPost, getTimeline } from "$/plugins/api";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
-    import KLoading from "$lib/kicho-ui/components/KLoading.svelte";
+    import KLoading from "$lib/kicho-ui/components/effects/KLoadingEffect.svelte";
     import ClaimedNameOf from "./ClaimedNameOf.svelte";
 
     export let postIndex: Parameters<typeof getPost>[0];
@@ -32,11 +32,13 @@
 <article class:loading>
     <div class="post">
         <KBoxEffect border blur glow radius="tile">
-            {#if loading}
-                <div class="loading-icon">
-                    <KLoading />
-                </div>
-            {/if}
+            <svelte:fragment slot="overlay-effects">
+                {#if loading}
+                    <div class="loading-icon">
+                        <KLoading />
+                    </div>
+                {/if}
+            </svelte:fragment>
             <header>
                 <KBoxEffect background radius="tile">
                     <div class="name">

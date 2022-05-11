@@ -11,7 +11,7 @@
 </script>
 
 <script lang="ts">
-    import KLoading from "$lib/kicho-ui/components/KLoading.svelte";
+    import KLoading from "$lib/kicho-ui/components/effects/KLoadingEffect.svelte";
 
     const pushState = history.pushState;
     history.pushState = function (...params) {
