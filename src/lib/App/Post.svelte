@@ -29,16 +29,9 @@
     $: loading = postIndex && !post;
 </script>
 
-<article class:loading>
+<article>
     <div class="post">
-        <KBoxEffect border blur glow radius="tile">
-            <svelte:fragment slot="overlay-effects">
-                {#if loading}
-                    <div class="loading-icon">
-                        <KLoading />
-                    </div>
-                {/if}
-            </svelte:fragment>
+        <KBoxEffect border blur glow radius="tile" {loading}>
             <header>
                 <KBoxEffect background radius="tile">
                     <div class="name">
@@ -111,16 +104,6 @@
         overflow: hidden;
         font-size: var(--k-font-larger);
         padding: calc(var(--k-padding) * 1) calc(var(--k-padding) * 0.5);
-    }
-
-    .loading > .post *:not(.loading-icon) {
-        visibility: hidden;
-    }
-    .loading-icon {
-        position: absolute;
-        inset: 0;
-        display: grid;
-        place-items: center;
     }
 
     .tags {
