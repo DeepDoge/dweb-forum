@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
     import "$/lib/kicho-ui/root.css";
-    import { account,isContractsReady,provider } from "$/plugins/wallet";
+    import { account, isContractsReady, provider } from "$/plugins/wallet";
     import ClaimName from "$lib/App/ClaimName.svelte";
     import PublishPost from "$lib/App/PublishPost.svelte";
     import KModalHashRoute from "$lib/kicho-ui/components/KModalHashRoute.svelte";
@@ -11,6 +11,8 @@
 </script>
 
 <script lang="ts">
+    import KLoading from "$lib/kicho-ui/components/KLoading.svelte";
+
     const pushState = history.pushState;
     history.pushState = function (...params) {
         if (params[2].toString() === location.href) return;
@@ -55,7 +57,7 @@
             {:else if $isContractsReady === "wrongNetwork"}
                 Wrong Network
             {:else}
-                Getting Contracts...
+                Getting Contracts
             {/if}
         {/await}
     {:else}

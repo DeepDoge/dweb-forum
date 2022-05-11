@@ -2,15 +2,18 @@
     import { getTimeline } from "$/plugins/api";
     import Post from "$lib/App/Post.svelte";
     import Posts from "$lib/App/Posts.svelte";
+import KLoading from "$lib/kicho-ui/components/KLoading.svelte";
 
-    const timelinePromise = getTimeline({ idType: 0, id: 0 })
-    timelinePromise.then(async (timeline) => await timeline.loadNewer())
+    const timelinePromise = getTimeline({ idType: 0, id: 0 });
+    timelinePromise.then(async (timeline) => await timeline.loadNewer());
 </script>
 
 <div id="page">
     {#await timelinePromise then timeline}
         <Posts {timeline} let:postIndex>
-            <Post {postIndex} showReplies />
+            <div class="post">
+                <Post {postIndex} showReplies />
+            </div>
         </Posts>
     {/await}
 </div>
@@ -24,5 +27,16 @@
 
         justify-content: center;
         grid-template-columns: min(50em, 100%);
+    }
+
+    .post {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: var(--k-padding);
+    }
+
+    .post::before {
+        content: "‣";
+        font-size: var(--k-font-xx-larger);
     }
 </style>

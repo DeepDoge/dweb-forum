@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { getTimeline } from "$/plugins/api";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
-import KIntersectionObserver from "$lib/kicho-ui/components/KIntersectionObserver.svelte";
+    import KIntersectionObserver from "$lib/kicho-ui/components/KIntersectionObserver.svelte";
     export let timeline: Awaited<ReturnType<typeof getTimeline>>;
     $: postIndexes = timeline?.postIndexes;
 </script>
@@ -10,10 +10,13 @@ import KIntersectionObserver from "$lib/kicho-ui/components/KIntersectionObserve
     <KButton text on:click={async () => console.log(await timeline.loadNewer())}>Load Newer</KButton>
     <div class="posts">
         {#each $postIndexes as postIndex (postIndex.toString())}
+            {#if postIndex !== $postIndexes[0]}
+                <div class="dots" />
+            {/if}
             <slot {postIndex} />
         {/each}
     </div>
-    <KIntersectionObserver on:change={async (intersecting) => intersecting && await timeline.loadMore()}>
+    <KIntersectionObserver on:change={async (intersecting) => intersecting && (await timeline.loadMore())}>
         <KButton text on:click={async () => console.log(await timeline.loadMore())}>Load More</KButton>
     </KIntersectionObserver>
 {/if}
@@ -22,5 +25,14 @@ import KIntersectionObserver from "$lib/kicho-ui/components/KIntersectionObserve
     .posts {
         display: grid;
         gap: 1em;
+    }
+
+    .dots {
+        display: grid;
+        justify-items: center;
+    }
+
+    .dots::before {
+        content: "⋮";
     }
 </style>

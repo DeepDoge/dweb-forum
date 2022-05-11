@@ -1,6 +1,7 @@
 <script lang="ts">
     import { getPost, getTimeline } from "$/plugins/api";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
+    import KLoading from "$lib/kicho-ui/components/KLoading.svelte";
     import ClaimedNameOf from "./ClaimedNameOf.svelte";
 
     export let postIndex: Parameters<typeof getPost>[0];
@@ -24,41 +25,43 @@
     }
 
     $: date = (post && new Date($post.publishTime.toNumber() * 1000)) ?? null;
+
+    $: loading = postIndex && !post;
 </script>
 
-{#if post}
-    <article>
-        <div class="post">
-            <KBoxEffect border background glow radius="tile">
-                <header>
-                    <KBoxEffect background radius="tile">
+<article class:loading>
+    <div class="post">
+        <KBoxEffect border blur glow radius="tile">
+            {#if loading}
+                <div class="loading-icon">
+                    <KLoading />
+                </div>
+            {/if}
+            <header>
+                <KBoxEffect background radius="tile">
                     <div class="name">
-                        <ClaimedNameOf address={$post.owner} />
+                        <ClaimedNameOf address={$post?.owner} />
                     </div>
                     <div class="date-time">
-                        <span class="date text-inline">{date.toDateString()} {date.toLocaleTimeString()}</span>
+                        <span class="date text-inline">{date?.toLocaleString()}</span>
                     </div>
                 </KBoxEffect>
-                </header>
-                <div class="content text-multiline">
-                    <p>{$post.content}</p>
-                </div>
-
-                <div class="tags" />
-            </KBoxEffect>
-        </div>
-        {#if showReplies && $repliesPostIndexes?.length > 0}
-            <div class="replies">
-                {#each $repliesPostIndexes as postIndex (postIndex.toString())}
-                    <svelte:self {postIndex} />
-                {/each}
+            </header>
+            <div class="content text-multiline">
+                <p>{$post?.content}</p>
             </div>
-        {/if}
-    </article>
-    <span class="dots">⋮</span>
-{:else}
-    {postIndex} placeholder
-{/if}
+
+            <div class="tags" />
+        </KBoxEffect>
+    </div>
+    {#if showReplies && $repliesPostIndexes?.length > 0}
+        <div class="replies">
+            {#each $repliesPostIndexes as postIndex (postIndex.toString())}
+                <svelte:self {postIndex} />
+            {/each}
+        </div>
+    {/if}
+</article>
 
 <style>
     article {
@@ -66,20 +69,9 @@
         gap: calc(var(--k-padding) * 2);
     }
 
-    article + .dots {
-        text-align: center;
-    }
-    article:last-of-type + .dots {
-        display: none;
-    }
-
-    /*     hr {
-        background-image: var(--k-color-gradient);
-    } */
-
     .post {
         display: grid;
-        padding: calc(var(--k-padding) * .5);
+        padding: calc(var(--k-padding) * 0.5);
     }
     .replies {
         padding-left: calc(var(--k-padding) * 4);
@@ -116,7 +108,17 @@
         -moz-box-orient: vertical;
         overflow: hidden;
         font-size: var(--k-font-larger);
-        padding: calc(var(--k-padding) * 2) calc(var(--k-padding) * 1);
+        padding: calc(var(--k-padding) * 1) calc(var(--k-padding) * 0.5);
+    }
+
+    .loading > .post *:not(.loading-icon) {
+        visibility: hidden;
+    }
+    .loading-icon {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
     }
 
     .tags {

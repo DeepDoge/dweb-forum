@@ -2,6 +2,7 @@
     import { appContract,provider } from "$/plugins/wallet";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KDialog,{ createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
+import KLoading from "$lib/kicho-ui/components/KLoading.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import { createEventDispatcher } from "svelte";
 
@@ -35,7 +36,13 @@
 <!-- svelte-ignore missing-declaration -->
 <form on:submit|preventDefault={(e) => publish({ content: new FormData(e.currentTarget).get("content").toString() })} class="publish-post">
     <KTextField type="textarea" name="content" disabled={publishing} label="Content" />
-    <KButton size="larger" disabled={publishing}>{publishing ? "Posting..." : "Post"}</KButton>
+    <KButton size="larger" disabled={publishing}>
+        {#if publishing}
+            <KLoading />
+        {:else}
+            Post
+        {/if}    
+    </KButton>
 </form>
 
 <style>
