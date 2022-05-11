@@ -1,6 +1,6 @@
 import { BigNumber } from "ethers"
+import { get, writable } from "svelte/store"
 import type { Writable } from "svelte/store"
-import { writable } from "svelte/store"
 import { appContract } from "../wallet"
 
 export type PostType = Awaited<ReturnType<typeof appContract.posts>>
@@ -20,7 +20,7 @@ export async function getTimeline(id: Parameters<typeof appContract['timelineLen
 
     let downIndex = pivot.sub(1)
 
-    async function loadMore()
+    async function loadMore(): Promise<boolean>
     {
         timelineCache = await appContract.getTimeline(id)
         if (downIndex.lt(timelineCache.startIndex)) return false
@@ -35,8 +35,10 @@ export async function getTimeline(id: Parameters<typeof appContract['timelineLen
 
     let upIndex = pivot
 
-    async function loadNewer()
+    async function loadNewer(): Promise<boolean>
     {
+        if (get(postIndexes).length === 0 && (await appContract.timelineLength(id)).eq(0)) return false
+
         timelineCache = await appContract.getTimeline(id)
         console.log(timelineCache)
         if (upIndex.gt(timelineCache.endIndex)) return false
@@ -48,9 +50,6 @@ export async function getTimeline(id: Parameters<typeof appContract['timelineLen
 
         return true
     }
-
-
-    if ((await appContract.timelineLength(id)).gt(0)) await loadNewer()
 
     return {
         postIndexes,

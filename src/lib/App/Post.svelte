@@ -1,18 +1,26 @@
 <script lang="ts">
-    import { getPost } from "$/plugins/api";
+    import { getPost, getTimeline } from "$/plugins/api";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import ClaimedNameOf from "./ClaimedNameOf.svelte";
-    import Posts from "./Posts.svelte";
-    import PostTimeline from "./PostTimeline.svelte";
-    import ProfileInline from "./ProfileInline.svelte";
 
     export let postIndex: Parameters<typeof getPost>[0];
     export let showReplies = false;
 
     let post: Awaited<ReturnType<typeof getPost>> = null;
-    $: postIndex && updatePost();
+    let repliesTimeline: Awaited<ReturnType<typeof getTimeline>> = null;
+    $: repliesPostIndexes = repliesTimeline?.postIndexes;
+    $: postIndex?.toString() !== $post?.id.toString() && updatePost();
+    $: !showReplies && (repliesTimeline = null);
     async function updatePost() {
+        post = null;
+        repliesTimeline = null;
         post = await getPost(postIndex);
+        if (showReplies) await updateReplies();
+    }
+    async function updateReplies() {
+        repliesTimeline = await getTimeline({ idType: 1, id: postIndex });
+        if (!(await repliesTimeline.loadNewer())) return;
+        for (let i = 0; i < 3; i++) if (!(await repliesTimeline.loadMore())) return;
     }
 
     $: date = (post && new Date($post.publishTime.toNumber() * 1000)) ?? null;
@@ -38,19 +46,17 @@
                 <div class="tags" />
             </KBoxEffect>
         </div>
-        {#if showReplies}
-            <PostTimeline timelineId={{ idType: 1, id: postIndex }} let:postIndexes let:timeline>
-                {#if postIndexes?.length > 0}
-                    <div class="replies">
-                        <Posts {timeline} let:postIndex>
-                            <svelte:self {postIndex} />
-                        </Posts>
-                    </div>
-                {/if}
-            </PostTimeline>
+        {#if showReplies && $repliesPostIndexes?.length > 0}
+            <div class="replies">
+                {#each $repliesPostIndexes as postIndex (postIndex.toString())}
+                    <svelte:self {postIndex} />
+                {/each}
+            </div>
         {/if}
     </article>
     <span class="dots">⋮</span>
+{:else}
+    {postIndex} placeholder
 {/if}
 
 <style>

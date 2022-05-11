@@ -8,7 +8,7 @@
 {#if timeline}
     <KButton text on:click={async () => console.log(await timeline.loadNewer())}>Load Newer</KButton>
     <div class="posts">
-        {#each $postIndexes as postIndex (postIndex)}
+        {#each $postIndexes as postIndex (postIndex.toString())}
             <slot {postIndex} />
         {/each}
     </div>
@@ -18,6 +18,6 @@
 <style>
     .posts {
         display: grid;
-        gap: 10em;
+        gap: 1em;
     }
 </style>

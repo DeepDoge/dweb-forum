@@ -55,13 +55,24 @@ contract App {
         return timeline.postLinks[timelinePostIndex];
     }
 
+    /* function bulkgetTimelinePost(TimelineId memory timelineId, uint256 timelinePostIndex, uint256 limit) public view returns (PostLink[] memory) {
+        Timeline storage timeline = _getTimeline(timelineId);
+        PostLink[] storage r;
+        r.push() = timeline.postLinks[timelinePostIndex];
+        while (r.length < limit)
+        {
+            
+        }
+        return timeline.postLinks;
+    } */
+
     function timelineLength(TimelineId memory timelineId) public view returns (uint256) {
         return _getTimeline(timelineId).postLinks.length;
     }
 
     Post[] public posts;
     struct Post {
-        uint256 id;
+        uint256 index;
         string content; // can be a markdown, ipfs hash or anything else, parsed by client
         address owner;
         uint256 publishTime;

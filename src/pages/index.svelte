@@ -1,15 +1,15 @@
 <script>
+    import { getTimeline } from "$/plugins/api";
     import Post from "$lib/App/Post.svelte";
     import Posts from "$lib/App/Posts.svelte";
-    import PostTimeline from "$lib/App/PostTimeline.svelte";
 </script>
 
 <div id="page">
-    <PostTimeline timelineId={{ id: 0, idType: 0 }} let:timeline>
+    {#await getTimeline({ idType: 0, id: 0 }) then timeline}
         <Posts {timeline} let:postIndex>
             <Post {postIndex} showReplies />
         </Posts>
-    </PostTimeline>
+    {/await}
 </div>
 
 <style>
