@@ -64,6 +64,15 @@
 </layout>
 
 <style>
+    :global(:root) {
+        --root-font-size-mul: 1.25;
+    }
+
+    layout {
+        display: grid;
+        gap: calc(var(--k-padding) * 4);
+    }
+
     layout::before {
         content: "";
         position: fixed;

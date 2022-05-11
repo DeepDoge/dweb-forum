@@ -1,6 +1,8 @@
 <script lang="ts">
     import { getPost } from "$/plugins/api";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
+    import ClaimedNameOf from "./ClaimedNameOf.svelte";
+    import Posts from "./Posts.svelte";
     import PostTimeline from "./PostTimeline.svelte";
     import ProfileInline from "./ProfileInline.svelte";
 
@@ -19,45 +21,72 @@
 {#if post}
     <article>
         <div class="post">
-            <KBoxEffect background border glow radius="rounded">
+            <KBoxEffect border background glow radius="tile">
                 <header>
-                    <ProfileInline address={$post.owner} />
+                    <div class="name">
+                        <ClaimedNameOf address={$post.owner} />
+                    </div>
                     <div class="date-time">
-                        <span class="date text-inline">{date.toDateString()}</span>
-                        <span class="time text-inline">{date.toLocaleTimeString()}</span>
+                        <span class="date text-inline">{date.toDateString()} {date.toLocaleTimeString()}</span>
                     </div>
                 </header>
                 <hr />
                 <div class="content text-multiline">
                     <p>{$post.content}</p>
                 </div>
+
                 <div class="tags" />
             </KBoxEffect>
         </div>
         {#if showReplies}
-            <div class="replies">
-                <PostTimeline timelineId={{ idType: 1, id: postIndex }} let:postIndex>
-                    <svelte:self {postIndex} />
-                </PostTimeline>
-            </div>
+            <PostTimeline timelineId={{ idType: 1, id: postIndex }} let:postIndexes let:timeline>
+                {#if postIndexes?.length > 0}
+                    <div class="replies">
+                        <Posts {timeline} let:postIndex>
+                            <svelte:self {postIndex} />
+                        </Posts>
+                    </div>
+                {/if}
+            </PostTimeline>
         {/if}
     </article>
+    <span class="dots">⋮</span>
 {/if}
 
 <style>
+    article {
+        display: grid;
+        gap: calc(var(--k-padding) * 2);
+    }
+
+    article + .dots {
+        text-align: center;
+    }
+    article:last-of-type + .dots {
+        display: none;
+    }
+
+    /*     hr {
+        background-image: var(--k-color-gradient);
+    } */
+
     .post {
         display: grid;
-        padding: calc(var(--k-padding) * 4);
+        padding: calc(var(--k-padding) * 1);
     }
     .replies {
-        padding-left: calc(var(--k-padding) * 2);
+        padding-left: calc(var(--k-padding) * 4);
     }
 
     header {
         display: grid;
         grid-template-columns: 1fr auto;
-        align-items: start;
+        align-items: center;
         gap: var(--k-padding);
+    }
+
+    .name {
+        font-weight: bold;
     }
 
     .date-time {
@@ -77,6 +106,8 @@
         -webkit-box-orient: vertical;
         -moz-box-orient: vertical;
         overflow: hidden;
+
+        padding: var(--k-padding);
     }
 
     .tags {
