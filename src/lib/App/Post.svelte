@@ -9,7 +9,7 @@
     let post: Awaited<ReturnType<typeof getPost>> = null;
     let repliesTimeline: Awaited<ReturnType<typeof getTimeline>> = null;
     $: repliesPostIndexes = repliesTimeline?.postIndexes;
-    $: postIndex?.toString() !== $post?.id.toString() && updatePost();
+    $: postIndex?.toString() !== $post?.index.toString() && updatePost();
     $: !showReplies && (repliesTimeline = null);
     async function updatePost() {
         post = null;
