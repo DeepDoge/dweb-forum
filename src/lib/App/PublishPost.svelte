@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { appContract,provider } from "$/plugins/wallet";
+    import { appContract, provider } from "$/plugins/wallet";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
-    import KDialog,{ createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
-import KLoading from "$lib/kicho-ui/components/effects/KLoadingEffect.svelte";
+    import KDialog, { createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
+    import KLoading from "$lib/kicho-ui/components/effects/KLoadingEffect.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import { createEventDispatcher } from "svelte";
 
@@ -14,14 +14,16 @@ import KLoading from "$lib/kicho-ui/components/effects/KLoadingEffect.svelte";
         try {
             publishing = true;
             const gasPrice = await $provider.getGasPrice();
-            await (await appContract.publishPost({ idType: 0, id: 0 }, params.content, {
-                value: gasPrice
-                    .mul(2)
-                    .mul(await appContract.PUBLISH_GAS())
-                    .mul(100)
-                    .div(99),
-                gasPrice,
-            })).wait(1);
+            await (
+                await appContract.publishPost({ idType: 0, id: 0 }, params.content, {
+                    value: gasPrice
+                        .mul(2)
+                        .mul(await appContract.PUBLISH_GAS())
+                        .mul(100)
+                        .div(99),
+                    gasPrice,
+                })
+            ).wait(1);
 
             dispatchEvent("done");
         } catch (error) {
@@ -36,13 +38,7 @@ import KLoading from "$lib/kicho-ui/components/effects/KLoadingEffect.svelte";
 <!-- svelte-ignore missing-declaration -->
 <form on:submit|preventDefault={(e) => publish({ content: new FormData(e.currentTarget).get("content").toString() })} class="publish-post">
     <KTextField type="textarea" name="content" disabled={publishing} label="Content" />
-    <KButton size="larger" disabled={publishing}>
-        {#if publishing}
-            <KLoading />
-        {:else}
-            Post
-        {/if}    
-    </KButton>
+    <KButton size="larger" loading={publishing}>Post</KButton>
 </form>
 
 <style>

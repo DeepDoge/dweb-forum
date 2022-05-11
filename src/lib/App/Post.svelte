@@ -31,7 +31,7 @@
 
 <article>
     <div class="post">
-        <KBoxEffect border blur glow radius="tile" {loading}>
+        <KBoxEffect border blur glow radius="tile" {loading} hideContent={loading}>
             <header>
                 <KBoxEffect background radius="tile">
                     <div class="name">
