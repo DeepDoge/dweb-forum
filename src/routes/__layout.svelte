@@ -70,6 +70,9 @@
         --root-font-size-mul: 1.25;
         --k-color-master: #7e683c;
         --k-color-slave: #725a4b;
+        --k-color-master-contrast: rgba(255, 255, 255, 0.9);
+        --k-color-slave-contrast: rgba(255, 255, 255, 0.9);
+        --k-color-gradient-contrast: rgba(255, 255, 255, 0.9);
     }
 
     layout {
