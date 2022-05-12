@@ -68,6 +68,8 @@
 <style>
     :global(:root) {
         --root-font-size-mul: 1.25;
+        --k-color-master: #7e683c;
+        --k-color-slave: #725a4b;
     }
 
     layout {
