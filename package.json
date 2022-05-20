@@ -6,7 +6,7 @@
     "build": "svelte-kit build",
     "package": "svelte-kit package",
     "preview": "svelte-kit preview",
-    "git:pull:submodules": "git submodule foreach --recursive git submodule init ; git submodule foreach --recursive git submodule update ; git submodule foreach --recursive git checkout master",
+    "git:pull:submodules": "git submodule init ; git submodule update ; git submodule foreach --recursive git submodule init ; git submodule foreach --recursive git submodule update ; git submodule foreach --recursive git checkout master",
     "postinstall": "npm run hardhat:compile && npm run git:pull:submodules",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
