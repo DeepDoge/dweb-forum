@@ -1,15 +1,19 @@
 <script lang="ts">
-    import { getPost, getTimeline } from "$/plugins/api";
+    import { getPost,getTimeline, TimelineId } from "$/plugins/api";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
-    import KLoading from "$lib/kicho-ui/components/effects/KLoadingEffect.svelte";
+    import type { BigNumber, BigNumberish } from "ethers";
     import ClaimedNameOf from "./ClaimedNameOf.svelte";
 
     export let postIndex: Parameters<typeof getPost>[0];
     export let showReplies = false;
+    export let timelineId: TimelineId 
+    export let timelinePostIndex: BigNumber 
 
     let post: Awaited<ReturnType<typeof getPost>> = null;
+    let repliesTimelineId: TimelineId
+    $: repliesTimelineId = { idType: 1, id: postIndex };
     let repliesTimeline: Awaited<ReturnType<typeof getTimeline>> = null;
-    $: repliesPostIndexes = repliesTimeline?.postIndexes;
+    $: replies = repliesTimeline?.items;
     $: postIndex?.toString() !== $post?.index.toString() && updatePost();
     $: !showReplies && (repliesTimeline = null);
     async function updatePost() {
@@ -19,7 +23,7 @@
         if (showReplies) await updateReplies();
     }
     async function updateReplies() {
-        repliesTimeline = await getTimeline({ idType: 1, id: postIndex });
+        repliesTimeline = await getTimeline(repliesTimelineId);
         if (!(await repliesTimeline.loadNewer())) return;
         for (let i = 0; i < 3; i++) if (!(await repliesTimeline.loadMore())) return;
     }
@@ -31,11 +35,14 @@
 
 <article>
     <div class="post">
-        <KBoxEffect border blur glow radius="tile" {loading} hideContent={loading}>
+        <KBoxEffect color="gradient" border blur glow radius="tile" {loading} hideContent={loading}>
             <header>
-                <KBoxEffect background radius="tile">
+                <KBoxEffect color="gradient" background radius="tile">
                     <div class="name">
                         <ClaimedNameOf address={$post?.owner} />
+                    </div>
+                    <div class="index">
+                        ID: {timelineId.idType}:{timelineId.id}:{timelinePostIndex}
                     </div>
                     <div class="date-time">
                         <span class="date text-inline">{date?.toLocaleString()}</span>
@@ -49,10 +56,10 @@
             <div class="tags" />
         </KBoxEffect>
     </div>
-    {#if showReplies && $repliesPostIndexes?.length > 0}
+    {#if showReplies && $replies?.length > 0}
         <div class="replies">
-            {#each $repliesPostIndexes as postIndex (postIndex.toString())}
-                <svelte:self {postIndex} />
+            {#each $replies as item (item.index.toString())}
+                <svelte:self postIndex={item.index} timelineId={repliesTimelineId} timelinePostIndex={item.timelinePostIndex} />
             {/each}
         </div>
     {/if}
@@ -74,9 +81,10 @@
 
     header {
         display: grid;
-        grid-template-columns: 1fr auto;
+        grid-template-columns: 1fr auto auto;
         align-items: center;
-        gap: var(--k-padding);
+        --gap: var(--k-padding);
+        gap: var(--gap);
         padding: 0 var(--k-padding);
 
         font-size: var(--k-font-smaller);
@@ -87,9 +95,17 @@
     }
 
     .date-time {
-        display: grid;
-        justify-items: end;
         font-size: var(--k-font-xx-smaller);
+    }
+
+    .index {
+        font-size: var(--k-font-xx-smaller);
+        font-weight: bold;
+    }
+
+    .date-time::before {
+        content: "•";
+        padding-right: var(--gap);
     }
 
     .content {

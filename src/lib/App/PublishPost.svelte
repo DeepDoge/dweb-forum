@@ -1,8 +1,7 @@
 <script lang="ts">
-    import { appContract, provider } from "$/plugins/wallet";
+    import { appContract,provider } from "$/plugins/wallet";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
-    import KDialog, { createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
-    import KLoading from "$lib/kicho-ui/components/effects/KLoadingEffect.svelte";
+    import KDialog,{ createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import { createEventDispatcher } from "svelte";
 
@@ -38,7 +37,7 @@
 <!-- svelte-ignore missing-declaration -->
 <form on:submit|preventDefault={(e) => publish({ content: new FormData(e.currentTarget).get("content").toString() })} class="publish-post">
     <KTextField type="textarea" name="content" disabled={publishing} label="Content" />
-    <KButton size="larger" loading={publishing}>Post</KButton>
+    <KButton color="gradient" size="larger" loading={publishing}>Post</KButton>
 </form>
 
 <style>

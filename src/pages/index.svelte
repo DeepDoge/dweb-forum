@@ -1,19 +1,20 @@
 <script lang="ts">
-    import { getTimeline } from "$/plugins/api";
+    import { getTimeline, TimelineId } from "$/plugins/api";
     import Post from "$lib/App/Post.svelte";
     import Posts from "$lib/App/Posts.svelte";
-import KLoading from "$lib/kicho-ui/components/effects/KLoadingEffect.svelte";
 
-    const timelinePromise = getTimeline({ idType: 0, id: 0 });
-    timelinePromise.then(async (timeline) => await timeline.loadNewer());
+    let timelineId: TimelineId = { idType: 0, id: 0 }
+
+    $: timelinePromise = getTimeline(timelineId);
+    $: timelinePromise?.then(async (timeline) => await timeline.loadNewer())
 </script>
 
 
 <div id="page">
     {#await timelinePromise then timeline}
-        <Posts {timeline} let:postIndex>
+        <Posts {timeline} let:item>
             <div class="post">
-                <Post {postIndex} showReplies />
+                <Post postIndex={item.index} timelineId={timelineId} timelinePostIndex={item.timelinePostIndex} showReplies />
             </div>
         </Posts>
     {/await}

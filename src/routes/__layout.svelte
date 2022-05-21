@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
     import "$/lib/kicho-ui/root.css";
-    import { account, isContractsReady, provider } from "$/plugins/wallet";
+    import { account,isContractsReady,provider } from "$/plugins/wallet";
     import ClaimName from "$lib/App/ClaimName.svelte";
     import PublishPost from "$lib/App/PublishPost.svelte";
     import KModalHashRoute from "$lib/kicho-ui/components/KModalHashRoute.svelte";
@@ -11,8 +11,7 @@
 </script>
 
 <script lang="ts">
-    import KLoading from "$lib/kicho-ui/components/effects/KLoadingEffect.svelte";
-
+    
     const pushState = history.pushState;
     history.pushState = function (...params) {
         if (params[2].toString() === location.href) return;
@@ -67,12 +66,13 @@
 
 <style>
     :global(:root) {
-        --root-font-size-mul: 1.25;
+        --root-font-size-mul: 1;
         --k-color-master: #7e683c;
         --k-color-slave: #725a4b;
         --k-color-master-contrast: rgba(255, 255, 255, 0.9);
         --k-color-slave-contrast: rgba(255, 255, 255, 0.9);
         --k-color-gradient-contrast: rgba(255, 255, 255, 0.9);
+        --k-border-width: .1em;
     }
 
     layout {
