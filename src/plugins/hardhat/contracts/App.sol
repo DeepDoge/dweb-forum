@@ -55,17 +55,6 @@ contract App {
         return timeline.postLinks[timelinePostIndex];
     }
 
-    /* function bulkgetTimelinePost(TimelineId memory timelineId, uint256 timelinePostIndex, uint256 limit) public view returns (PostLink[] memory) {
-        Timeline storage timeline = _getTimeline(timelineId);
-        PostLink[] storage r;
-        r.push() = timeline.postLinks[timelinePostIndex];
-        while (r.length < limit)
-        {
-            
-        }
-        return timeline.postLinks;
-    } */
-
     function timelineLength(TimelineId memory timelineId) public view returns (uint256) {
         return _getTimeline(timelineId).postLinks.length;
     }
@@ -115,40 +104,4 @@ contract App {
             timeline.postLinks[link.afterPostIndex].beforePostIndex = link.beforePostIndex;
         }
     }
-
-    /* 
-    ==========================
-    Tag
-    ==========================
-    */
-    /*     mapping(uint256 => mapping(string => uint256)) public postTagScore;
-
-    mapping(string => uint256[]) public tagTimeline;
-    mapping(string => mapping(uint256 => bool)) public tagTimelineIncludes;
-
-    struct TopTag {
-        string tag;
-        uint256 score;
-    }
-
-    uint256 public constant TOP_TAG_COUNT = 4;
-    mapping(uint256 => TopTag[TOP_TAG_COUNT]) public topTagsOfPost;
-
-    function addTagToPost(
-        uint256 postId,
-        string memory tag,
-        bool calculateForTopTags
-    ) public payable {
-        require(postId < posts.length, "Post doesn't exist.");
-        uint256 score = postTagScore[postId][tag] + msg.value;
-        postTagScore[postId][tag] = score;
-
-        if (calculateForTopTags)
-            for (uint256 rank = 0; rank < TOP_TAG_COUNT; rank++)
-                if (score > topTagsOfPost[postId][rank].score) {
-                    for (uint256 x = TOP_TAG_COUNT - 1; x > rank; x--) topTagsOfPost[postId][x] = topTagsOfPost[postId][x - 1];
-                    topTagsOfPost[postId][rank] = TopTag(tag, score);
-                    break;
-                }
-    } */
 }
