@@ -41,7 +41,7 @@
 <KDialog {dialogManager} />
 <!-- svelte-ignore missing-declaration -->
 <form on:submit|preventDefault={(e) => publish({ content: new FormData(e.currentTarget).get("content").toString() })} class="publish-post">
-    <KBoxEffect color="mode" glow="mode-pop" background radius="rounded">
+    <KBoxEffect color="mode" blur background radius="rounded">
         <div class="fields">
             <KTextField type="textarea" name="content" radius="rounded" disabled={publishing} placeholder="Say something..." />
         </div>

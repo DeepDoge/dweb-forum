@@ -20,9 +20,12 @@ export async function getTimeline(id: TimelineId)
     const pivot = timelineCache.endIndex
 
     let downIndex = pivot.sub(1)
+    let loadMoreRunnning: ReturnType<typeof loadMore> = null
 
-    async function loadMore(): Promise<boolean>
+    async function loadMore(): Promise<boolean | void>
     {
+        if (loadMoreRunnning) return
+
         timelineCache = await appContract.getTimeline(id)
         if (downIndex.lt(timelineCache.startIndex)) return false
 
@@ -31,14 +34,18 @@ export async function getTimeline(id: TimelineId)
 
         downIndex = downIndex.lte(timelineCache.startIndex) ? BigNumber.from(-1) : link.beforePostIndex
         items.update((old) => ([...old, { index: link.postIndex, timelinePostIndex }]))
-
+        
         return true
+
     }
 
     let upIndex = pivot
+    let loadNewerRunning: boolean = false
 
-    async function loadNewer(): Promise<boolean>
+    async function loadNewer(): Promise<boolean | void>
     {
+        if (loadNewerRunning) return
+        loadNewerRunning = true
         if (get(items).length === 0 && (await appContract.timelineLength(id)).eq(0)) return false
 
         timelineCache = await appContract.getTimeline(id)
@@ -49,8 +56,9 @@ export async function getTimeline(id: TimelineId)
         const link = await appContract.getTimelinePost(id, timelinePostIndex)
 
         upIndex = link.afterPostIndex.eq(0) ? upIndex.add(1) : link.afterPostIndex
-        items.update((old) => ([ { index: link.postIndex, timelinePostIndex }, ...old]))
+        items.update((old) => ([{ index: link.postIndex, timelinePostIndex }, ...old]))
 
+        loadNewerRunning = false
         return true
     }
 

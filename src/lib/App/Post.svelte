@@ -1,13 +1,15 @@
 <script lang="ts">
-    import { getPost,getTimeline, TimelineId } from "$/plugins/api";
+    import { getPost, getTimeline, TimelineId } from "$/plugins/api";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
+import KButton from "$lib/kicho-ui/components/KButton.svelte";
+    import AddressOf from "./AddressOf.svelte";
     import ClaimedNameOf from "./ClaimedNameOf.svelte";
 
     export let postIndex: Parameters<typeof getPost>[0];
     export let showReplies = false;
 
     let post: Awaited<ReturnType<typeof getPost>> = null;
-    let repliesTimelineId: TimelineId
+    let repliesTimelineId: TimelineId;
     $: repliesTimelineId = { group: 1, id: postIndex };
     let repliesTimeline: Awaited<ReturnType<typeof getTimeline>> = null;
     $: replies = repliesTimeline?.items;
@@ -32,24 +34,19 @@
 
 <article>
     <div class="post">
-        <KBoxEffect radius="tile" {loading} hideContent={loading}>
-            <header>
-                <KBoxEffect color="gradient" background radius="tile">
-                    <div class="name">
-                        <ClaimedNameOf address={$post?.owner} />
-                    </div>
-                    <div class="date-time">
-                        <span class="date text-inline">{date?.toLocaleString()}</span>
-                    </div>
-                </KBoxEffect>
-            </header>
-            <div class="content text-multiline">
-                <KBoxEffect background blur radius="tile">
-                <p>{$post?.content}</p>
-            </KBoxEffect>
+        <KBoxEffect radius="rounded" color="mode" background blur {loading} hideContent={loading}>
+            <div class="name">
+                <ClaimedNameOf address={$post?.owner} />
             </div>
-
-            <div class="tags" />
+            <div class="address">
+                <AddressOf address={$post?.owner} />
+            </div>
+            <div class="date-time">
+                <span class="date text-inline">{date?.toLocaleString()}</span>
+            </div>
+            <div class="content text-multiline">
+                <p>{$post?.content}</p>
+            </div>
         </KBoxEffect>
     </div>
     {#if showReplies && $replies?.length > 0}
@@ -57,6 +54,9 @@
             {#each $replies as item (item.index.toString())}
                 <svelte:self postIndex={item.index} />
             {/each}
+        </div>
+        <div class="show-in-thread-button">
+            <KButton text>Show in thread</KButton>
         </div>
     {/if}
 </article>
@@ -67,33 +67,58 @@
         gap: calc(var(--k-padding) * 2);
     }
 
+    .show-in-thread-button {
+        display: grid;
+        justify-content: center;
+    }
+
+    .name::before {
+        content: "";
+        width: 1ch;
+        aspect-ratio: 1/1;
+        background-image: var(--k-color-gradient);
+        border-radius: var(--k-border-radius-fab);
+    }
+
     .post {
         display: grid;
+        padding: calc(var(--k-padding) * 3);
+
+        grid-template-areas:
+            "name name name"
+            "address address address"
+            "content content content"
+            ". . date-time";
+        gap: 0.25em;
     }
     .replies {
         padding-left: calc(var(--k-padding) * 4);
     }
 
-    header {
-        display: grid;
-        grid-template-columns: 1fr auto auto;
-        align-items: center;
-        --gap: var(--k-padding);
-        gap: var(--gap);
-        padding: 0 var(--k-padding);
-
-        font-size: var(--k-font-smaller);
-    }
-
     .name {
+        grid-area: name;
+        display: grid;
+        grid-auto-flow: column;
+        justify-content: start;
+        align-items: center;
+        gap: var(--k-padding);
         font-weight: bold;
     }
 
-    .date-time {
-        font-size: var(--k-font-xx-smaller);
+    .address {
+        grid-area: address;
+        font-size: var(--k-font-x-smaller);
+        filter: opacity(0.5);
     }
 
+    .date-time {
+        grid-area: date-time;
+        font-size: var(--k-font-xx-smaller);
+        justify-self: end;
+    }
+    
     .content {
+        grid-area: content;
         display: box;
         display: -webkit-box;
         display: -moz-box;
@@ -104,17 +129,6 @@
         -moz-box-orient: vertical;
         overflow: hidden;
         font-size: var(--k-font-larger);
-        padding: calc(var(--k-padding) * 1) calc(var(--k-padding) * 0.5);
-    }
-
-    .tags {
-        display: grid;
-        grid-auto-flow: column;
-        gap: var(--k-padding);
-        align-items: stretch;
-        justify-content: start;
-        font-size: var(--k-font-xx-smaller);
-        overflow-x: auto;
-        overflow-y: hidden;
+        padding: calc(var(--k-padding) * 2) calc(var(--k-padding) * 0.5);
     }
 </style>

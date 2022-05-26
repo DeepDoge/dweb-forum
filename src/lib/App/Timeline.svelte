@@ -24,12 +24,6 @@ import PublishPost from "./PublishPost.svelte";
 <style>
     .post {
         display: grid;
-        grid-template-columns: auto 1fr;
         gap: var(--k-padding);
-    }
-
-    .post::before {
-        content: "‣";
-        font-size: var(--k-font-xx-larger);
     }
 </style>
