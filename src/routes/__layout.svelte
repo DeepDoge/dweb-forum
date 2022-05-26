@@ -58,7 +58,7 @@ import { Web3Provider } from "@ethersproject/providers";
             {/if}
         {/await}
     {:else}
-        Connect Wallet
+        Waiting Provider...
     {/if}
 </layout>
 
