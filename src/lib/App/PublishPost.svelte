@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { TimelineId } from "$/plugins/api";
-    import { appContract, provider } from "$/plugins/wallet";
+    import { account, appContract, provider } from "$/plugins/wallet";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KDialog, { createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
@@ -38,17 +38,22 @@
 </script>
 
 <KDialog {dialogManager} />
-<!-- svelte-ignore missing-declaration -->
-<form on:submit|preventDefault={(e) => publish({ content: new FormData(e.currentTarget).get("content").toString() })} class="publish-post">
-    <KBoxEffect color="mode" blur background radius="rounded">
-        <div class="fields">
-            <KTextField type="textarea" name="content" radius="rounded" disabled={publishing} placeholder="Say something..." />
-        </div>
-        <div class="actions">
-            <KButton color="mode-contrast" size="larger" radius="rounded" loading={publishing}>Publish</KButton>
-        </div>
-    </KBoxEffect>
-</form>
+
+{#if $account}
+    <!-- svelte-ignore missing-declaration -->
+    <form on:submit|preventDefault={(e) => publish({ content: new FormData(e.currentTarget).get("content").toString() })} class="publish-post">
+        <KBoxEffect color="mode" blur background radius="rounded">
+            <div class="fields">
+                <KTextField type="textarea" name="content" radius="rounded" disabled={publishing} placeholder="Say something..." />
+            </div>
+            <div class="actions">
+                <KButton color="mode-contrast" size="larger" radius="rounded" loading={publishing}>Publish</KButton>
+            </div>
+        </KBoxEffect>
+    </form>
+{:else}
+    You need to connect with a Web3 wallet to be able to post.
+{/if}
 
 <style>
     form {

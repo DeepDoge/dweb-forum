@@ -3,6 +3,7 @@
     import { account, isContractsReady, provider } from "$/plugins/wallet";
     import ClaimName from "$lib/App/ClaimName.svelte";
     import KModalHashRoute from "$lib/kicho-ui/components/KModalHashRoute.svelte";
+import { Web3Provider } from "@ethersproject/providers";
     import { writable } from "svelte/store";
     import Header from "./_header.svelte";
     export const pageHash = writable(location.hash || "#");
@@ -33,7 +34,7 @@
 </script>
 
 <layout>
-    {#if $account && $provider}
+    {#if $provider}
         {#await $provider.ready}
             Connecting...
         {:then}
