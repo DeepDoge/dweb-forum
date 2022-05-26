@@ -23,8 +23,8 @@
 </script>
 
 <form class="claim-name-container" on:submit|preventDefault={setName}>
-    <KTextField bind:value={nickname} disabled={claming} label="Claim Name" />
-    <KButton glow loading={claming}>Claim</KButton>
+    <KTextField bind:value={nickname} placeholder="Pick a nickname" disabled={claming} label="Claim Nickname" />
+    <KButton color="gradient" loading={claming}>Claim</KButton>
 </form>
 
 <style>

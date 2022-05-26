@@ -12,14 +12,13 @@
         <KBoxEffect color="gradient" border glow blur radius="tile" contentBorderDirection="horizontal">
             <div class="account-info">
                 <span class="account-name"><ClaimedNameOf address={$account} /></span>
-                <KButton text href="#/$/claim-name" title="Claim name for: {$account}">
+                <KButton text href="##claim-name" title="Claim name for: {$account}">
                     <div class="account-address">
                         <AddressOf address={$account} />
                     </div>
                 </KButton>
                 <span class="account-balance">Balance: <b><Balance /></b></span>
             </div>
-            <KButton text size="x-larger" title="Publish new content" on:click={() => (location.hash = "#/$/publish")}>+</KButton>
         </KBoxEffect>
     </div>
 </header>
@@ -33,9 +32,10 @@
     .account {
         display: grid;
         grid-auto-flow: column;
-        grid-template-columns: 1fr 4em;
+        grid-template-columns: 1fr;
         align-items: stretch;
         gap: var(--k-padding);
+        padding: var(--k-padding);
         max-width: 100%;
     }
 

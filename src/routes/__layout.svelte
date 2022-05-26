@@ -1,17 +1,15 @@
 <script context="module" lang="ts">
     import "$/lib/kicho-ui/root.css";
-    import { account,isContractsReady,provider } from "$/plugins/wallet";
+    import { account, isContractsReady, provider } from "$/plugins/wallet";
     import ClaimName from "$lib/App/ClaimName.svelte";
-    import PublishPost from "$lib/App/PublishPost.svelte";
     import KModalHashRoute from "$lib/kicho-ui/components/KModalHashRoute.svelte";
     import { writable } from "svelte/store";
     import Header from "./_header.svelte";
-    let pageHash = writable(location.hash || "#");
+    export const pageHash = writable(location.hash || "#");
     window.addEventListener("hashchange", () => pageHash.set(location.hash || "#"));
 </script>
 
 <script lang="ts">
-    
     const pushState = history.pushState;
     history.pushState = function (...params) {
         if (params[2].toString() === location.href) return;
@@ -22,12 +20,14 @@
     $: $pageHash && onHashChange();
     async function onHashChange() {
         switch ($pageHash) {
-            case '"#/$/post"':
+            case "##post":
                 return (lastFoundPage = (await import("$/pages/$/post.svelte")).default);
-            default:
-                if ($pageHash.length === 44 && $pageHash.startsWith("#/0x"))
-                    return (lastFoundPage = (await import("$/pages/[address].svelte")).default);
+            case "#":
                 return (lastFoundPage = (await import("$/pages/index.svelte")).default);
+            default:
+                if ($pageHash.startsWith('##')) return (await import("$/pages/topic.svelte")).default; // 404
+                if ($pageHash.length === 44 && $pageHash.startsWith("#0x")) return (lastFoundPage = (await import("$/pages/profile.svelte")).default);
+                return (lastFoundPage = (await import("$/pages/topic.svelte")).default);
         }
     }
 </script>
@@ -44,10 +44,7 @@
                         {#if lastFoundPage}
                             <svelte:component this={lastFoundPage} />
                         {/if}
-                        <KModalHashRoute hash="#/$/publish" size="25em">
-                            <PublishPost on:done={() => history.back()} />
-                        </KModalHashRoute>
-                        <KModalHashRoute hash="#/$/claim-name" size="15em">
+                        <KModalHashRoute hash="##claim-name">
                             <ClaimName on:done={() => history.back()} />
                         </KModalHashRoute>
                     </main>
@@ -72,7 +69,7 @@
         --k-color-master-contrast: rgba(255, 255, 255, 0.9);
         --k-color-slave-contrast: rgba(255, 255, 255, 0.9);
         --k-color-gradient-contrast: rgba(255, 255, 255, 0.9);
-        --k-border-width: .1em;
+        --k-border-width: 0.1em;
     }
 
     layout {
@@ -85,8 +82,8 @@
         position: fixed;
         inset: 0;
         background-size: cover;
-        background-image: linear-gradient(to right bottom, var(--k-color-master) 20%, transparent);
-        filter: blur(10rem) opacity(0.2);
+        background-image: var(--k-color-gradient);
+        filter: opacity(0.25);
     }
 
     footer {

@@ -11,7 +11,6 @@ contract App {
     event NicknameClaimed(address indexed owner, string nickname);
 
     function claimNickname(string memory nickname) public {
-        require(bytes(nickname).length <= 64, "Length can't be longer than 64 ASCII characters.");
         walletToNicknameMap[msg.sender] = nickname;
         emit NicknameClaimed(msg.sender, nickname);
     }
@@ -22,13 +21,13 @@ contract App {
     ==========================
     */
 
-    mapping(TimelineIdType => mapping(uint256 => Timeline)) timelines;
-    enum TimelineIdType {
+    mapping(TimelineGroup => mapping(uint256 => Timeline)) timelines;
+    enum TimelineGroup {
         Normal,
         Reply
     }
     struct TimelineId {
-        TimelineIdType idType;
+        TimelineGroup group;
         uint256 id;
     }
     struct Timeline {
@@ -43,11 +42,11 @@ contract App {
     }
 
     function _getTimeline(TimelineId memory timelineId) private view returns (Timeline storage) {
-        return timelines[timelineId.idType][timelineId.id];
+        return timelines[timelineId.group][timelineId.id];
     }
 
     function getTimeline(TimelineId memory timelineId) public view returns (Timeline memory) {
-        return timelines[timelineId.idType][timelineId.id];
+        return timelines[timelineId.group][timelineId.id];
     }
 
     function getTimelinePost(TimelineId memory timelineId, uint256 timelinePostIndex) public view returns (PostLink memory) {

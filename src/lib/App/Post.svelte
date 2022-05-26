@@ -1,17 +1,14 @@
 <script lang="ts">
     import { getPost,getTimeline, TimelineId } from "$/plugins/api";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
-    import type { BigNumber, BigNumberish } from "ethers";
     import ClaimedNameOf from "./ClaimedNameOf.svelte";
 
     export let postIndex: Parameters<typeof getPost>[0];
     export let showReplies = false;
-    export let timelineId: TimelineId 
-    export let timelinePostIndex: BigNumber 
 
     let post: Awaited<ReturnType<typeof getPost>> = null;
     let repliesTimelineId: TimelineId
-    $: repliesTimelineId = { idType: 1, id: postIndex };
+    $: repliesTimelineId = { group: 1, id: postIndex };
     let repliesTimeline: Awaited<ReturnType<typeof getTimeline>> = null;
     $: replies = repliesTimeline?.items;
     $: postIndex?.toString() !== $post?.index.toString() && updatePost();
@@ -35,14 +32,11 @@
 
 <article>
     <div class="post">
-        <KBoxEffect color="gradient" border blur glow radius="tile" {loading} hideContent={loading}>
+        <KBoxEffect radius="tile" {loading} hideContent={loading}>
             <header>
                 <KBoxEffect color="gradient" background radius="tile">
                     <div class="name">
                         <ClaimedNameOf address={$post?.owner} />
-                    </div>
-                    <div class="index">
-                        ID: {timelineId.idType}:{timelineId.id}:{timelinePostIndex}
                     </div>
                     <div class="date-time">
                         <span class="date text-inline">{date?.toLocaleString()}</span>
@@ -50,7 +44,9 @@
                 </KBoxEffect>
             </header>
             <div class="content text-multiline">
+                <KBoxEffect background blur radius="tile">
                 <p>{$post?.content}</p>
+            </KBoxEffect>
             </div>
 
             <div class="tags" />
@@ -59,7 +55,7 @@
     {#if showReplies && $replies?.length > 0}
         <div class="replies">
             {#each $replies as item (item.index.toString())}
-                <svelte:self postIndex={item.index} timelineId={repliesTimelineId} timelinePostIndex={item.timelinePostIndex} />
+                <svelte:self postIndex={item.index} />
             {/each}
         </div>
     {/if}
@@ -73,7 +69,6 @@
 
     .post {
         display: grid;
-        padding: calc(var(--k-padding) * 0.5);
     }
     .replies {
         padding-left: calc(var(--k-padding) * 4);
@@ -96,16 +91,6 @@
 
     .date-time {
         font-size: var(--k-font-xx-smaller);
-    }
-
-    .index {
-        font-size: var(--k-font-xx-smaller);
-        font-weight: bold;
-    }
-
-    .date-time::before {
-        content: "•";
-        padding-right: var(--gap);
     }
 
     .content {

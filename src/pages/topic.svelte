@@ -1,9 +1,13 @@
 <script lang="ts">
-    import Timeline from "$lib/App/Timeline.svelte";
+    import { pageHash } from "$/routes/__layout.svelte";
+    import TopicTimeline from "$lib/App/TopicTimeline.svelte";
+
+    $: topic = $pageHash.startsWith("##") ? topic : $pageHash.substring(1);
 </script>
 
 <div id="page">
-    <Timeline timelineId={{ group: 0, id: 0 }} />
+    <h1>Topic: #{topic}</h1>
+    <TopicTimeline {topic} />
 </div>
 
 <style>
