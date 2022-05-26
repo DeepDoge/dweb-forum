@@ -1,6 +1,5 @@
 <script lang="ts">
-    import { bigNumberToString, stringToBigNumber } from "$/plugins/common/stringToBigNumber";
-
+    import { stringToBigNumber } from "$/plugins/common/stringToBigNumber";
     import Timeline from "./Timeline.svelte";
 
     type TimelineProps = Timeline["$$prop_def"];

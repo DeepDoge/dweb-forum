@@ -41,21 +41,18 @@
     import { appContract } from "$/plugins/wallet";
     import { listenContract } from "$/plugins/wallet/listen";
     import { onDestroy } from "svelte";
-    import { writable,Writable } from "svelte/store";
+    import { writable, Writable } from "svelte/store";
 
     export let address: string;
-    let name: Writable<string> = null
+    let name: Writable<string> = null;
 
     let addressCache = address;
     $: onAddressChange(address);
 
     function onAddressChange(newAddress: string) {
-        if (newAddress) 
-        {
+        if (newAddress) {
             name = getName(newAddress);
-
-        }
-        else {
+        } else {
             dispose(addressCache);
             name = null;
         }

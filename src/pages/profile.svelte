@@ -17,9 +17,7 @@
     </div>
 
     <div class="content">
-        <div class="published">
-            
-        </div>
+        <div class="published" />
     </div>
 </div>
 

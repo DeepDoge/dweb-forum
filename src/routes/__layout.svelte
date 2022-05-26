@@ -24,8 +24,8 @@
                 return (lastFoundPage = (await import("$/pages/$/post.svelte")).default);
             case "#":
                 return (lastFoundPage = (await import("$/pages/index.svelte")).default);
-            default:
-                if ($pageHash.startsWith('##')) return (await import("$/pages/topic.svelte")).default; // 404
+            default: // 404
+                if ($pageHash.startsWith("##")) return (await import("$/pages/topic.svelte")).default;
                 if ($pageHash.length === 44 && $pageHash.startsWith("#0x")) return (lastFoundPage = (await import("$/pages/profile.svelte")).default);
                 return (lastFoundPage = (await import("$/pages/topic.svelte")).default);
         }

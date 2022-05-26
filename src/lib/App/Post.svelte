@@ -1,7 +1,7 @@
 <script lang="ts">
     import { getPost, getTimeline, TimelineId } from "$/plugins/api";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
-import KButton from "$lib/kicho-ui/components/KButton.svelte";
+    import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import AddressOf from "./AddressOf.svelte";
     import ClaimedNameOf from "./ClaimedNameOf.svelte";
 
@@ -116,7 +116,7 @@ import KButton from "$lib/kicho-ui/components/KButton.svelte";
         font-size: var(--k-font-xx-smaller);
         justify-self: end;
     }
-    
+
     .content {
         grid-area: content;
         display: box;

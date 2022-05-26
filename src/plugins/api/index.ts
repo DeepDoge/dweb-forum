@@ -1,6 +1,6 @@
 import { BigNumber } from "ethers"
-import { get, writable } from "svelte/store"
 import type { Writable } from "svelte/store"
+import { get, writable } from "svelte/store"
 import { appContract } from "../wallet"
 
 export type PostType = Awaited<ReturnType<typeof appContract.posts>>
@@ -34,9 +34,8 @@ export async function getTimeline(id: TimelineId)
 
         downIndex = downIndex.lte(timelineCache.startIndex) ? BigNumber.from(-1) : link.beforePostIndex
         items.update((old) => ([...old, { index: link.postIndex, timelinePostIndex }]))
-        
-        return true
 
+        return true
     }
 
     let upIndex = pivot

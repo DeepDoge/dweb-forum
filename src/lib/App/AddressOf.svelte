@@ -2,15 +2,13 @@
     export let address: string;
 </script>
 
-<span aria-label={address} title={address} class="address text-inline" data-start={address?.substring(0, 39)} data-end={address?.substring(39)}>
-</span>
+<span aria-label={address} title={address} class="address text-inline" data-start={address?.substring(0, 39)} data-end={address?.substring(39)} />
 
 <style>
     .address {
         display: grid;
         grid-template-columns: auto auto;
         justify-content: start;
-
     }
 
     .address::before {
