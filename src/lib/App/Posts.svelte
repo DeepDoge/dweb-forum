@@ -51,7 +51,7 @@ import Timeline from "./Timeline.svelte";
 <style>
     .posts {
         display: grid;
-        gap: 1em;
+        gap: .25em;
     }
 
     .dots {

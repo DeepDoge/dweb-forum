@@ -34,18 +34,21 @@
 
 <article>
     <div class="post">
-        <KBoxEffect radius="rounded" color="mode" background blur {loading} hideContent={loading}>
-            <div class="name">
-                <ClaimedNameOf address={$post?.owner} />
-            </div>
-            <div class="address">
-                <AddressOf address={$post?.owner} />
-            </div>
-            <div class="date-time">
-                <span class="date text-inline">{date?.toLocaleString()}</span>
-            </div>
-            <div class="content text-multiline">
-                <p>{$post?.content}</p>
+        <KBoxEffect color="mode" background blur {loading} hideContent={loading}>
+            <div class="post-inner">
+                <div class="avatar" />
+                <div class="name">
+                    <ClaimedNameOf address={$post?.owner} />
+                </div>
+                <div class="address">
+                    <AddressOf address={$post?.owner} />
+                </div>
+                <div class="date-time text-inline">
+                    <span class="date text-inline">{date?.toLocaleString()}</span>
+                </div>
+                <div class="content text-multiline">
+                    <p>{$post?.content}</p>
+                </div>
             </div>
         </KBoxEffect>
     </div>
@@ -72,24 +75,20 @@
         justify-content: center;
     }
 
-    .name::before {
-        content: "";
-        width: 1ch;
-        aspect-ratio: 1/1;
-        background-image: var(--k-color-gradient);
-        border-radius: var(--k-border-radius-fab);
+    .post {
+        padding: calc(var(--k-padding) * 1.5);
     }
 
-    .post {
+    .post-inner {
         display: grid;
-        padding: calc(var(--k-padding) * 3);
-
+        
+        grid-template-columns: 2.5em auto 1fr auto;
         grid-template-areas:
-            "name name name"
-            "address address address"
-            "content content content"
-            ". . date-time";
+            "avatar name address date-time"
+            "avatar content content content";
         gap: 0.25em;
+
+        align-items: center;
     }
     .replies {
         padding-left: calc(var(--k-padding) * 4);
@@ -105,6 +104,15 @@
         font-weight: bold;
     }
 
+    .avatar {
+        grid-area: avatar;
+        width: 100%;
+        aspect-ratio: 1/1;
+        border-radius: var(--k-border-radius-fab);
+        background-image: var(--k-color-gradient);
+        align-self: start;
+    }
+
     .address {
         grid-area: address;
         font-size: var(--k-font-x-smaller);
@@ -114,7 +122,6 @@
     .date-time {
         grid-area: date-time;
         font-size: var(--k-font-xx-smaller);
-        justify-self: end;
     }
 
     .content {
@@ -129,6 +136,5 @@
         -moz-box-orient: vertical;
         overflow: hidden;
         font-size: var(--k-font-larger);
-        padding: calc(var(--k-padding) * 2) calc(var(--k-padding) * 0.5);
     }
 </style>

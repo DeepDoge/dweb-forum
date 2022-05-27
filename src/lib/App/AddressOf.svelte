@@ -13,6 +13,7 @@
 
     .address::before {
         content: attr(data-start);
+        min-width: 3.5em;
         display: block;
         overflow: hidden;
         text-overflow: ellipsis;

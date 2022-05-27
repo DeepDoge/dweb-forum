@@ -42,12 +42,12 @@
 {#if $account}
     <!-- svelte-ignore missing-declaration -->
     <form on:submit|preventDefault={(e) => publish({ content: new FormData(e.currentTarget).get("content").toString() })} class="publish-post">
-        <KBoxEffect color="mode" blur background radius="rounded">
+        <KBoxEffect color="mode" blur background>
             <div class="fields">
-                <KTextField disabled={publishing} type="textarea" name="content" radius="rounded" placeholder="Say something..." />
+                <KTextField disabled={publishing} type="textarea" name="content" placeholder="Say something..." />
             </div>
             <div class="actions">
-                <KButton color="mode-contrast" radius="rounded" loading={publishing}>Publish</KButton>
+                <KButton color="mode-contrast" loading={publishing}>Publish</KButton>
             </div>
         </KBoxEffect>
     </form>
@@ -58,8 +58,8 @@
 <style>
     form {
         display: grid;
-        gap: 0.75em;
-        padding: calc(var(--k-padding) * 4) calc(var(--k-padding) * 2);
+        gap: 0.5em;
+        padding: calc(var(--k-padding) * 2) calc(var(--k-padding) * 2);
     }
 
     .fields {
