@@ -3,7 +3,7 @@ import type { App } from '$/plugins/hardhat/typechain-types'
 import { App__factory, Migrations__factory } from "$/plugins/hardhat/typechain-types"
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers"
 import { ethers } from "ethers"
-import type { Writable } from 'svelte/store'
+import { get, Writable } from 'svelte/store'
 import { writable } from 'svelte/store'
 import { asyncFunctionQueue } from '../common/asyncFunctionQueue'
 
@@ -41,7 +41,6 @@ provider.subscribe((value) => providerChange.call(value))
 
 account.subscribe((account) =>
 {
-    console.log(account)
     provider.set(
         account ?
             new ethers.providers.Web3Provider(eth) :
@@ -63,6 +62,7 @@ if (eth)
     // detect Network account change
     eth.on('chainChanged', function (networkId: number)
     {
+        if (!get(account)) return
         console.log('chainChanged', networkId)
         provider.set(new ethers.providers.Web3Provider(eth))
     })
