@@ -3,9 +3,9 @@ import type { App } from '$/plugins/hardhat/typechain-types'
 import { App__factory, Migrations__factory } from "$/plugins/hardhat/typechain-types"
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers"
 import { ethers } from "ethers"
-import { get } from 'svelte/store'
 import type { Writable } from 'svelte/store'
 import { writable } from 'svelte/store'
+import { asyncFunctionQueue } from '../common/asyncFunctionQueue'
 
 export const isContractsReady: Writable<boolean | 'wrongNetwork'> = writable(false)
 export const provider: Writable<Web3Provider | JsonRpcProvider> = writable(null)
@@ -14,31 +14,33 @@ export let appContract: App = null
 
 const eth = (window as any).ethereum
 
+const providerChange = asyncFunctionQueue(async (provider: Web3Provider | JsonRpcProvider) =>
+{
+    isContractsReady.set(false)
+    if (!provider) return
+    await provider.ready
+    let contractAddress: string = null
+    let chainId = (await provider.getNetwork()).chainId
+
+    if (!(contractAddress = deployed[chainId]?.['Migrations'] ?? null))
+    {
+        isContractsReady.set('wrongNetwork')
+        throw new Error('Wrong Network')
+    }
+
+    console.log(provider)
+    const signer = provider instanceof Web3Provider ? provider.getSigner() : provider.getSigner('0x0000000000000000000000000000000000000000')
+
+    const migrationsContract = Migrations__factory.connect(contractAddress, signer)
+    appContract?.removeAllListeners()
+    appContract = App__factory.connect(await migrationsContract.lastVersionContractAddress(), signer)
+
+    isContractsReady.set(true)
+})
+provider.subscribe((value) => providerChange.call(value))
+
 account.subscribe((account) =>
 {
-    provider.subscribe(async (provider) =>
-    {
-        isContractsReady.set(false)
-        if (!provider) return
-        await provider.ready
-        let contractAddress: string = null
-        let chainId = (await provider.getNetwork()).chainId
-
-        if (!(contractAddress = deployed[chainId]?.['Migrations'] ?? null))
-        {
-            isContractsReady.set('wrongNetwork')
-            throw new Error('Wrong Network')
-        }
-
-        const signer = provider instanceof Web3Provider ? provider.getSigner() : provider.getSigner('0x0000000000000000000000000000000000000000')
-
-        const migrationsContract = Migrations__factory.connect(contractAddress, signer)
-        appContract?.removeAllListeners()
-        appContract = App__factory.connect(await migrationsContract.lastVersionContractAddress(), signer)
-
-        isContractsReady.set(true)
-    })
-
     console.log(account)
     provider.set(
         account ?
@@ -47,7 +49,6 @@ account.subscribe((account) =>
     )
 })
 
-account.set(null)
 if (eth)
 {
     eth.request({ method: "eth_requestAccounts" }).then((addresses: string[]) => addresses[0] && account.set(addresses[0]))

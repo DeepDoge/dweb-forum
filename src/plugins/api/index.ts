@@ -20,50 +20,69 @@ export async function getTimeline(id: TimelineId)
     const pivot = timelineCache.endIndex
 
     let downIndex = pivot.sub(1)
-    let loadMoreRunnning: ReturnType<typeof loadMore> = null
+    let loadMoreRunnning: Writable<boolean> = writable(false)
 
     async function loadMore(): Promise<boolean | void>
     {
-        if (loadMoreRunnning) return
+        if (get(loadMoreRunnning)) return
+        loadMoreRunnning.set(true)
+        try
+        {
+            timelineCache = await appContract.getTimeline(id)
+            if (downIndex.lt(timelineCache.startIndex)) return false
 
-        timelineCache = await appContract.getTimeline(id)
-        if (downIndex.lt(timelineCache.startIndex)) return false
+            const timelinePostIndex = downIndex
+            const link = await appContract.getTimelinePost(id, timelinePostIndex)
 
-        const timelinePostIndex = downIndex
-        const link = await appContract.getTimelinePost(id, timelinePostIndex)
-
-        downIndex = downIndex.lte(timelineCache.startIndex) ? BigNumber.from(-1) : link.beforePostIndex
-        items.update((old) => ([...old, { index: link.postIndex, timelinePostIndex }]))
-
-        return true
+            downIndex = downIndex.lte(timelineCache.startIndex) ? BigNumber.from(-1) : link.beforePostIndex
+            items.update((old) => ([...old, { index: link.postIndex, timelinePostIndex }]))
+            return true
+        }
+        finally
+        {
+            loadMoreRunnning.set(false)
+        }
     }
 
     let upIndex = pivot
-    let loadNewerRunning: boolean = false
+    let loadNewerRunning: Writable<boolean> = writable(false)
 
     async function loadNewer(): Promise<boolean | void>
     {
-        if (loadNewerRunning) return
-        loadNewerRunning = true
-        if (get(items).length === 0 && (await appContract.timelineLength(id)).eq(0)) return false
+        if (get(loadNewerRunning)) return
+        loadNewerRunning.set(true)
+        try
+        {
+            if (get(items).length === 0) 
+            {
+                const length = (await appContract.timelineLength(id))
+                if (length.eq(0)) return false
+                timelineCache = await appContract.getTimeline(id)
+            }
+            else
+            {
+                timelineCache = await appContract.getTimeline(id)
+                if (upIndex.gt(timelineCache.endIndex)) return false
+            }
 
-        timelineCache = await appContract.getTimeline(id)
-        console.log(timelineCache)
-        if (upIndex.gt(timelineCache.endIndex)) return false
+            const timelinePostIndex = upIndex
+            const link = await appContract.getTimelinePost(id, timelinePostIndex)
 
-        const timelinePostIndex = upIndex
-        const link = await appContract.getTimelinePost(id, timelinePostIndex)
-
-        upIndex = link.afterPostIndex.eq(0) ? upIndex.add(1) : link.afterPostIndex
-        items.update((old) => ([{ index: link.postIndex, timelinePostIndex }, ...old]))
-
-        loadNewerRunning = false
-        return true
+            upIndex = link.afterPostIndex.eq(0) ? upIndex.add(1) : link.afterPostIndex
+            items.update((old) => ([{ index: link.postIndex, timelinePostIndex }, ...old]))
+            return true
+        }
+        finally
+        {
+            loadNewerRunning.set(false)
+        }
     }
 
     return {
         items,
         loadMore,
-        loadNewer
+        loadNewer,
+        loadMoreRunnning,
+        loadNewerRunning
     }
 }

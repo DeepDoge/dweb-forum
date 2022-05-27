@@ -2,6 +2,7 @@
     import type { getTimeline } from "$/plugins/api";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KIntersectionObserver from "$lib/kicho-ui/components/KIntersectionObserver.svelte";
+import Timeline from "./Timeline.svelte";
     export let timeline: Awaited<ReturnType<typeof getTimeline>>;
     $: items = timeline?.items;
 
@@ -9,11 +10,16 @@
     let bottomEnd = false;
     let bottomLoop = false;
     $: !bottomEnd && !bottomLoop && bottomIntersecting && onChange(bottomIntersecting);
+    
+    $: loadingBottom = timeline.loadMoreRunnning
+    $: loadingTop = timeline.loadNewerRunning
+
+    let lastLoadMoreResult: Awaited<ReturnType<typeof timeline['loadMore']>>
     async function onChange(value: typeof bottomIntersecting) {
         bottomLoop = true;
         while (bottomIntersecting) {
-            const result = await timeline.loadMore();
-            if (result === false) {
+            lastLoadMoreResult = await timeline.loadMore()
+            if (lastLoadMoreResult === false) {
                 bottomEnd = true;
                 break;
             }
@@ -24,7 +30,7 @@
 </script>
 
 {#if timeline}
-    <KButton text on:click={async () => console.log(await timeline.loadNewer())}>Load Newer</KButton>
+    <KButton text loading={$loadingTop} on:click={() => timeline.loadNewer()}>Load Newer</KButton>
     <div class="posts">
         {#each $items as item (item.index.toString())}
             {#if item !== $items[0]}
@@ -35,7 +41,7 @@
     </div>
     {#if !bottomEnd}
         <KIntersectionObserver bind:intersecting={bottomIntersecting}>
-            <KButton loading={bottomLoop} text on:click={async () => console.log(await timeline.loadMore())}>Load More</KButton>
+            <KButton loading={$loadingBottom} text on:click={async () => (lastLoadMoreResult = await timeline.loadMore())}>Load More</KButton>
         </KIntersectionObserver>
     {:else}
         Reached to the END!

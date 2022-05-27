@@ -9,7 +9,8 @@
     > = {};
 
     function getName(address: string) {
-        address = address?.toLowerCase();
+        if (!address) return
+        address = address.toLowerCase();
         if (!caches[address]) {
             caches[address] = { listenerCount: 0, value: writable(null), offListener: null };
             caches[address].offListener = listenContract(appContract, appContract.filters.NicknameClaimed(address), (owner, newName, event) =>

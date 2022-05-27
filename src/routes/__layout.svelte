@@ -1,13 +1,15 @@
 <script context="module" lang="ts">
     import "$/lib/kicho-ui/root.css";
-    import { account, isContractsReady, provider } from "$/plugins/wallet";
+    import { isValidAddress } from "$/plugins/common/isValidAddress";
+    import { isContractsReady, provider } from "$/plugins/wallet";
+    import { goto } from "$app/navigation";
+    import { page } from "$app/stores";
     import ClaimName from "$lib/App/ClaimName.svelte";
     import KModalHashRoute from "$lib/kicho-ui/components/KModalHashRoute.svelte";
-import { Web3Provider } from "@ethersproject/providers";
-    import { writable } from "svelte/store";
+    import { BigNumber } from "ethers";
     import Header from "./_header.svelte";
-    export const pageHash = writable(location.hash || "#");
-    window.addEventListener("hashchange", () => pageHash.set(location.hash || "#"));
+
+    window.addEventListener("hashchange", () => goto(location.href));
 </script>
 
 <script lang="ts">
@@ -18,17 +20,31 @@ import { Web3Provider } from "@ethersproject/providers";
     };
 
     let lastFoundPage: any = null;
-    $: $pageHash && onHashChange();
+    $: $page && onHashChange();
+    let pageProps: object = {};
     async function onHashChange() {
-        switch ($pageHash) {
-            case "##post":
-                return (lastFoundPage = (await import("$/pages/$/post.svelte")).default);
-            case "#":
-                return (lastFoundPage = (await import("$/pages/index.svelte")).default);
-            default: // 404
-                if ($pageHash.startsWith("##")) return (await import("$/pages/topic.svelte")).default;
-                if ($pageHash.length === 44 && $pageHash.startsWith("#0x")) return (lastFoundPage = (await import("$/pages/profile.svelte")).default);
-                return (lastFoundPage = (await import("$/pages/topic.svelte")).default);
+        const route = $page.url.hash.substring(1);
+        if (!route) return (lastFoundPage = (await import("$/pages/index.svelte")).default);
+        if (route.startsWith("#")) {
+            switch (route.substring(1)) {
+                default:
+                    const postPrefix = "#post:";
+                    if (route.startsWith(postPrefix)) {
+                        pageProps = { postIndex: BigNumber.from(route.substring(postPrefix.length)) };
+                        return (lastFoundPage = (await import("$/pages/post.svelte")).default);
+                    }
+                    return (lastFoundPage = (await import("$/pages/404.svelte")).default);
+            }
+        }
+
+        if (isValidAddress(route)) {
+            pageProps = { address: route };
+            return (lastFoundPage = (await import("$/pages/profile.svelte")).default);
+        }
+
+        {
+            pageProps = { topic: route };
+            return (lastFoundPage = (await import("$/pages/topic.svelte")).default);
         }
     }
 </script>
@@ -43,7 +59,7 @@ import { Web3Provider } from "@ethersproject/providers";
                     <Header />
                     <main>
                         {#if lastFoundPage}
-                            <svelte:component this={lastFoundPage} />
+                            <svelte:component this={lastFoundPage} {...pageProps} />
                         {/if}
                         <KModalHashRoute hash="##claim-name">
                             <ClaimName on:done={() => history.back()} />

@@ -44,7 +44,7 @@
     <form on:submit|preventDefault={(e) => publish({ content: new FormData(e.currentTarget).get("content").toString() })} class="publish-post">
         <KBoxEffect color="mode" blur background radius="rounded">
             <div class="fields">
-                <KTextField type="textarea" name="content" radius="rounded" disabled={publishing} placeholder="Say something..." />
+                <KTextField disabled={publishing} type="textarea" name="content" radius="rounded" placeholder="Say something..." />
             </div>
             <div class="actions">
                 <KButton color="mode-contrast" size="larger" radius="rounded" loading={publishing}>Publish</KButton>

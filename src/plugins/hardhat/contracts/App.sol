@@ -24,7 +24,8 @@ contract App {
     mapping(TimelineGroup => mapping(uint256 => Timeline)) timelines;
     enum TimelineGroup {
         Normal,
-        Reply
+        Reply,
+        Profile
     }
     struct TimelineId {
         TimelineGroup group;
@@ -81,6 +82,7 @@ contract App {
         posts.push() = Post(index, content, msg.sender, block.timestamp);
 
         addPostToTimeline(timelineId, index);
+        addPostToTimeline(TimelineId(TimelineGroup.Profile, uint256(uint160(address(msg.sender)))), index);
     }
 
     function addPostToTimeline(TimelineId memory timelineId, uint256 postIndex) private {

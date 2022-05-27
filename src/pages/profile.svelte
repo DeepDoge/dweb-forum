@@ -2,7 +2,7 @@
     import { page } from "$app/stores";
     import ClaimedNameOf from "$lib/App/ClaimedNameOf.svelte";
 
-    $: address = $page.url.hash.substring("#/".length);
+    export let address: string
 </script>
 
 <div class="profile-page">

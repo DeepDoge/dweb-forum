@@ -1,8 +1,7 @@
 <script lang="ts">
-    import { pageHash } from "$/routes/__layout.svelte";
     import TopicTimeline from "$lib/App/TopicTimeline.svelte";
 
-    $: topic = $pageHash.startsWith("##") ? topic : $pageHash.substring(1);
+    export let topic: string
 </script>
 
 <div id="page">
