@@ -27,9 +27,17 @@ export function asyncFunctionQueue<F extends (...params: any) => Promise<any>>(f
                 if (queue[0].promise) await queue[0].promise
                 if (queue[0].id === id)
                 {
-                    const r = await (queue[0].promise = func(...(params as any)) as any)
-                    queue.shift()
-                    return r
+                    try 
+                    {
+                        const r = await (queue[0].promise = func(...(params as any)) as any)
+                        queue.shift()
+                        return r
+                    }
+                    catch(err)
+                    {
+                        queue.shift()
+                        throw err
+                    }
                 }
                 await new Promise((r) => setTimeout(r))
             }

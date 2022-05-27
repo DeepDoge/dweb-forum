@@ -34,6 +34,8 @@
         if (!route) return (lastFoundPage = Index);
         if (route.startsWith("#")) {
             switch (route.substring(1)) {
+                case "claim-name":
+                    return
                 default:
                     const postPrefix = "#post:";
                     if (route.startsWith(postPrefix)) {

@@ -22,13 +22,14 @@ const providerChange = asyncFunctionQueue(async (provider: Web3Provider | JsonRp
     let contractAddress: string = null
     let chainId = (await provider.getNetwork()).chainId
 
+    console.log(chainId, provider)
+ 
     if (!(contractAddress = deployed[chainId]?.['Migrations'] ?? null))
     {
         isContractsReady.set('wrongNetwork')
         throw new Error('Wrong Network')
     }
 
-    console.log(provider)
     const signer = provider instanceof Web3Provider ? provider.getSigner() : provider.getSigner('0x0000000000000000000000000000000000000000')
 
     const migrationsContract = Migrations__factory.connect(contractAddress, signer)
@@ -62,8 +63,7 @@ if (eth)
     // detect Network account change
     eth.on('chainChanged', function (networkId: number)
     {
-        if (!get(account)) return
         console.log('chainChanged', networkId)
-        provider.set(new ethers.providers.Web3Provider(eth))
+        if (get(provider) instanceof Web3Provider) provider.set(new ethers.providers.Web3Provider(eth))
     })
 }
