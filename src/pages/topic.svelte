@@ -16,6 +16,8 @@
         grid-template-columns: 1fr;
         gap: 0.5em;
 
+        padding: var(--k-page-padding);
+
         justify-content: center;
         grid-template-columns: min(50em, 100%);
     }

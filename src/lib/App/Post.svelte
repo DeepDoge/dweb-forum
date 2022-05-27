@@ -34,7 +34,7 @@
 
 <article>
     <div class="post">
-        <KBoxEffect color="mode" background blur {loading} hideContent={loading}>
+        <KBoxEffect color="mode" {loading} hideContent={loading}>
             <div class="post-inner">
                 <div class="avatar" />
                 <div class="name">
@@ -47,7 +47,16 @@
                     <span class="date text-inline">{date?.toLocaleString()}</span>
                 </div>
                 <div class="content text-multiline">
-                    <p>{$post?.content}</p>
+                    <KBoxEffect color="mode" background blur>
+                        <p>{$post?.content}</p>
+                    </KBoxEffect>
+                </div>
+                <div class="actions">
+                    <KButton text size="x-smaller">
+                        <div>
+                            Reply to <ClaimedNameOf address={$post?.owner} />
+                        </div>
+                    </KButton>
                 </div>
             </div>
         </KBoxEffect>
@@ -74,24 +83,26 @@
         display: grid;
         justify-content: center;
     }
-
-    .post {
-        padding: calc(var(--k-padding) * 1.5);
-    }
-
+    
     .post-inner {
         display: grid;
-        
+
         grid-template-columns: 2.5em auto 1fr auto;
         grid-template-areas:
             "avatar name address date-time"
-            "avatar content content content";
-        gap: 0.25em;
+            "avatar content content content"
+            ". actions actions actions";
+        gap: var(--k-padding);
 
         align-items: center;
     }
     .replies {
         padding-left: calc(var(--k-padding) * 4);
+    }
+
+    .actions {
+        grid-area: actions;
+        justify-self: end;
     }
 
     .name {
@@ -136,5 +147,6 @@
         -moz-box-orient: vertical;
         overflow: hidden;
         font-size: var(--k-font-larger);
+        padding: var(--k-padding);
     }
 </style>
