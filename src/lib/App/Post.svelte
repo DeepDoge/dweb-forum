@@ -83,15 +83,15 @@
         display: grid;
         justify-content: center;
     }
-    
+
     .post-inner {
         display: grid;
 
-        grid-template-columns: 2.5em auto 1fr auto;
+        grid-template-columns: 2.5em auto auto 1fr;
         grid-template-areas:
-            "avatar name address date-time"
+            "avatar name address address"
             "avatar content content content"
-            ". actions actions actions";
+            ". date-time actions actions";
         gap: var(--k-padding);
 
         align-items: center;

@@ -33,9 +33,6 @@ import Timeline from "./Timeline.svelte";
     <KButton text loading={$loadingTop} on:click={() => timeline.loadNewer()}>Load Newer</KButton>
     <div class="posts">
         {#each $items as item (item.index.toString())}
-            {#if item !== $items[0]}
-                <div class="dots" />
-            {/if}
             <slot {item} />
         {/each}
     </div>
@@ -51,15 +48,6 @@ import Timeline from "./Timeline.svelte";
 <style>
     .posts {
         display: grid;
-        gap: var(--k-padding);
-    }
-
-    .dots {
-        display: grid;
-        justify-items: center;
-    }
-
-    .dots::before {
-        content: "⋮";
+        gap: calc(var(--k-padding) * 2.9999999);
     }
 </style>
