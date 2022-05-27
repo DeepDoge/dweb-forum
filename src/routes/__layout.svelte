@@ -1,5 +1,10 @@
 <script context="module" lang="ts">
     import "$/lib/kicho-ui/root.css";
+import A4 from "$/pages/404.svelte";
+import Index from "$/pages/index.svelte";
+import Post from "$/pages/post.svelte";
+import Profile from "$/pages/profile.svelte";
+import Topic from "$/pages/topic.svelte";
     import { isValidAddress } from "$/plugins/common/isValidAddress";
     import { isContractsReady, provider } from "$/plugins/wallet";
     import { goto } from "$app/navigation";
@@ -24,27 +29,27 @@
     let pageProps: object = {};
     async function onHashChange() {
         const route = $page.url.hash.substring(1);
-        if (!route) return (lastFoundPage = (await import("$/pages/index.svelte")).default);
+        if (!route) return (lastFoundPage = Index);
         if (route.startsWith("#")) {
             switch (route.substring(1)) {
                 default:
                     const postPrefix = "#post:";
                     if (route.startsWith(postPrefix)) {
                         pageProps = { postIndex: BigNumber.from(route.substring(postPrefix.length)) };
-                        return (lastFoundPage = (await import("$/pages/post.svelte")).default);
+                        return (lastFoundPage = Post);
                     }
-                    return (lastFoundPage = (await import("$/pages/404.svelte")).default);
+                    return (lastFoundPage = A4);
             }
         }
 
         if (isValidAddress(route)) {
             pageProps = { address: route };
-            return (lastFoundPage = (await import("$/pages/profile.svelte")).default);
+            return (lastFoundPage = Profile);
         }
 
         {
             pageProps = { topic: route };
-            return (lastFoundPage = (await import("$/pages/topic.svelte")).default);
+            return (lastFoundPage = Topic);
         }
     }
 </script>
