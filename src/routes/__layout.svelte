@@ -1,10 +1,10 @@
 <script context="module" lang="ts">
     import "$/lib/kicho-ui/root.css";
-import A4 from "$/pages/404.svelte";
-import Index from "$/pages/index.svelte";
-import Post from "$/pages/post.svelte";
-import Profile from "$/pages/profile.svelte";
-import Topic from "$/pages/topic.svelte";
+    import A4 from "$/pages/404.svelte";
+    import Index from "$/pages/index.svelte";
+    import Post from "$/pages/post.svelte";
+    import Profile from "$/pages/profile.svelte";
+    import Topic from "$/pages/topic.svelte";
     import { isValidAddress } from "$/plugins/common/isValidAddress";
     import { isContractsReady, provider } from "$/plugins/wallet";
     import { goto } from "$app/navigation";
@@ -20,8 +20,10 @@ import Topic from "$/pages/topic.svelte";
 <script lang="ts">
     const pushState = history.pushState;
     history.pushState = function (...params) {
-        if (params[2].toString() === location.href) return;
-        pushState(...params);
+        try {
+            if (params[2].toString() === location.href) return;
+            pushState(...params);
+        } catch (error) {}
     };
 
     let lastFoundPage: any = null;
