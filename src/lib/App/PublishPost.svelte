@@ -47,7 +47,7 @@
                 <KTextField disabled={publishing} type="textarea" name="content" radius="rounded" placeholder="Say something..." />
             </div>
             <div class="actions">
-                <KButton color="mode-contrast" size="larger" radius="rounded" loading={publishing}>Publish</KButton>
+                <KButton color="mode-contrast" radius="rounded" loading={publishing}>Publish</KButton>
             </div>
         </KBoxEffect>
     </form>

@@ -1,7 +1,5 @@
 <script lang="ts">
     import { isValidAddress } from "$/plugins/common/isValidAddress";
-
-    import Timeline from "$lib/App/Timeline.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import { BigNumber } from "ethers";
@@ -16,11 +14,9 @@
 
 <div id="page">
     <form class="search-form" on:submit|preventDefault={search}>
-        <KTextField bind:value={searchInput} placeholder="#Topic, 0xAddress, ENS name, PostIndex" />
-        <KButton color="gradient" glow>Search</KButton>
+        <KTextField color="gradient" border bind:value={searchInput} placeholder="#Topic, 0xAddress, ENS name, PostIndex" />
+        <KButton color="gradient">Search</KButton>
     </form>
-
-    <Timeline timelineId={{ group: 0, id: 0 }} />
 </div>
 
 <style>
@@ -37,5 +33,6 @@
     .search-form {
         display: grid;
         grid-template-columns: 1fr auto;
+        gap: .5em;
     }
 </style>

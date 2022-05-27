@@ -3,8 +3,8 @@ import type { App } from '$/plugins/hardhat/typechain-types'
 import { App__factory, Migrations__factory } from "$/plugins/hardhat/typechain-types"
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers"
 import { ethers } from "ethers"
-import { get, Writable } from 'svelte/store'
-import { writable } from 'svelte/store'
+import type { Writable } from 'svelte/store'
+import { get, writable } from 'svelte/store'
 import { asyncFunctionQueue } from '../common/asyncFunctionQueue'
 
 export const isContractsReady: Writable<boolean | 'wrongNetwork'> = writable(false)
