@@ -87,11 +87,11 @@
     .post-inner {
         display: grid;
 
-        grid-template-columns: 2.5em auto auto 1fr;
+        grid-template-columns: 2.5em auto auto auto 1fr;
         grid-template-areas:
-            "avatar name address address"
-            "avatar content content content"
-            ". date-time actions actions";
+            "avatar name address address address"
+            "avatar content content content content"
+            ". date-time date-time actions actions";
         gap: var(--k-padding);
 
         align-items: center;
