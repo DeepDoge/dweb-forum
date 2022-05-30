@@ -123,7 +123,7 @@
         inset: 0;
         background-size: cover;
         background-image: linear-gradient(to left bottom, var(--k-color-master), var(--k-color-slave));
-        filter: opacity(0.05);
+        filter: opacity(0.1);
     }
 
     .search-form {
