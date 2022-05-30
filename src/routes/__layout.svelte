@@ -76,12 +76,10 @@
                 {#key $provider.network.chainId}
                     <Header />
                     <main>
-
-                            <form class="search-form" on:submit|preventDefault={search}>
-                                <KTextField color="gradient" border bind:value={searchInput} placeholder="#Topic, 0xAddress, ENS name, PostIndex" />
-                                <KButton color="gradient">Search</KButton>
-                            </form>
-
+                        <form class="search-form" on:submit|preventDefault={search}>
+                            <KTextField color="mode" background blur bind:value={searchInput} placeholder="#Topic, 0xAddress, ENS name, PostIndex" />
+                            <KButton color="gradient">Search</KButton>
+                        </form>
 
                         {#if lastFoundPage}
                             <svelte:component this={lastFoundPage} {...pageProps} />
@@ -129,11 +127,12 @@
     }
 
     .search-form {
-        width: var(--k-page-width);
+        width: 50em;
         margin: auto;
         display: grid;
         grid-template-columns: 1fr auto;
         align-items: stretch;
+        align-content: stretch;
         gap: 0.5em;
     }
 

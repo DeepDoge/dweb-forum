@@ -47,7 +47,7 @@
                 <KTextField disabled={publishing} type="textarea" name="content" placeholder="Say something..." />
             </div>
             <div class="actions">
-                <KButton color="mode-contrast" loading={publishing}>Publish</KButton>
+                <KButton color="gradient" loading={publishing}>Publish</KButton>
             </div>
         </KBoxEffect>
     </form>
