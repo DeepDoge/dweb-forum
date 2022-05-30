@@ -1,4 +1,6 @@
 <script lang="ts">
+import { blankImageData } from "$/plugins/common/blankImage";
+
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KChip from "$lib/kicho-ui/components/KChip.svelte";
     import jazzicon from "@metamask/jazzicon";
@@ -12,13 +14,13 @@
     $: jazziconElement = address ? jazzicon(100, parseInt(address.substring("0x".length, 10), 16)) : null;
     $: jazziconDataURL = jazziconElement
         ? `data:image/svg+xml;base64,${window.btoa(new XMLSerializer().serializeToString(jazziconElement.querySelector("svg")))}`
-        : null;
+        : blankImageData;
 </script>
 
 <div class="avatar-container">
     <div class="avatar">
         <KBoxEffect color="mode" radius="normal" background {loading} hideContent={loading}>
-            <img alt="Avatar of {address}" style:--jazzicon="url({jazziconDataURL})" src={null} />
+            <img alt="Avatar of {address}" style:--jazzicon="url({jazziconDataURL})" />
         </KBoxEffect>
     </div>
     {#if nftAvatar}

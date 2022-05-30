@@ -7,6 +7,7 @@
     import NicknameOf from "./NicknameOf.svelte";
     import AvatarOf from "./AvatarOf.svelte";
     import ProfileMiniCard from "./ProfileMiniCard.svelte";
+    import Content from "./Content.svelte";
 
     export let postIndex: Parameters<typeof getPost>[0];
     export let showReplies = false;
@@ -40,7 +41,7 @@
         <AvatarOf address={$post?.owner} />
         <div class="content-container">
             <div class="avatar-arrow">
-                <KBoxEffect color="mode" radius="normal" background blur {loading} hideContent={loading} />
+                <KBoxEffect color="mode" radius="normal" background blur {loading} />
             </div>
 
             <KBoxEffect color="mode" radius="normal" background blur {loading} hideContent={loading}>
@@ -60,7 +61,11 @@
                     </KBoxEffect>
                 </header>
                 <div class="content text-multiline">
-                    <p>{$post?.content}</p>
+                    {#if $post}
+                    <Content content={$post?.content} />
+                    {:else}
+                    ...
+                    {/if}
                 </div>
             </KBoxEffect>
         </div>
@@ -115,6 +120,7 @@
         grid-auto-flow: column;
         gap: var(--k-padding);
         align-items: center;
+        justify-items: start;
         padding: 0 calc(var(--k-padding) * 0.5);
     }
 
@@ -149,7 +155,6 @@
         box-orient: vertical;
         -webkit-box-orient: vertical;
         -moz-box-orient: vertical;
-        overflow: hidden;
         padding: 0 calc(var(--k-padding) * 0.5);
     }
 </style>
