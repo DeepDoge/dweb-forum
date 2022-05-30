@@ -1,12 +1,12 @@
 <script lang="ts">
-    import { getPost,getTimeline,TimelineId } from "$/plugins/api/timeline";
+    import { getPost, getTimeline, TimelineId } from "$/plugins/api/timeline";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KChip from "$lib/kicho-ui/components/KChip.svelte";
-import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
-    import ClaimedNameOf from "./ClaimedNameOf.svelte";
-import ProfileAvatar from "./ProfileAvatar.svelte";
-import ProfileMiniCard from "./ProfileMiniCard.svelte";
+    import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
+    import NicknameOf from "./NicknameOf.svelte";
+    import AvatarOf from "./AvatarOf.svelte";
+    import ProfileMiniCard from "./ProfileMiniCard.svelte";
 
     export let postIndex: Parameters<typeof getPost>[0];
     export let showReplies = false;
@@ -37,7 +37,7 @@ import ProfileMiniCard from "./ProfileMiniCard.svelte";
 
 <article>
     <div class="post">
-        <ProfileAvatar address={$post?.owner}></ProfileAvatar>
+        <AvatarOf address={$post?.owner} />
         <div class="content-container">
             <div class="avatar-arrow">
                 <KBoxEffect color="mode" radius="normal" background blur {loading} hideContent={loading} />
@@ -48,9 +48,9 @@ import ProfileMiniCard from "./ProfileMiniCard.svelte";
                     <KBoxEffect color="gradient" background radius="normal">
                         <div class="header-inner">
                             <div class="name">
-                                <ClaimedNameOf address={$post?.owner} />
+                                <NicknameOf address={$post?.owner} />
                                 <KHoverMenu>
-                                    <ProfileMiniCard address={$post?.owner}></ProfileMiniCard>
+                                    <ProfileMiniCard address={$post?.owner} />
                                 </KHoverMenu>
                             </div>
                             <div class="date-time text-inline">
@@ -68,7 +68,7 @@ import ProfileMiniCard from "./ProfileMiniCard.svelte";
     <div class="actions">
         <KButton text size="x-smaller">
             <div>
-                Reply to <ClaimedNameOf address={$post?.owner} />
+                Reply to <NicknameOf address={$post?.owner} />
             </div>
         </KButton>
     </div>

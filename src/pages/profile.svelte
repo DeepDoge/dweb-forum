@@ -1,6 +1,6 @@
 <script lang="ts">
     import { page } from "$app/stores";
-    import ClaimedNameOf from "$lib/App/ClaimedNameOf.svelte";
+    import NicknameOf from "$lib/App/NicknameOf.svelte";
 
     export let address: string
 </script>
@@ -9,7 +9,7 @@
     <div class="profile">
         <div class="avatar" />
         <div class="name">
-            <ClaimedNameOf {address} />
+            <NicknameOf {address} />
         </div>
         <div class="address">
             {address}

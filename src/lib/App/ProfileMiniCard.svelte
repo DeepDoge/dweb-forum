@@ -1,17 +1,17 @@
 <script lang="ts">
     import AddressOf from "./AddressOf.svelte";
-    import ClaimedNameOf from "./ClaimedNameOf.svelte";
-    import ProfileAvatar from "./ProfileAvatar.svelte";
+    import NicknameOf from "./NicknameOf.svelte";
+    import AvatarOf from "./AvatarOf.svelte";
 
     export let address: string;
 </script>
 
 <div class="card">
     <div class="avatar">
-        <ProfileAvatar {address} />
+        <AvatarOf {address} />
     </div>
     <div class="name">
-        <ClaimedNameOf {address} />
+        <NicknameOf {address} />
     </div>
     <div class="address">
         <AddressOf {address} />

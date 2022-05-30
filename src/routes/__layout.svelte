@@ -10,7 +10,9 @@
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
     import ClaimName from "$lib/App/ClaimName.svelte";
+    import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KModalHashRoute from "$lib/kicho-ui/components/KModalHashRoute.svelte";
+    import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import { BigNumber } from "ethers";
     import Header from "./_header.svelte";
 
@@ -35,7 +37,7 @@
         if (route.startsWith("#")) {
             switch (route.substring(1)) {
                 case "claim-name":
-                    return
+                    return;
                 default:
                     const postPrefix = "#post:";
                     if (route.startsWith(postPrefix)) {
@@ -56,6 +58,13 @@
             return (lastFoundPage = Topic);
         }
     }
+
+    let searchInput: string;
+    async function search() {
+        if (/^\d+$/.test(searchInput)) location.hash = `##post:${BigNumber.from(searchInput)}`;
+        if (searchInput.startsWith("#")) location.hash = searchInput;
+        if (isValidAddress(searchInput)) location.hash = `#${searchInput}`;
+    }
 </script>
 
 <layout>
@@ -67,6 +76,13 @@
                 {#key $provider.network.chainId}
                     <Header />
                     <main>
+
+                            <form class="search-form" on:submit|preventDefault={search}>
+                                <KTextField color="gradient" border bind:value={searchInput} placeholder="#Topic, 0xAddress, ENS name, PostIndex" />
+                                <KButton color="gradient">Search</KButton>
+                            </form>
+
+
                         {#if lastFoundPage}
                             <svelte:component this={lastFoundPage} {...pageProps} />
                         {/if}
@@ -110,6 +126,15 @@
         background-size: cover;
         background-image: var(--k-color-gradient);
         filter: opacity(0.25);
+    }
+
+    .search-form {
+        width: var(--k-page-width);
+        margin: auto;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: stretch;
+        gap: 0.5em;
     }
 
     footer {

@@ -3,7 +3,7 @@
     import { account } from "$/plugins/wallet";
     import AddressOf from "$lib/App/AddressOf.svelte";
     import Balance from "$lib/App/Balance.svelte";
-    import ClaimedNameOf from "$lib/App/ClaimedNameOf.svelte";
+    import NicknameOf from "$lib/App/NicknameOf.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
 </script>
 
@@ -11,7 +11,7 @@
     <div class="account">
         <KBoxEffect color="gradient" border glow blur radius="tile" contentBorderDirection="horizontal">
             <div class="account-info">
-                <span class="account-name"><ClaimedNameOf address={$account} /></span>
+                <span class="account-name"><NicknameOf address={$account} /></span>
                 <KButton text href="##claim-name" title="Claim name for: {$account}">
                     <div class="account-address">
                         <AddressOf address={$account} />
