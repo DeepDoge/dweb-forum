@@ -2,6 +2,7 @@
     import { getPost, getTimeline, TimelineId } from "$/plugins/api";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
+    import KChip from "$lib/kicho-ui/components/KChip.svelte";
     import AddressOf from "./AddressOf.svelte";
     import ClaimedNameOf from "./ClaimedNameOf.svelte";
 
@@ -30,36 +31,49 @@
     $: date = (post && new Date($post.publishTime.toNumber() * 1000)) ?? null;
 
     $: loading = postIndex && !post;
+
+    $: nftAvatar = false;
 </script>
 
-<article>
+<article class:nft={nftAvatar}>
     <div class="post">
-        <KBoxEffect color="mode" {loading} hideContent={loading}>
-            <div class="post-inner">
-                <div class="avatar" />
-                <div class="name">
-                    <ClaimedNameOf address={$post?.owner} />
-                </div>
-                <div class="address">
-                    <AddressOf address={$post?.owner} />
-                </div>
-                <div class="date-time text-inline">
-                    <span class="date text-inline">{date?.toLocaleString()}</span>
-                </div>
-                <div class="content text-multiline">
-                    <KBoxEffect color="mode" background blur>
-                        <p>{$post?.content}</p>
-                    </KBoxEffect>
-                </div>
-                <div class="actions">
-                    <KButton text size="x-smaller">
-                        <div>
-                            Reply to <ClaimedNameOf address={$post?.owner} />
-                        </div>
-                    </KButton>
-                </div>
+        <div class="avatar-container">
+            <div class="avatar" />
+            {#if nftAvatar}
+                <KChip size="xx-smaller" color="master">NFT</KChip>
+            {/if}
+        </div>
+        <div class="content-container">
+            <div class="avatar-arrow">
+                <KBoxEffect color="mode" radius="tile" background blur {loading} hideContent={loading}>
+                </KBoxEffect>
             </div>
-        </KBoxEffect>
+
+            <KBoxEffect color="mode" radius="tile" background blur {loading} hideContent={loading}>
+                <header>
+                    <KBoxEffect color="gradient" background radius="tile" >
+                        <div class="header-inner">
+                            <div class="name">
+                                <ClaimedNameOf address={$post?.owner} />
+                            </div>
+                            <div class="date-time text-inline">
+                                <span class="date text-inline">{date?.toLocaleString()}</span>
+                            </div>
+                        </div>
+                    </KBoxEffect>
+                </header>
+                <div class="content text-multiline">
+                    <p>{$post?.content}</p>
+                </div>
+            </KBoxEffect>
+        </div>
+    </div>
+    <div class="actions">
+        <KButton text size="x-smaller">
+            <div>
+                Reply to <ClaimedNameOf address={$post?.owner} />
+            </div>
+        </KButton>
     </div>
     {#if showReplies && $replies?.length > 0}
         <div class="replies">
@@ -67,47 +81,68 @@
                 <svelte:self postIndex={item.index} />
             {/each}
         </div>
-        <div class="show-in-thread-button">
-            <KButton text>Show in thread</KButton>
-        </div>
     {/if}
 </article>
 
 <style>
     article {
         display: grid;
-        gap: calc(var(--k-padding) * 2);
+        gap: calc(var(--k-padding));
     }
 
-    .show-in-thread-button {
+    .post {
         display: grid;
-        justify-content: center;
+        --avatar-size: 2em;
+        grid-template-columns: var(--avatar-size) 1fr;
+        gap: calc(var(--k-padding) * 2.5);
     }
 
-    .post-inner {
+    .avatar-container {
         display: grid;
-
-        grid-template-columns: 2.5em auto auto 1fr auto;
-        grid-template-areas:
-            "avatar name name name name"
-            "avatar address address address date-time"
-            ". content content content content"
-            ". actions actions actions actions";
+        grid-template-columns: 1fr;
         gap: var(--k-padding);
-
-        align-items: center;
+        align-content: start;
+        justify-items: center;
     }
+
+    .avatar {
+        justify-self: stretch;
+        aspect-ratio: 1/1;
+        border-radius: var(--k-border-radius-fab);
+        background-image: var(--k-color-gradient);
+    }
+
+    .content-container {
+        display: grid;
+        gap: calc(var(--k-padding) * .5);
+        padding: var(--k-padding);
+    }
+    .avatar-arrow {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: calc(var(--avatar-size) * .25);
+        aspect-ratio: 2/4;
+        transform: translate(calc(-100% + calc(var(--k-padding) * .25)), 50%);
+        clip-path: polygon(0 50%, 100% 0, 100% 100%);
+    }
+
+    .header-inner {
+        display: flex;
+        gap: var(--k-padding);
+        align-items: center;
+        padding: 0 calc(var(--k-padding) * .5);
+    }
+
     .replies {
         padding-left: calc(var(--k-padding) * 4);
     }
 
     .actions {
-        grid-area: actions;
         justify-self: end;
     }
 
     .name {
-        grid-area: name;
         display: grid;
         grid-auto-flow: column;
         justify-content: start;
@@ -116,28 +151,11 @@
         font-weight: bold;
     }
 
-    .avatar {
-        grid-area: avatar;
-        width: 100%;
-        aspect-ratio: 1/1;
-        border-radius: var(--k-border-radius-fab);
-        background-image: var(--k-color-gradient);
-        align-self: start;
-    }
-
-    .address {
-        grid-area: address;
-        font-size: var(--k-font-x-smaller);
-        filter: opacity(0.5);
-    }
-
     .date-time {
-        grid-area: date-time;
         font-size: var(--k-font-xx-smaller);
     }
 
     .content {
-        grid-area: content;
         display: box;
         display: -webkit-box;
         display: -moz-box;
@@ -147,7 +165,6 @@
         -webkit-box-orient: vertical;
         -moz-box-orient: vertical;
         overflow: hidden;
-        font-size: var(--k-font-larger);
-        padding: var(--k-padding);
+        padding: 0 calc(var(--k-padding) * .5);
     }
 </style>
