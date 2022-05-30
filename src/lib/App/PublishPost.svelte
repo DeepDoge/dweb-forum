@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { TimelineId } from "$/plugins/api";
+    import type { TimelineId } from "$/plugins/api/timeline";
     import { account, appContract, provider } from "$/plugins/wallet";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";

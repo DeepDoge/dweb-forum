@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { getPost,getTimeline,TimelineId } from "$/plugins/api";
+    import { getPost,getTimeline,TimelineId } from "$/plugins/api/timeline";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KChip from "$lib/kicho-ui/components/KChip.svelte";

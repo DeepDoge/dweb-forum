@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { getTimeline, TimelineId } from "$/plugins/api";
+    import { getTimeline, TimelineId } from "$/plugins/api/timeline";
     import Post from "$lib/App/Post.svelte";
     import Posts from "$lib/App/Posts.svelte";
     import PublishPost from "./PublishPost.svelte";

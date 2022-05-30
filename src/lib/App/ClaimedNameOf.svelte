@@ -23,7 +23,7 @@
                     caches[address].value.set(newName);
                 }
             );
-            appContract.profiles(address, stringToBigNumber("nickname")).then((value) => caches[address].value.set(value));
+            appContract.profiles(address, stringToBigNumber("nickname")).then((value) => caches[address]?.value.set(value));
         }
         caches[address].listenerCount++;
         return caches[address].value;
