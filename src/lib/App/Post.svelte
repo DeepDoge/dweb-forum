@@ -38,20 +38,21 @@
 <article class:nft={nftAvatar}>
     <div class="post">
         <div class="avatar-container">
-            <div class="avatar" />
+            <div class="avatar">
+                <KBoxEffect color="gradient" radius="normal" background {loading} hideContent={loading} />
+            </div>
             {#if nftAvatar}
                 <KChip size="xx-smaller" color="master">NFT</KChip>
             {/if}
         </div>
         <div class="content-container">
             <div class="avatar-arrow">
-                <KBoxEffect color="mode" radius="tile" background blur {loading} hideContent={loading}>
-                </KBoxEffect>
+                <KBoxEffect color="mode" radius="normal" background blur {loading} hideContent={loading} />
             </div>
 
-            <KBoxEffect color="mode" radius="tile" background blur {loading} hideContent={loading}>
+            <KBoxEffect color="mode" radius="normal" background blur {loading} hideContent={loading}>
                 <header>
-                    <KBoxEffect color="gradient" background radius="tile" >
+                    <KBoxEffect color="gradient" background radius="normal">
                         <div class="header-inner">
                             <div class="name">
                                 <ClaimedNameOf address={$post?.owner} />
@@ -94,6 +95,7 @@
         display: grid;
         --avatar-size: 2em;
         grid-template-columns: var(--avatar-size) 1fr;
+        align-items: start;
         gap: calc(var(--k-padding) * 2.5);
     }
 
@@ -108,22 +110,20 @@
     .avatar {
         justify-self: stretch;
         aspect-ratio: 1/1;
-        border-radius: var(--k-border-radius-fab);
-        background-image: var(--k-color-gradient);
     }
 
     .content-container {
         display: grid;
-        gap: calc(var(--k-padding) * .5);
+        gap: calc(var(--k-padding) * 0.5);
         padding: var(--k-padding);
     }
     .avatar-arrow {
         position: absolute;
         top: 0;
         left: 0;
-        width: calc(var(--avatar-size) * .25);
+        width: calc(var(--avatar-size) * 0.25);
         aspect-ratio: 2/4;
-        transform: translate(calc(-100% + calc(var(--k-padding) * .25)), 50%);
+        transform: translate(calc(-100% + calc(var(--k-padding) * 0.25)), 50%);
         clip-path: polygon(0 50%, 100% 0, 100% 100%);
     }
 
@@ -131,7 +131,7 @@
         display: flex;
         gap: var(--k-padding);
         align-items: center;
-        padding: 0 calc(var(--k-padding) * .5);
+        padding: 0 calc(var(--k-padding) * 0.5);
     }
 
     .replies {
@@ -165,6 +165,6 @@
         -webkit-box-orient: vertical;
         -moz-box-orient: vertical;
         overflow: hidden;
-        padding: 0 calc(var(--k-padding) * .5);
+        padding: 0 calc(var(--k-padding) * 0.5);
     }
 </style>

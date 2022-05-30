@@ -1,4 +1,6 @@
 <script context="module" lang="ts">
+    import { stringToBigNumber } from "$/plugins/common/stringToBigNumber";
+
     const caches: Record<
         string,
         {
@@ -9,14 +11,19 @@
     > = {};
 
     function getName(address: string) {
-        if (!address) return
+        if (!address) return;
         address = address.toLowerCase();
         if (!caches[address]) {
             caches[address] = { listenerCount: 0, value: writable(null), offListener: null };
-            caches[address].offListener = listenContract(appContract, appContract.filters.NicknameClaimed(address), (owner, newName, event) =>
-                caches[address].value.set(newName)
+            caches[address].offListener = listenContract(
+                appContract,
+                appContract.filters.ProfileSet(address, stringToBigNumber("nickname")),
+                (owner, key, newName, event) => {
+                    console.log(owner, key, newName, event);
+                    caches[address].value.set(newName);
+                }
             );
-            appContract.walletToNicknameMap(address).then((value) => caches[address].value.set(value));
+            appContract.profiles(address, stringToBigNumber("nickname")).then((value) => caches[address].value.set(value));
         }
         caches[address].listenerCount++;
         return caches[address].value;
@@ -63,6 +70,6 @@
     onDestroy(() => address && dispose(address));
 </script>
 
-<span title={$name?.trim() || "Anonymous"}>
-    {$name?.trim() || "Anonymous"}
+<span title={$name?.trim() || "Nameless"}>
+    {$name?.trim() || "Nameless"}
 </span>

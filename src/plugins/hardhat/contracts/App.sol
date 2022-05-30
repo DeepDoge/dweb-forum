@@ -4,15 +4,15 @@ pragma solidity ^0.8.0;
 contract App {
     /* 
     ==========================
-    Nickname
+    Profile
     ==========================
     */
-    mapping(address => string) public walletToNicknameMap;
-    event NicknameClaimed(address indexed owner, string nickname);
+    mapping(address => mapping(uint256 => string)) public profiles;
+    event ProfileSet(address indexed owner, uint256 indexed key, string value);
 
-    function claimNickname(string memory nickname) public {
-        walletToNicknameMap[msg.sender] = nickname;
-        emit NicknameClaimed(msg.sender, nickname);
+    function setProfile(uint256 key, string memory value) public {
+        profiles[msg.sender][key] = value;
+        emit ProfileSet(msg.sender, key, value);
     }
 
     /* 
