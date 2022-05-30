@@ -127,7 +127,7 @@
     }
 
     .search-form {
-        width: 50em;
+        width: min(50em, 100%);
         margin: auto;
         display: grid;
         grid-template-columns: 1fr auto;

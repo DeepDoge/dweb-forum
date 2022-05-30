@@ -111,7 +111,8 @@
     }
 
     .header-inner {
-        display: flex;
+        display: grid;
+        grid-auto-flow: column;
         gap: var(--k-padding);
         align-items: center;
         padding: 0 calc(var(--k-padding) * 0.5);
@@ -136,6 +137,7 @@
 
     .date-time {
         font-size: var(--k-font-xx-smaller);
+        justify-self: end;
     }
 
     .content {
