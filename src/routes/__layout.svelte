@@ -104,8 +104,8 @@
 <style>
     :global(:root) {
         --root-font-size-mul: 1;
-        --k-color-master: #00afd6;
-        --k-color-slave: #3a7bd5;
+        --k-color-master: #2e7bd2;
+        --k-color-slave: #3a44d5;
         --k-color-master-contrast: rgba(255, 255, 255, 0.9);
         --k-color-slave-contrast: rgba(255, 255, 255, 0.9);
         --k-color-gradient-contrast: rgba(255, 255, 255, 0.9);
