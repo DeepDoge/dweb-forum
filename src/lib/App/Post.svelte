@@ -1,10 +1,12 @@
 <script lang="ts">
-    import { getPost, getTimeline, TimelineId } from "$/plugins/api";
+    import { getPost,getTimeline,TimelineId } from "$/plugins/api";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KChip from "$lib/kicho-ui/components/KChip.svelte";
-    import AddressOf from "./AddressOf.svelte";
+import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
     import ClaimedNameOf from "./ClaimedNameOf.svelte";
+import ProfileAvatar from "./ProfileAvatar.svelte";
+import ProfileMiniCard from "./ProfileMiniCard.svelte";
 
     export let postIndex: Parameters<typeof getPost>[0];
     export let showReplies = false;
@@ -31,20 +33,11 @@
     $: date = (post && new Date($post.publishTime.toNumber() * 1000)) ?? null;
 
     $: loading = postIndex && !post;
-
-    $: nftAvatar = false;
 </script>
 
-<article class:nft={nftAvatar}>
+<article>
     <div class="post">
-        <div class="avatar-container">
-            <div class="avatar">
-                <KBoxEffect color="gradient" radius="normal" background {loading} hideContent={loading} />
-            </div>
-            {#if nftAvatar}
-                <KChip size="xx-smaller" color="master">NFT</KChip>
-            {/if}
-        </div>
+        <ProfileAvatar address={$post?.owner}></ProfileAvatar>
         <div class="content-container">
             <div class="avatar-arrow">
                 <KBoxEffect color="mode" radius="normal" background blur {loading} hideContent={loading} />
@@ -56,6 +49,9 @@
                         <div class="header-inner">
                             <div class="name">
                                 <ClaimedNameOf address={$post?.owner} />
+                                <KHoverMenu>
+                                    <ProfileMiniCard address={$post?.owner}></ProfileMiniCard>
+                                </KHoverMenu>
                             </div>
                             <div class="date-time text-inline">
                                 <span class="date text-inline">{date?.toLocaleString()}</span>
@@ -97,19 +93,6 @@
         grid-template-columns: var(--avatar-size) 1fr;
         align-items: start;
         gap: calc(var(--k-padding) * 2.5);
-    }
-
-    .avatar-container {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: var(--k-padding);
-        align-content: start;
-        justify-items: center;
-    }
-
-    .avatar {
-        justify-self: stretch;
-        aspect-ratio: 1/1;
     }
 
     .content-container {
