@@ -10,7 +10,9 @@
 
     let jazziconElement: HTMLDivElement;
     $: jazziconElement = address ? jazzicon(100, parseInt(address.substring("0x".length, 10), 16)) : null;
-    $: jazziconDataURL = jazziconElement ? `data:image/svg+xml;base64,${window.btoa(new XMLSerializer().serializeToString(jazziconElement.querySelector("svg")))}` : null;
+    $: jazziconDataURL = jazziconElement
+        ? `data:image/svg+xml;base64,${window.btoa(new XMLSerializer().serializeToString(jazziconElement.querySelector("svg")))}`
+        : null;
 </script>
 
 <div class="avatar-container">
@@ -43,6 +45,8 @@
     img {
         overflow: hidden;
         object-fit: cover;
+        width: 100%;
+        color: transparent;
     }
 
     img::before {
