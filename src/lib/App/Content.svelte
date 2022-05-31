@@ -57,7 +57,7 @@
 
     .profile-inline {
         display: inline-grid;
-        grid-template-columns: 2ch auto;
+        grid-template-columns: 1.5ch auto;
         gap: .1em;
         align-items: center;
         place-content: center;
