@@ -2,11 +2,11 @@
     export let address: string;
 </script>
 
-<span aria-label={address} title={address} class="address text-inline" data-start={address?.substring(0, 39)} data-end={address?.substring(39)} />
+<div aria-label={address} title={address} class="address k-text-singleline" data-start={address?.substring(0, 39)} data-end={address?.substring(39)} />
 
 <style>
     .address {
-        display: grid;
+        display: inline-grid;
         grid-template-columns: auto auto;
         justify-content: start;
     }

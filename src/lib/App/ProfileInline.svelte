@@ -6,10 +6,10 @@
 </script>
 
 <div class="profile">
-    <span class="nickname text-inline">
+    <span class="nickname k-text-singleline">
         <NicknameOf {address} />
     </span>
-    <span class="address text-inline">
+    <span class="address k-text-singleline">
         <AddressOf {address} />
     </span>
 </div>

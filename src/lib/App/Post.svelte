@@ -46,25 +46,25 @@
 
             <KBoxEffect color="mode" radius="normal" background blur {loading} hideContent={loading}>
                 <header>
-                    <KBoxEffect color="gradient" background radius="normal">
+                    <KBoxEffect color="gradient" background radius="tile">
                         <div class="header-inner">
-                            <div class="name">
+                            <a href="#{$post?.owner}" class="name">
                                 <NicknameOf address={$post?.owner} />
                                 <KHoverMenu>
                                     <ProfileMiniCard address={$post?.owner} />
                                 </KHoverMenu>
-                            </div>
-                            <div class="date-time text-inline">
-                                <span class="date text-inline">{date?.toLocaleString()}</span>
+                            </a>
+                            <div class="date-time k-text-singleline">
+                                <span class="date k-text-singleline">{date?.toLocaleString()}</span>
                             </div>
                         </div>
                     </KBoxEffect>
                 </header>
-                <div class="content text-multiline">
+                <div class="content k-text-multiline">
                     {#if $post}
-                    <Content content={$post?.content} />
+                        <Content content={$post?.content} />
                     {:else}
-                    ...
+                        ...
                     {/if}
                 </div>
             </KBoxEffect>
@@ -105,6 +105,11 @@
         gap: calc(var(--k-padding) * 0.5);
         padding: var(--k-padding);
     }
+
+    .content {
+        padding: 0 var(--k-padding);
+    }
+
     .avatar-arrow {
         position: absolute;
         top: 0;
@@ -144,17 +149,5 @@
     .date-time {
         font-size: var(--k-font-xx-smaller);
         justify-self: end;
-    }
-
-    .content {
-        display: box;
-        display: -webkit-box;
-        display: -moz-box;
-        line-clamp: 3;
-        -webkit-line-clamp: 8;
-        box-orient: vertical;
-        -webkit-box-orient: vertical;
-        -moz-box-orient: vertical;
-        padding: 0 calc(var(--k-padding) * 0.5);
     }
 </style>

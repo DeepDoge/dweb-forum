@@ -17,7 +17,7 @@ import { blankImageData } from "$/plugins/common/blankImage";
         : blankImageData;
 </script>
 
-<div class="avatar-container">
+<a href="#{address}" class="avatar-container">
     <div class="avatar">
         <KBoxEffect color="mode" radius="normal" background {loading} hideContent={loading}>
             <img alt="Avatar of {address}" style:--jazzicon="url({jazziconDataURL})" />
@@ -26,7 +26,7 @@ import { blankImageData } from "$/plugins/common/blankImage";
     {#if nftAvatar}
         <KChip size="xx-smaller" color="master">NFT</KChip>
     {/if}
-</div>
+</a>
 
 <style>
     .avatar-container {

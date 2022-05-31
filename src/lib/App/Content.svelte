@@ -2,8 +2,9 @@
     import { isValidAddress } from "$/plugins/common/isValidAddress";
     import { isValidIpfsHash } from "$/plugins/common/isValidIpfsHash";
     import { getIpfsUrl } from "$/plugins/ipfs/url";
-    import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
+    import AvatarOf from "./AvatarOf.svelte";
+    import NicknameOf from "./NicknameOf.svelte";
     import ProfileMiniCard from "./ProfileMiniCard.svelte";
 
     export let content: string;
@@ -12,16 +13,17 @@
 
 {#each array as part, i (i)}
     {#if isValidAddress(part)}
-        <KButton text>
-            {part}
-            <KHoverMenu>
-                <ProfileMiniCard address={part} />
-            </KHoverMenu>
-        </KButton>
+        <a class="profile-inline" href="#{part}">
+                <AvatarOf address={part} />
+                <NicknameOf address={part} />
+                <KHoverMenu>
+                    <ProfileMiniCard address={part} />
+                </KHoverMenu>
+        </a>
     {:else if isValidIpfsHash(part)}
-        <a class="text-inline" href={getIpfsUrl(part)}>{part}</a>
+        <a target="_blank" href={getIpfsUrl(part)}>{part}</a>
     {:else if part.startsWith("image,") && isValidIpfsHash(part.substring("image,".length))}
-        <a class="image-link text-inline" href={getIpfsUrl(part.substring("image,".length))}>{part.substring("image,".length)}</a>
+        <a target="_blank" href={getIpfsUrl(part.substring("image,".length))}>{part.substring("image,".length)}</a>
         <div class="image">
             <img alt="IPFS" src={getIpfsUrl(part.substring("image,".length))} />
         </div>
@@ -33,23 +35,32 @@
 {/each}
 
 <style>
-    .image {
-        width: min(100%, 20em);
-        aspect-ratio: 4/3;
-        margin: var(--k-padding) 0;
-    }
-    .image-link {
-        display: block;
+    img {
+        min-width: 10rem;
+        max-height: 100%;
+        object-fit: contain;
+        object-position: left;
+
+        background-color: var(--k-color-mode-pop);
     }
 
-    img {
-        position: absolute;
-        inset: 0;
+    .image {
+        float: left;
         width: 100%;
-        height: 100%;
-        object-fit: contain;
-        object-position: center;
-        background-color: black;
+        display: grid;
+        justify-content: start;
+        grid-template-columns: minmax(10rem, max-content);
+        grid-template-rows: 15em;
+        padding: var(--k-padding);
+    }
+
+    .profile-inline {
+        display: inline-grid;
+        grid-template-columns: 2ch auto;
+        gap: .1em;
+        align-items: center;
+        place-content: center;
+        white-space: nowrap;
     }
 
     a {

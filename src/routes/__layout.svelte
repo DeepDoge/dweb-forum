@@ -20,6 +20,8 @@
 </script>
 
 <script lang="ts">
+    import KPageContainer from "$lib/kicho-ui/components/KPageContainer.svelte";
+
     const pushState = history.pushState;
     history.pushState = function (...params) {
         try {
@@ -76,10 +78,18 @@
                 {#key $provider.network.chainId}
                     <Header />
                     <main>
-                        <form class="search-form" on:submit|preventDefault={search}>
-                            <KTextField color="mode" background blur bind:value={searchInput} placeholder="#Topic, 0xAddress, ENS name, PostIndex" />
-                            <KButton color="gradient">Search</KButton>
-                        </form>
+                        <KPageContainer>
+                            <form class="search-form" on:submit|preventDefault={search}>
+                                <KTextField
+                                    color="mode"
+                                    background
+                                    blur
+                                    bind:value={searchInput}
+                                    placeholder="#Topic, 0xAddress, ENS name, PostIndex"
+                                />
+                                <KButton color="gradient">Search</KButton>
+                            </form>
+                        </KPageContainer>
 
                         {#if lastFoundPage}
                             <svelte:component this={lastFoundPage} {...pageProps} />
@@ -123,12 +133,10 @@
         inset: 0;
         background-size: cover;
         background-image: linear-gradient(to left bottom, var(--k-color-master), var(--k-color-slave));
-        filter: opacity(0.1);
+        filter: opacity(0.25);
     }
 
     .search-form {
-        width: min(50em, 100%);
-        margin: auto;
         display: grid;
         grid-template-columns: 1fr auto;
         align-items: stretch;

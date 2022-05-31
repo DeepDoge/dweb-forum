@@ -37,7 +37,7 @@ import Timeline from "./Timeline.svelte";
         {/each}
     </div>
     {#if !bottomEnd}
-        <KIntersectionObserver bind:intersecting={bottomIntersecting}>
+        <KIntersectionObserver bind:intersecting={bottomIntersecting} rootMargin="{window.innerHeight * 5}px 0px">
             <KButton loading={$loadingBottom} text on:click={async () => (lastLoadMoreResult = await timeline.loadMore())}>Load More</KButton>
         </KIntersectionObserver>
     {:else}
