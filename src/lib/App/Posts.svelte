@@ -2,7 +2,6 @@
     import type { getTimeline } from "$/plugins/api/timeline";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KIntersectionObserver from "$lib/kicho-ui/components/KIntersectionObserver.svelte";
-import Timeline from "./Timeline.svelte";
     export let timeline: Awaited<ReturnType<typeof getTimeline>>;
     $: items = timeline?.items;
 

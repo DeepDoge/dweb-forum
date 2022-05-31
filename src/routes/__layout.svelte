@@ -31,11 +31,15 @@
     };
 
     let lastFoundPage: any = null;
+    let lastPageHash: string = null;
     $: $page && onHashChange();
     let pageProps: object = {};
     async function onHashChange() {
         const route = $page.url.hash.substring(1);
-        if (!route) return (lastFoundPage = Index);
+        if (!route) {
+            lastFoundPage = Index;
+            return;
+        }
         if (route.startsWith("#")) {
             switch (route.substring(1)) {
                 case "claim-name":
@@ -44,20 +48,24 @@
                     const postPrefix = "#post:";
                     if (route.startsWith(postPrefix)) {
                         pageProps = { postIndex: BigNumber.from(route.substring(postPrefix.length)) };
-                        return (lastFoundPage = Post);
+                        lastFoundPage = Post;
+                        return;
                     }
-                    return (lastFoundPage = A4);
+                    lastFoundPage = A4;
+                    return;
             }
         }
 
         if (isValidAddress(route)) {
             pageProps = { address: route };
-            return (lastFoundPage = Profile);
+            lastFoundPage = Profile;
+            return;
         }
 
         {
             pageProps = { topic: route };
-            return (lastFoundPage = Topic);
+            lastFoundPage = Topic;
+            return;
         }
     }
 
