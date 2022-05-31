@@ -1,73 +1,15 @@
-<script context="module" lang="ts">
+<script lang="ts">
     import "$/lib/kicho-ui/root.css";
-    import A4 from "$/pages/404.svelte";
-    import Index from "$/pages/index.svelte";
-    import Post from "$/pages/post.svelte";
-    import Profile from "$/pages/profile.svelte";
-    import Topic from "$/pages/topic.svelte";
     import { isValidAddress } from "$/plugins/common/isValidAddress";
-    import { isContractsReady, provider } from "$/plugins/wallet";
-    import { goto } from "$app/navigation";
-    import { page } from "$app/stores";
+    import { isContractsReady,provider } from "$/plugins/wallet";
     import ClaimName from "$lib/App/ClaimName.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KModalHashRoute from "$lib/kicho-ui/components/KModalHashRoute.svelte";
+    import KPageContainer from "$lib/kicho-ui/components/KPageContainer.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import { BigNumber } from "ethers";
     import Header from "./_header.svelte";
-
-    window.addEventListener("hashchange", () => goto(location.href));
-</script>
-
-<script lang="ts">
-    import KPageContainer from "$lib/kicho-ui/components/KPageContainer.svelte";
-
-    const pushState = history.pushState;
-    history.pushState = function (...params) {
-        try {
-            if (params[2].toString() === location.href) return;
-            pushState(...params);
-        } catch (error) {}
-    };
-
-    let lastFoundPage: any = null;
-    let lastPageHash: string = null;
-    $: $page && onHashChange();
-    let pageProps: object = {};
-    async function onHashChange() {
-        const route = $page.url.hash.substring(1);
-        if (!route) {
-            lastFoundPage = Index;
-            return;
-        }
-        if (route.startsWith("#")) {
-            switch (route.substring(1)) {
-                case "claim-name":
-                    return;
-                default:
-                    const postPrefix = "#post:";
-                    if (route.startsWith(postPrefix)) {
-                        pageProps = { postIndex: BigNumber.from(route.substring(postPrefix.length)) };
-                        lastFoundPage = Post;
-                        return;
-                    }
-                    lastFoundPage = A4;
-                    return;
-            }
-        }
-
-        if (isValidAddress(route)) {
-            pageProps = { address: route };
-            lastFoundPage = Profile;
-            return;
-        }
-
-        {
-            pageProps = { topic: route };
-            lastFoundPage = Topic;
-            return;
-        }
-    }
+    import Routing from "./_routing.svelte";
 
     let searchInput: string;
     async function search() {
@@ -99,9 +41,8 @@
                             </form>
                         </KPageContainer>
 
-                        {#if lastFoundPage}
-                            <svelte:component this={lastFoundPage} {...pageProps} />
-                        {/if}
+                        <Routing />
+
                         <KModalHashRoute hash="##claim-name">
                             <ClaimName on:done={() => history.back()} />
                         </KModalHashRoute>
