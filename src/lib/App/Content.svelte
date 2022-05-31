@@ -62,6 +62,7 @@
         align-items: center;
         place-content: center;
         white-space: nowrap;
+        vertical-align: top
     }
 
     a {
