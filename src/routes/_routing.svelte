@@ -30,8 +30,7 @@
     function setCurrentPage<T extends Page>(component: T, props: T["prototype"]["$$prop_def"]) {
         const currentPageCache = currentPage;
         currentPage = component;
-        const state = pageStates[currentPage.name] ?? (pageStates[currentPage.name] = { props: null });
-        state.props = props;
+        const state = (pageStates[currentPage.name] = { ...pageStates[currentPage.name], props: props });
 
         if (currentPageCache && currentPage !== currentPageCache) {
             const scrollingElement = document.scrollingElement ?? document.body;
