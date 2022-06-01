@@ -13,7 +13,8 @@
 
 {#each array as part, i (i)}
     {#if isValidAddress(part)}
-        <a class="profile-inline" href="#{part}">
+        <span class="profile-inline-address">{part}</span>
+        <a data-address={part} class="profile-inline" href="#{part}">
             <AvatarOf address={part} />
             <NicknameOf address={part} />
             <KHoverMenu>
@@ -22,12 +23,14 @@
         </a>
     {:else if isValidIpfsHash(part)}
         <a target="_blank" href={getIpfsUrl(part)}>{part}</a>
-    {:else if part.startsWith("image,") && isValidIpfsHash(part.substring("image,".length))}
-        <a class="image" target="_blank" href={getIpfsUrl(part.substring("image,".length))}>
-            <img alt="IPFS" src={getIpfsUrl(part.substring("image,".length))} />
+    {:else if part.startsWith("img,") && isValidIpfsHash(part.substring("img,".length))}
+        <div class="image">
+        <a target="_blank" href={getIpfsUrl(part.substring("img,".length))}>
+            <img alt={part} src={getIpfsUrl(part.substring("img,".length))} />
         </a>
+    </div>
     {:else if part === "\n"}
-        <br />
+        {part}<br />
     {:else}
         {part}
     {/if}
@@ -41,12 +44,11 @@
         height: 100%;
         object-fit: contain;
         object-position: left;
-
-        background-color: var(--k-color-mode-pop);
+        background-color: var(--k-color-mode);
+        overflow: hidden;
     }
 
     .image {
-        width: 100%;
         display: grid;
         justify-content: start;
         grid-template-columns: auto;
@@ -62,6 +64,15 @@
         place-content: center;
         white-space: nowrap;
         vertical-align: top;
+    }
+    .profile-inline :global(*)
+    {
+        user-select: none;
+    }
+    .profile-inline-address {
+        position: absolute;
+        pointer-events: none;
+        opacity: 0;
     }
 
     a {

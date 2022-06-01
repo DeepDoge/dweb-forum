@@ -1,10 +1,12 @@
 <script lang="ts">
     import type { TimelineId } from "$/plugins/api/timeline";
+    import { isValidIpfsHash } from "$/plugins/common/isValidIpfsHash";
     import { account, appContract, provider } from "$/plugins/wallet";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KDialog, { createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
+    import CID from "cids";
     import { createEventDispatcher } from "svelte";
 
     const dispatchEvent = createEventDispatcher();
@@ -15,10 +17,16 @@
     let publishing = false;
     async function publish(params: { content: string }) {
         try {
+            let content = "";
+            const parts = params.content?.split(/([\s,]+)/) ?? [];
+            for (const part of parts)
+                if (isValidIpfsHash(part) && part.startsWith("bafy")) content += new CID(part).toV0().toString();
+                else content += part;
+
             publishing = true;
             const gasPrice = await $provider.getGasPrice();
             await (
-                await appContract.publishPost(timelineId, params.content, {
+                await appContract.publishPost(timelineId, content, {
                     value: gasPrice
                         .mul(2)
                         .mul(await appContract.PUBLISH_GAS())
