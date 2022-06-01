@@ -36,12 +36,15 @@ contract App {
     }
 
 
-    function _getTimeline(TimelineId memory timelineId) private view returns (Timeline storage) {
+    function getTimeline(TimelineId memory timelineId) private view returns (Timeline storage) {
         return timelines[timelineId.group][timelineId.id];
     }
-
-    function getTimeline(TimelineId memory timelineId) public view returns (Timeline memory) {
-        return timelines[timelineId.group][timelineId.id];
+    function getTimelineLength(TimelineId memory timelineId) public view returns (uint256)
+    {
+        return getTimeline(timelineId).postIndexes.length;
+    }
+    function timelineLength(TimelineId memory timelineId) public view returns (uint256) {
+        return getTimeline(timelineId).postIndexes.length;
     }
 
     struct PostData
@@ -49,15 +52,15 @@ contract App {
         Post post;
         ContentData content;
     }
-    function getTimelinePost(TimelineId memory timelineId, uint256 timelineIndex) public view returns (PostData memory) {
-        Timeline storage timeline = _getTimeline(timelineId);
-        Post memory post = posts[timeline.postIndexes[timelineIndex]];
+    function getTimelinePostData(TimelineId memory timelineId, uint256 timelineIndex) public view returns (PostData memory) {
+        Timeline storage timeline = getTimeline(timelineId);
+        return getPostData(timeline.postIndexes[timelineIndex]);
+    }
+    function getPostData(uint256 postIndex) public view returns (PostData memory)
+    {
+        Post memory post = posts[postIndex];
         ContentData[] storage history = postContentHistory[post.index];
         return PostData(post, history[history.length - 1]);
-    }
-
-    function timelineLength(TimelineId memory timelineId) public view returns (uint256) {
-        return _getTimeline(timelineId).postIndexes.length;
     }
 
     Post[] public posts;
@@ -117,10 +120,11 @@ contract App {
         emit PostMetadataSet(postIndex, key, value, block.timestamp);
     }
 
-    event TimelineAddPost(TimelineId indexed timelineId, uint256 indexed postIndex, uint256 timestamp);
+    event TimelineAddPost(TimelineGroup indexed timelineGroup, uint256 indexed timelineIndex, uint256 indexed postIndex, uint256 timelinePostIndex, PostData postData, uint256 timestamp);
     function addPostToTimeline(TimelineId memory timelineId, uint256 postIndex) private {
-        Timeline storage timeline = _getTimeline(timelineId);
+        Timeline storage timeline = getTimeline(timelineId);
+        uint256 timelinePostIndex = timeline.postIndexes.length;
         timeline.postIndexes.push() = postIndex;
-        emit TimelineAddPost(timelineId, postIndex, block.timestamp);
+        emit TimelineAddPost(timelineId.group, timelineId.id, postIndex, timelinePostIndex, getPostData(postIndex), block.timestamp);
     }
 }

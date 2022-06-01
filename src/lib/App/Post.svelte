@@ -2,43 +2,44 @@
     import { getPost, getTimeline, TimelineId } from "$/plugins/api/timeline";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
-    import KChip from "$lib/kicho-ui/components/KChip.svelte";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
-    import NicknameOf from "./NicknameOf.svelte";
+    import type { BigNumber } from "ethers";
     import AvatarOf from "./AvatarOf.svelte";
-    import ProfileMiniCard from "./ProfileMiniCard.svelte";
     import Content from "./Content.svelte";
+    import NicknameOf from "./NicknameOf.svelte";
+    import ProfileMiniCard from "./ProfileMiniCard.svelte";
 
-    export let postIndex: Parameters<typeof getPost>[0];
+    export let postIndex: BigNumber;
     export let showReplies = false;
 
-    let post: Awaited<ReturnType<typeof getPost>> = null;
+    let postData: Awaited<ReturnType<typeof getPost>> = null;
+
     let repliesTimelineId: TimelineId;
     $: repliesTimelineId = { group: 1, id: postIndex };
     let repliesTimeline: Awaited<ReturnType<typeof getTimeline>> = null;
     $: replies = repliesTimeline?.items;
-    $: postIndex?.toString() !== $post?.index.toString() && updatePost();
+
+    $: postIndex?.toString() !== $postData?.post.index.toString() && updatePost();
     $: !showReplies && (repliesTimeline = null);
     async function updatePost() {
-        post = null;
+        postData = null;
         repliesTimeline = null;
-        post = await getPost(postIndex);
+        if (postIndex.lt(0)) return;
+        postData = await getPost(postIndex);
         if (showReplies) await updateReplies();
     }
     async function updateReplies() {
         repliesTimeline = await getTimeline(repliesTimelineId);
-        if (!(await repliesTimeline.loadNewer())) return;
-        for (let i = 0; i < 3; i++) if (!(await repliesTimeline.loadMore())) return;
     }
 
-    $: date = (post && new Date($post.publishTime.toNumber() * 1000)) ?? null;
+    $: date = (postData && new Date($postData.content.publishTime.toNumber() * 1000)) ?? null;
 
-    $: loading = postIndex && !post;
+    $: loading = postIndex && !postData;
 </script>
 
 <article>
     <div class="post">
-        <AvatarOf address={$post?.owner} />
+        <AvatarOf address={$postData?.post.owner} />
         <div class="content-container">
             <div class="avatar-arrow">
                 <KBoxEffect color="mode" radius="normal" background blur {loading} />
@@ -48,10 +49,10 @@
                 <header>
                     <KBoxEffect color="gradient" background radius="tile">
                         <div class="header-inner">
-                            <a href="#{$post?.owner}" class="name">
-                                <NicknameOf address={$post?.owner} />
+                            <a href="#{$postData?.post.owner}" class="name">
+                                <NicknameOf address={$postData?.post.owner} />
                                 <KHoverMenu>
-                                    <ProfileMiniCard address={$post?.owner} />
+                                    <ProfileMiniCard address={$postData?.post.owner} />
                                 </KHoverMenu>
                             </a>
                             <div class="date-time k-text-singleline">
@@ -61,8 +62,8 @@
                     </KBoxEffect>
                 </header>
                 <div class="content k-text-multiline">
-                    {#if $post}
-                        <Content content={$post?.content} />
+                    {#if $postData}
+                        <Content content={$postData?.content.content} />
                     {:else}
                         ...
                     {/if}
@@ -71,16 +72,12 @@
         </div>
     </div>
     <div class="actions">
-        <KButton text size="x-smaller">
-            <div>
-                Reply to <NicknameOf address={$post?.owner} />
-            </div>
-        </KButton>
+        <KButton text>Reply to <NicknameOf address={$postData?.post.owner} /></KButton>
     </div>
     {#if showReplies && $replies?.length > 0}
         <div class="replies">
-            {#each $replies as item (item.index.toString())}
-                <svelte:self postIndex={item.index} />
+            {#each $replies as item (item.toString())}
+                <svelte:self postIndex={item} />
             {/each}
         </div>
     {/if}
@@ -89,7 +86,10 @@
 <style>
     article {
         display: grid;
-        gap: calc(var(--k-padding));
+        grid-template-rows: auto auto;
+        align-items: start;
+        align-content: start;
+        gap: calc(var(--k-padding) * 0);
     }
 
     .post {
@@ -134,6 +134,8 @@
     }
 
     .actions {
+        display: grid;
+        font-size: var(--k-font-x-smaller);
         justify-self: end;
     }
 

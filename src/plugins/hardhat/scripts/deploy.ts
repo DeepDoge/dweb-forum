@@ -46,21 +46,11 @@ async function main()
     return deployed[chainId][name]
   }
 
-  const Migrations = await ethers.getContractFactory("Migrations")
-  const migrationsAddress = getAddressIfDeployed('Migrations')
-  const migrations = migrationsAddress ? Migrations.attach(migrationsAddress) : await Migrations.deploy()
-
-  await migrations.deployed()
-  setAsDeployed('Migrations', migrations.address)
-
   const App = await ethers.getContractFactory("App")
   const app = await App.deploy()
 
   await app.deployed()
   setAsDeployed('App', app.address)
-
-  console.log(`Migrating App as ${app.address}`)
-  migrations.upgrade(app.address)
 }
 
 // We recommend this pattern to be able to use async/await everywhere

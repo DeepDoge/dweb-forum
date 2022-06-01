@@ -1,6 +1,6 @@
 import deployed from '$/plugins/hardhat/scripts/deployed.json'
 import type { App } from '$/plugins/hardhat/typechain-types'
-import { App__factory, Migrations__factory } from "$/plugins/hardhat/typechain-types"
+import { App__factory } from "$/plugins/hardhat/typechain-types"
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers"
 import { ethers } from "ethers"
 import type { Writable } from 'svelte/store'
@@ -24,7 +24,7 @@ const providerChange = asyncFunctionQueue(async (provider: Web3Provider | JsonRp
 
     console.log(chainId, provider)
  
-    if (!(contractAddress = deployed[chainId]?.['Migrations'] ?? null))
+    if (!(contractAddress = deployed[chainId]?.['App'] ?? null))
     {
         isContractsReady.set('wrongNetwork')
         throw new Error('Wrong Network')
@@ -32,9 +32,8 @@ const providerChange = asyncFunctionQueue(async (provider: Web3Provider | JsonRp
 
     const signer = provider instanceof Web3Provider ? provider.getSigner() : provider.getSigner('0x0000000000000000000000000000000000000000')
 
-    const migrationsContract = Migrations__factory.connect(contractAddress, signer)
     appContract?.removeAllListeners()
-    appContract = App__factory.connect(await migrationsContract.lastVersionContractAddress(), signer)
+    appContract = App__factory.connect(contractAddress, signer)
 
     isContractsReady.set(true)
 })

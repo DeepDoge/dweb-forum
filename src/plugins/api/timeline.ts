@@ -2,87 +2,83 @@ import { BigNumber } from "ethers"
 import type { Writable } from "svelte/store"
 import { get, writable } from "svelte/store"
 import { appContract } from "../wallet"
+import { listenContract } from "../wallet/listen"
 
-export type PostType = Awaited<ReturnType<typeof appContract.posts>>
-export type TimelineId = Parameters<typeof appContract['timelineLength']>[0]
-const posts: Record<string, Writable<PostType>> = {}
+export type PostData = Awaited<ReturnType<typeof appContract.getPostData>>
+export type TimelineId = Parameters<typeof appContract['getTimelineLength']>[0]
+const posts: Record<string, Writable<PostData>> = {}
 
-export async function getPost(postIndex: Parameters<typeof appContract.posts>[0])
+export async function getPost(postIndex: Parameters<typeof appContract.getPostData>[0])
 {
-    const index = postIndex.toString()
-    return posts[index] ?? (posts[index] = writable(await appContract.posts(index)))
+    const key = postIndex.toString()
+    return posts[key] ?? (posts[key] = writable(await appContract.getPostData(key)))
 }
 
-export async function getTimeline(id: TimelineId)
+function setPostData(postData: PostData)
 {
-    const items: Writable<{ index: BigNumber, timelinePostIndex: BigNumber }[]> = writable([])
-    let timelineCache = await appContract.getTimeline(id)
-    const pivot = timelineCache.endIndex
+    const key = postData.post.index.toString()
+    posts[key] ? posts[key].set(postData) : (posts[key] = writable(postData))
+}
 
-    let downIndex = pivot.sub(1)
-    let loadMoreRunnning: Writable<boolean> = writable(false)
+const timelineListeners: Record<string, () => void> = {}
+
+export async function getTimeline(timelineId: TimelineId)
+{
+    const items: Writable<BigNumber[]> = writable([])
+    let loading: Writable<boolean> = writable(false)
+
+    const length = (await appContract.getTimelineLength(timelineId));
+    let pivot = length
+
+    if (timelineListeners[`${timelineId.group}:${timelineId.id}`]) timelineListeners[`${timelineId.group}:${timelineId.id}`]()
+    timelineListeners[`${timelineId.group}:${timelineId.id}`] = listenContract(
+        appContract, appContract.filters.TimelineAddPost(timelineId.group, timelineId.id),
+        (timelineGroup, timelineId, postIndex, timelinePostIndex, postData, timestamp) =>
+        {
+            if (get(items)[0] && postIndex.lte(get(items)[0])) return
+            setPostData(postData)
+            items.update((old) => [postIndex, ...old])
+        })
 
     async function loadMore(): Promise<boolean | void>
     {
-        if (get(loadMoreRunnning)) return
-        loadMoreRunnning.set(true)
+        if (get(loading)) return
+        loading.set(true)
         try
         {
-            timelineCache = await appContract.getTimeline(id)
-            if (downIndex.lt(timelineCache.startIndex)) return false
-
-            const timelinePostIndex = downIndex
-            const link = await appContract.getTimelinePost(id, timelinePostIndex)
-
-            downIndex = downIndex.lte(timelineCache.startIndex) ? BigNumber.from(-1) : link.beforePostIndex
-            items.update((old) => ([...old, { index: link.postIndex, timelinePostIndex }]))
+            const count = 64
+            const promises: Promise<PostData>[] = []
+            for (let i = 0; i < count; i++)
+            {
+                pivot = pivot.sub(1)
+                if (pivot.lt(0)) break
+                items.update((old) => [...old, BigNumber.from(-i - 1)])
+                promises.push((async () =>
+                {
+                    const postData = await appContract.getTimelinePostData(timelineId, pivot)
+                    setPostData(postData)
+                    return postData
+                })())
+            }
+            await Promise.all(promises)
+            items.update((old) => old.slice(0, old.length - promises.length))
+            for (const promise of promises)
+            {
+                const postData = await promise
+                items.update((old) => [...old, postData.post.index])
+            }
+            if (promises.length < count) return false
             return true
         }
         finally
         {
-            loadMoreRunnning.set(false)
-        }
-    }
-
-    let upIndex = pivot
-    let loadNewerRunning: Writable<boolean> = writable(false)
-
-    async function loadNewer(): Promise<boolean | void>
-    {
-        if (get(loadNewerRunning)) return
-        loadNewerRunning.set(true)
-        try
-        {
-            if (get(items).length === 0) 
-            {
-                const length = (await appContract.timelineLength(id))
-                if (length.eq(0)) return false
-                timelineCache = await appContract.getTimeline(id)
-            }
-            else
-            {
-                timelineCache = await appContract.getTimeline(id)
-                if (upIndex.gt(timelineCache.endIndex)) return false
-            }
-
-            const timelinePostIndex = upIndex
-            const link = await appContract.getTimelinePost(id, timelinePostIndex)
-
-            upIndex = link.afterPostIndex.eq(0) ? upIndex.add(1) : link.afterPostIndex
-            items.update((old) => ([{ index: link.postIndex, timelinePostIndex }, ...old]))
-            return true
-        }
-        finally
-        {
-            loadNewerRunning.set(false)
+            loading.set(false)
         }
     }
 
     return {
         items,
         loadMore,
-        loadNewer,
-        loadMoreRunnning,
-        loadNewerRunning
+        loading
     }
 }

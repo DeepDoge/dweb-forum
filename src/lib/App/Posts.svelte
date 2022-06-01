@@ -10,8 +10,7 @@
     let bottomLoop = false;
     $: !bottomEnd && !bottomLoop && bottomIntersecting && onChange(bottomIntersecting);
     
-    $: loadingBottom = timeline.loadMoreRunnning
-    $: loadingTop = timeline.loadNewerRunning
+    $: loading = timeline.loading
 
     let lastLoadMoreResult: Awaited<ReturnType<typeof timeline['loadMore']>>
     async function onChange(value: typeof bottomIntersecting) {
@@ -29,15 +28,14 @@
 </script>
 
 {#if timeline}
-    <KButton text loading={$loadingTop} on:click={() => timeline.loadNewer()}>Load Newer</KButton>
     <div class="posts">
-        {#each $items as item (item.index.toString())}
+        {#each $items as item (item.toString())}
             <slot {item} />
         {/each}
     </div>
     {#if !bottomEnd}
         <KIntersectionObserver bind:intersecting={bottomIntersecting} rootMargin="{window.innerHeight * 5}px 0px">
-            <KButton loading={$loadingBottom} text on:click={async () => (lastLoadMoreResult = await timeline.loadMore())}>Load More</KButton>
+            <KButton loading={$loading} text on:click={async () => (lastLoadMoreResult = await timeline.loadMore())}>Load More</KButton>
         </KIntersectionObserver>
     {:else}
         Reached to the END!
@@ -47,6 +45,6 @@
 <style>
     .posts {
         display: grid;
-        gap: calc(var(--k-padding) * 2.9999999);
+        gap: calc(var(--k-padding) * 5);
     }
 </style>

@@ -1,8 +1,10 @@
 <script lang="ts">
     import { page } from "$app/stores";
     import NicknameOf from "$lib/App/NicknameOf.svelte";
+    import Timeline from "$lib/App/Timeline.svelte";
+    import KPageContainer from "$lib/kicho-ui/components/KPageContainer.svelte";
 
-    export let address: string
+    export let address: string;
 </script>
 
 <div class="profile-page">
@@ -16,9 +18,13 @@
         </div>
     </div>
 
-    <div class="content">
-        <div class="published" />
-    </div>
+    <KPageContainer>
+        <div class="content">
+            <div class="published">
+                <Timeline timelineId={{ group: 2, id: address }} />
+            </div>
+        </div>
+    </KPageContainer>
 </div>
 
 <style>

@@ -88,6 +88,7 @@
     .search-form {
         display: grid;
         grid-template-columns: 1fr auto;
+        grid-template-rows: 2.5em;
         align-items: stretch;
         align-content: stretch;
         gap: 0.5em;

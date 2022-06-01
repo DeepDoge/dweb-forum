@@ -7,20 +7,27 @@
     export let timelineId: TimelineId;
 
     $: timelinePromise = getTimeline(timelineId);
-    $: timelinePromise?.then(async (timeline) => await timeline.loadNewer());
 </script>
 
-<PublishPost on:done={async () => (await timelinePromise).loadNewer()} {timelineId} />
+<div class="timeline">
+<PublishPost {timelineId} />
 
 {#await timelinePromise then timeline}
     <Posts {timeline} let:item>
         <div class="post">
-            <Post postIndex={item.index} showReplies />
+            <Post postIndex={item} showReplies />
         </div>
     </Posts>
 {/await}
+</div>
 
 <style>
+
+    .timeline {
+        display: grid;
+        gap: calc(var(--k-padding) * 5);
+    }
+
     .post {
         display: grid;
         gap: var(--k-padding);

@@ -58,8 +58,8 @@
 <style>
     form {
         display: grid;
-        gap: 0.5em;
-        padding: calc(var(--k-padding) * 2) calc(var(--k-padding) * 2);
+        gap: calc(var(--k-padding) * 2);
+        padding: calc(var(--k-padding) * 2);
     }
 
     .fields {
