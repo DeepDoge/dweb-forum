@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-    import { stringToBigNumber } from "$/plugins/common/stringToBigNumber";
+    import { bigNumberToString, stringToBigNumber } from "$/plugins/common/stringToBigNumber";
 
     const caches: Record<
         string,
@@ -18,12 +18,11 @@
             caches[address].offListener = listenContract(
                 appContract,
                 appContract.filters.ProfileSet(address, stringToBigNumber("nickname")),
-                (owner, key, newName, event) => {
-                    console.log(owner, key, newName, event);
-                    caches[address].value.set(newName);
+                (owner, key, newName) => {
+                    caches[address].value.set(bigNumberToString(newName));
                 }
             );
-            appContract.profiles(address, stringToBigNumber("nickname")).then((value) => caches[address]?.value.set(value));
+            appContract.profiles(address, stringToBigNumber("nickname")).then((value) => caches[address]?.value.set(bigNumberToString(value)));
         }
         caches[address].listenerCount++;
         return caches[address].value;

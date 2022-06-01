@@ -45,14 +45,14 @@
 
     $: $page && onHashChange();
     async function onHashChange() {
-        const hash = $page.url.hash.substring(1);
+        const hash = decodeURIComponent($page.url.hash.substring(1));
         if (!hash) setCurrentPage(Index, {});
         else if (hash.startsWith("#")) {
             const route = hash.substring(1);
-            const postPrefix = "#post:";
+            const postPrefix = "post:";
 
             if (route === "claim-name") return; // modal route
-            else if (hash.startsWith(postPrefix)) setCurrentPage(Post, { postIndex: BigNumber.from(hash.substring(postPrefix.length)) });
+            else if (route.startsWith(postPrefix)) setCurrentPage(Post, { postIndex: BigNumber.from(route.substring(postPrefix.length)) });
             else setCurrentPage(A4, {});
         } else if (isValidAddress(hash)) setCurrentPage(Profile, { address: hash });
         else setCurrentPage(Topic, { topic: hash });

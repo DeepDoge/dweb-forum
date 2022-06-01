@@ -3,7 +3,7 @@
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KIntersectionObserver from "$lib/kicho-ui/components/KIntersectionObserver.svelte";
     export let timeline: Awaited<ReturnType<typeof getTimeline>>;
-    $: items = timeline?.items;
+    $: postIds = timeline?.postIds;
 
     let bottomIntersecting: boolean;
     let bottomEnd = false;
@@ -29,8 +29,8 @@
 
 {#if timeline}
     <div class="posts">
-        {#each $items as item (item.toString())}
-            <slot {item} />
+        {#each $postIds as postId (postId.toString())}
+            <slot {postId} />
         {/each}
     </div>
     {#if !bottomEnd}

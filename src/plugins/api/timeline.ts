@@ -1,22 +1,23 @@
 import { BigNumber } from "ethers"
+import type { BigNumberish } from "ethers"
 import type { Writable } from "svelte/store"
 import { get, writable } from "svelte/store"
 import { appContract } from "../wallet"
 import { listenContract } from "../wallet/listen"
 
 export type PostData = Awaited<ReturnType<typeof appContract.getPostData>>
-export type TimelineId = Parameters<typeof appContract['getTimelineLength']>[0]
+export type TimelineId = { group: BigNumberish, id: BigNumberish }
 const posts: Record<string, Writable<PostData>> = {}
 
-export async function getPost(postIndex: Parameters<typeof appContract.getPostData>[0])
+export async function getPost(postId: BigNumber)
 {
-    const key = postIndex.toString()
-    return posts[key] ?? (posts[key] = writable(await appContract.getPostData(key)))
+    const key = postId.toString()
+    return posts[key] ?? (posts[key] = writable(await appContract.getPostData(postId)))
 }
 
 function setPostData(postData: PostData)
 {
-    const key = postData.post.index.toString()
+    const key = postData.id.toString()
     posts[key] ? posts[key].set(postData) : (posts[key] = writable(postData))
 }
 
@@ -24,20 +25,22 @@ const timelineListeners: Record<string, () => void> = {}
 
 export async function getTimeline(timelineId: TimelineId)
 {
-    const items: Writable<BigNumber[]> = writable([])
+    const postIds: Writable<BigNumber[]> = writable([])
     let loading: Writable<boolean> = writable(false)
 
-    const length = (await appContract.getTimelineLength(timelineId));
+    const length = (await appContract.timelineLength(timelineId.group, timelineId.id));
     let pivot = length
 
-    if (timelineListeners[`${timelineId.group}:${timelineId.id}`]) timelineListeners[`${timelineId.group}:${timelineId.id}`]()
-    timelineListeners[`${timelineId.group}:${timelineId.id}`] = listenContract(
+    const timelineKey = `${timelineId.group}:${timelineId.id}`
+
+    if (timelineListeners[timelineKey]) timelineListeners[timelineKey]()
+
+    timelineListeners[timelineKey] = listenContract(
         appContract, appContract.filters.TimelineAddPost(timelineId.group, timelineId.id),
-        (timelineGroup, timelineId, postIndex, timelinePostIndex, postData, timestamp) =>
+        async (timelineGroup, timelineId, postId, timestamp) =>
         {
-            if (get(items)[0] && postIndex.lte(get(items)[0])) return
-            setPostData(postData)
-            items.update((old) => [postIndex, ...old])
+            if (get(postIds)[0] && postId.lte(get(postIds)[0])) return
+            postIds.update((old) => [postId, ...old])
         })
 
     async function loadMore(): Promise<boolean | void>
@@ -52,20 +55,20 @@ export async function getTimeline(timelineId: TimelineId)
             {
                 pivot = pivot.sub(1)
                 if (pivot.lt(0)) break
-                items.update((old) => [...old, BigNumber.from(-i - 1)])
+                postIds.update((old) => [...old, BigNumber.from(-i - 1)])
                 promises.push((async () =>
                 {
-                    const postData = await appContract.getTimelinePostData(timelineId, pivot)
+                    const postData = await appContract.getTimelinePostData(timelineId.group, timelineId.id, pivot)
                     setPostData(postData)
                     return postData
                 })())
             }
             await Promise.all(promises)
-            items.update((old) => old.slice(0, old.length - promises.length))
+            postIds.update((old) => old.slice(0, old.length - promises.length))
             for (const promise of promises)
             {
                 const postData = await promise
-                items.update((old) => [...old, postData.post.index])
+                postIds.update((old) => [...old, postData.id])
             }
             if (promises.length < count) return false
             return true
@@ -77,7 +80,7 @@ export async function getTimeline(timelineId: TimelineId)
     }
 
     return {
-        items,
+        postIds,
         loadMore,
         loading
     }

@@ -1,5 +1,6 @@
 <script lang="ts">
     import { stringToBigNumber } from "$/plugins/common/stringToBigNumber";
+import { BigNumber } from "ethers";
     import Timeline from "./Timeline.svelte";
 
     type TimelineProps = Timeline["$$prop_def"];
@@ -11,4 +12,4 @@
     $: topicId = stringToBigNumber(topic);
 </script>
 
-<Timeline timelineId={{ group: 0, id: topicId }} />
+<Timeline timelineId={{ group: 1, id: topicId }} />

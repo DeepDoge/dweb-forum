@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { getPost, getTimeline, TimelineId } from "$/plugins/api/timeline";
+    import { getPost,getTimeline,TimelineId } from "$/plugins/api/timeline";
+    import { decodePostContent } from "$/plugins/common/stringToBigNumber";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
@@ -9,32 +10,34 @@
     import NicknameOf from "./NicknameOf.svelte";
     import ProfileMiniCard from "./ProfileMiniCard.svelte";
 
-    export let postIndex: BigNumber;
+    export let postId: BigNumber;
     export let showReplies = false;
 
     let postData: Awaited<ReturnType<typeof getPost>> = null;
+    $: postContent = $postData ? decodePostContent($postData.post.content) : null;
 
     let repliesTimelineId: TimelineId;
-    $: repliesTimelineId = { group: 1, id: postIndex };
-    let repliesTimeline: Awaited<ReturnType<typeof getTimeline>> = null;
-    $: replies = repliesTimeline?.items;
+    $: repliesTimelineId = { group: 2, id: postId };
 
-    $: postIndex?.toString() !== $postData?.post.index.toString() && updatePost();
+    let repliesTimeline: Awaited<ReturnType<typeof getTimeline>> = null;
+    $: replies = repliesTimeline?.postIds;
+
+    $: postId?.toString() != $postData?.id.toString() && updatePost();
     $: !showReplies && (repliesTimeline = null);
     async function updatePost() {
         postData = null;
         repliesTimeline = null;
-        if (postIndex.lt(0)) return;
-        postData = await getPost(postIndex);
+        if (postId.lt(0)) return;
+        postData = await getPost(postId);
         if (showReplies) await updateReplies();
     }
     async function updateReplies() {
         repliesTimeline = await getTimeline(repliesTimelineId);
     }
 
-    $: date = (postData && new Date($postData.content.publishTime.toNumber() * 1000)) ?? null;
+    $: date = (postData && new Date($postData.post.time.toNumber() * 1000)) ?? null;
 
-    $: loading = postIndex && !postData;
+    $: loading = postId && !postData;
 </script>
 
 <article>
@@ -63,7 +66,7 @@
                 </header>
                 <div class="content k-text-multiline">
                     {#if $postData}
-                        <Content content={$postData?.content.content} />
+                        <Content content={postContent} />
                     {:else}
                         ...
                     {/if}

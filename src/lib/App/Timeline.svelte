@@ -13,9 +13,9 @@
 <PublishPost {timelineId} />
 
 {#await timelinePromise then timeline}
-    <Posts {timeline} let:item>
+    <Posts {timeline} let:postId>
         <div class="post">
-            <Post postIndex={item} showReplies />
+            <Post postId={postId} showReplies />
         </div>
     </Posts>
 {/await}

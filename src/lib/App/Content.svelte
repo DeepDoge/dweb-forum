@@ -13,22 +13,23 @@
 
 {#each array as part, i (i)}
     {#if isValidAddress(part)}
-        <span class="profile-inline-address">{part}</span>
         <a data-address={part} class="profile-inline" href="#{part}">
             <AvatarOf address={part} />
-            <NicknameOf address={part} />
-            <KHoverMenu>
-                <ProfileMiniCard address={part} />
-            </KHoverMenu>
+            <div class="no-select">
+                <NicknameOf address={part} />
+                <KHoverMenu>
+                    <ProfileMiniCard address={part} />
+                </KHoverMenu>
+            </div>
         </a>
     {:else if isValidIpfsHash(part)}
         <a target="_blank" href={getIpfsUrl(part)}>{part}</a>
     {:else if part.startsWith("img,") && isValidIpfsHash(part.substring("img,".length))}
         <div class="image">
-        <a target="_blank" href={getIpfsUrl(part.substring("img,".length))}>
-            <img alt={part} src={getIpfsUrl(part.substring("img,".length))} />
-        </a>
-    </div>
+            <a target="_blank" href={getIpfsUrl(part.substring("img,".length))}>
+                <img alt={part} src={getIpfsUrl(part.substring("img,".length))} />
+            </a>
+        </div>
     {:else if part === "\n"}
         {part}<br />
     {:else}
@@ -65,14 +66,12 @@
         white-space: nowrap;
         vertical-align: top;
     }
-    .profile-inline :global(*)
-    {
-        user-select: none;
+
+    .no-select {
+        display: contents;
     }
-    .profile-inline-address {
-        position: absolute;
-        pointer-events: none;
-        opacity: 0;
+    .no-select :global(*) {
+        user-select: none;
     }
 
     a {

@@ -15,12 +15,14 @@ import { blankImageData } from "$/plugins/common/blankImage";
     $: jazziconDataURL = jazziconElement
         ? `data:image/svg+xml;base64,${window.btoa(new XMLSerializer().serializeToString(jazziconElement.querySelector("svg")))}`
         : blankImageData;
+
+    
 </script>
 
 <a href="#{address}" class="avatar-container">
     <div class="avatar">
         <KBoxEffect color="mode" radius="normal" background {loading} hideContent={loading}>
-            <img alt="Avatar of {address}" style:--jazzicon="url({jazziconDataURL})" />
+            <img alt={address} src={jazziconDataURL} />
         </KBoxEffect>
     </div>
     {#if nftAvatar}
@@ -48,16 +50,6 @@ import { blankImageData } from "$/plugins/common/blankImage";
         overflow: hidden;
         object-fit: cover;
         width: 100%;
-        color: transparent;
-    }
-
-    img::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background-image: var(--jazzicon);
-        background-size: cover;
-        background-position: center;
         background-color: #eb4140;
     }
 </style>
