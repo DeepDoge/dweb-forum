@@ -1,5 +1,5 @@
-import { BigNumber } from "ethers"
 import type { BigNumberish } from "ethers"
+import { BigNumber } from "ethers"
 import type { Writable } from "svelte/store"
 import { get, writable } from "svelte/store"
 import { appContract } from "../wallet"
@@ -8,6 +8,15 @@ import { listenContract } from "../wallet/listen"
 export type PostData = Awaited<ReturnType<typeof appContract.getPostData>>
 export type TimelineId = { group: BigNumberish, id: BigNumberish }
 const posts: Record<string, Writable<PostData>> = {}
+const timelines: Record<string, Timeline> = {}
+
+interface Timeline
+{
+    postIds: Writable<BigNumber[]>,
+    length: Writable<BigNumber>,
+    loadMore(): Promise<boolean | void>,
+    loading: Writable<boolean>
+}
 
 export async function getPost(postId: BigNumber)
 {
@@ -23,8 +32,12 @@ function setPostData(postData: PostData)
 
 const timelineListeners: Record<string, () => void> = {}
 
-export async function getTimeline(timelineId: TimelineId)
+export async function getTimeline(timelineId: TimelineId): Promise<Timeline>
 {
+    const timelineIdKey = `${timelineId.group}:${timelineId.id}`
+    let cache = timelines[timelineIdKey];
+    if (cache) return cache;
+
     const postIds: Writable<BigNumber[]> = writable([])
     let loading: Writable<boolean> = writable(false)
 
@@ -80,10 +93,11 @@ export async function getTimeline(timelineId: TimelineId)
         }
     }
 
-    return {
+    setTimeout(() => delete timelines[timelineIdKey], 1000 * 60)
+    return (timelines[timelineIdKey] = {
         postIds,
         length,
         loadMore,
         loading
-    }
+    })
 }

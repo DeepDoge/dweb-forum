@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { getPost,getTimeline,TimelineId } from "$/plugins/api/timeline";
+    import { getPost, getTimeline, TimelineId } from "$/plugins/api/timeline";
     import { second } from "$/plugins/common/second";
-    import { bigNumberToString,decodePostContent } from "$/plugins/common/stringToBigNumber";
+    import { bigNumberToString, decodePostContent } from "$/plugins/common/stringToBigNumber";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
     import type { BigNumber } from "ethers";
@@ -10,6 +10,7 @@
     import Content from "./Content.svelte";
     import NicknameOf from "./NicknameOf.svelte";
     import ProfileMiniCard from "./ProfileMiniCard.svelte";
+    import PublishPost from "./PublishPost.svelte";
     import Timeline from "./Timeline.svelte";
 
     export let postId: BigNumber;
@@ -82,6 +83,7 @@
     </a>
     {#if showReplies}
         <div class="replies">
+            <PublishPost reply timelineId={repliesTimelineId} />
             <div class="replies-title">Replies:</div>
             <Timeline timelineId={repliesTimelineId} />
         </div>
@@ -94,7 +96,7 @@
         grid-template-rows: auto auto;
         align-items: start;
         align-content: start;
-        gap: calc(var(--k-padding) * 0);
+        gap: calc(var(--k-padding) * 3);
     }
 
     .post .inner {
@@ -147,12 +149,12 @@
     }
 
     .replies {
-        padding-top: calc(var(--k-padding) * 4);
+        display: grid;
+        gap: calc(var(--k-padding) * 3)
     }
 
     .replies-title {
         font-size: var(--k-font-smaller);
         font-weight: bold;
-        padding-bottom: calc(var(--k-padding) * 2);
     }
 </style>

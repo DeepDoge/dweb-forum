@@ -11,7 +11,6 @@
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
     import type { ExtractGeneric } from "$lib/kicho-ui/types/util";
-    import { BigNumber } from "ethers";
 
     const pushState = history.pushState;
     history.pushState = function (...params) {
@@ -22,7 +21,7 @@
     };
 
     let currentPage: Page = null;
-    const pageStates: Record<string, { props: object; scroll?: ScrollToOptions }> = {};
+    const pageStates: Record<string, { props: Record<string, any>; scroll?: ScrollToOptions }> = {};
     const pages = [A4, Index, Profile, Topic] as const;
     type Page = ExtractGeneric<typeof pages>;
 
@@ -40,10 +39,6 @@
         }
 
         if (state.scroll) setTimeout(() => window.scrollTo(state.scroll));
-    }
-
-    function setCurrentModal<T extends Page>(component: T, props: T["prototype"]["$$prop_def"]) {
-        
     }
 
     $: $page && onHashChange();

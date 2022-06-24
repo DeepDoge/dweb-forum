@@ -16,9 +16,10 @@
     const dialogManager = createDialogManager();
 
     export let timelineId: TimelineId;
+    export let reply = false;
 
     let publishing = false;
-    async function publish(params: { title: string, content: string }) {
+    async function publish(params: { title: string; content: string }) {
         try {
             let content = "";
             const parts = params.content?.split(/([\s,]+)/) ?? [];
@@ -29,14 +30,30 @@
             publishing = true;
             const gasPrice = await $provider.getGasPrice();
             await (
-                await appContract.publishPost(timelineId.group, timelineId.id, stringToBigNumber(params.title.trim()), encodePostContent(content), [`0x${'0'.repeat(40)}`, `0x${'0'.repeat(40)}`, `0x${'0'.repeat(40)}`, `0x${'0'.repeat(40)}`, `0x${'0'.repeat(40)}`, `0x${'0'.repeat(40)}`, `0x${'0'.repeat(40)}`, `0x${'0'.repeat(40)}`], {
-                    value: gasPrice
-                        .mul(2)
-                        .mul(await appContract.PUBLISH_GAS())
-                        .mul(100)
-                        .div(99),
-                    gasPrice,
-                })
+                await appContract.publishPost(
+                    timelineId.group,
+                    timelineId.id,
+                    stringToBigNumber(params.title.trim()),
+                    encodePostContent(content),
+                    [
+                        `0x${"0".repeat(40)}`,
+                        `0x${"0".repeat(40)}`,
+                        `0x${"0".repeat(40)}`,
+                        `0x${"0".repeat(40)}`,
+                        `0x${"0".repeat(40)}`,
+                        `0x${"0".repeat(40)}`,
+                        `0x${"0".repeat(40)}`,
+                        `0x${"0".repeat(40)}`,
+                    ],
+                    {
+                        value: gasPrice
+                            .mul(2)
+                            .mul(await appContract.PUBLISH_GAS())
+                            .mul(100)
+                            .div(99),
+                        gasPrice,
+                    }
+                )
             ).wait(1);
 
             dispatchEvent("done");
@@ -52,13 +69,19 @@
 
 {#if $account}
     <!-- svelte-ignore missing-declaration -->
-    <form on:submit|preventDefault={(e) => publish({ 
-        title: new FormData(e.currentTarget).get("title").toString(),
-        content: new FormData(e.currentTarget).get("content").toString() 
-    }) && e.currentTarget.reset()} class="publish-post">
+    <form
+        on:submit|preventDefault={(e) =>
+            publish({
+                title: new FormData(e.currentTarget).get("title").toString(),
+                content: new FormData(e.currentTarget).get("content").toString(),
+            }) && e.currentTarget.reset()}
+        class="publish-post"
+    >
         <KBoxEffect color="mode" background radius="rounded">
             <div class="fields">
-                <KTextField disabled={publishing} size="x-larger" background={false} type="text" name="title" placeholder="Title" />
+                {#if !reply}
+                    <KTextField disabled={publishing} size="x-larger" background={false} type="text" name="title" placeholder="Title" />
+                {/if}
                 <div class="content-field">
                     <div class="avatar">
                         <AvatarOf address={$account} />
@@ -75,7 +98,7 @@
             <div class="actions">
                 <input type="submit" style="opacity:0;position:absolute;pointer-events:none;width:0;height:0" />
                 <KButton color="mode-pop" radius="fab" disabled={publishing} on:click={(e) => e.preventDefault()}>🎞</KButton>
-                <KButton color="master" radius="rounded" loading={publishing}>🗨 Post</KButton>
+                <KButton color="master" radius="rounded" loading={publishing}>🗨 {reply ? 'Reply' :  'Post'}</KButton>
             </div>
         </KBoxEffect>
     </form>
@@ -107,7 +130,7 @@
         gap: calc(var(--k-padding) * 2);
         grid-template-columns: 2em 1fr;
         grid-template-rows: auto auto;
-        grid-template-areas: 
+        grid-template-areas:
             "avatar nickname"
             "avatar field";
     }

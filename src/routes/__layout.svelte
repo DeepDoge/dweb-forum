@@ -56,12 +56,10 @@
                         <KModalHashRoute hash="^##post:" size="50em">
                             {#if postId}
                                 <Post {postId} showReplies />
-                                Reply
-                                <PublishPost timelineId={{ group: 3, id: postId }} />
                             {/if}
                         </KModalHashRoute>
                     </main>
-                    <footer>...</footer>
+                    <footer>Web3 Forum</footer>
                 {/key}
             {:else if $isContractsReady === "wrongNetwork"}
                 Wrong Network

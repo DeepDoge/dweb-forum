@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { getTimeline } from "$/plugins/api/timeline";
+import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KIntersectionObserver from "$lib/kicho-ui/components/KIntersectionObserver.svelte";
     export let timeline: Awaited<ReturnType<typeof getTimeline>>;
@@ -9,14 +10,14 @@
     let bottomEnd = false;
     let bottomLoop = false;
     $: !bottomEnd && !bottomLoop && bottomIntersecting && onChange(bottomIntersecting);
-    
-    $: loading = timeline.loading
 
-    let lastLoadMoreResult: Awaited<ReturnType<typeof timeline['loadMore']>>
+    $: loading = timeline.loading;
+
+    let lastLoadMoreResult: Awaited<ReturnType<typeof timeline["loadMore"]>>;
     async function onChange(value: typeof bottomIntersecting) {
         bottomLoop = true;
         while (bottomIntersecting) {
-            lastLoadMoreResult = await timeline.loadMore()
+            lastLoadMoreResult = await timeline.loadMore();
             if (lastLoadMoreResult === false) {
                 bottomEnd = true;
                 break;
@@ -35,10 +36,12 @@
     </div>
     {#if !bottomEnd}
         <KIntersectionObserver bind:intersecting={bottomIntersecting} rootMargin="{window.innerHeight * 5}px 0px">
-            <KButton loading={$loading} text on:click={async () => (lastLoadMoreResult = await timeline.loadMore())}>Load More</KButton>
+            <div />
         </KIntersectionObserver>
     {:else}
-        <!-- Reached to the END! -->
+        <div class="end">
+            •
+        </div>
     {/if}
 {/if}
 
@@ -46,5 +49,13 @@
     .posts {
         display: grid;
         gap: calc(var(--k-padding) * 2);
+    }
+
+    .end {
+        display: grid;
+        place-content: center;
+        width: auto;
+        margin: auto;
+        padding: calc(var(--k-padding) * 1);
     }
 </style>
