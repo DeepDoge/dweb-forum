@@ -76,6 +76,7 @@
                 content: new FormData(e.currentTarget).get("content").toString(),
             }) && e.currentTarget.reset()}
         class="publish-post"
+        class:reply
     >
         <KBoxEffect color="mode" background radius="rounded">
             <div class="fields">
@@ -90,7 +91,7 @@
                         <NicknameOf address={$account} />
                     </div>
                     <div class="field">
-                        <KTextField disabled={publishing} compact background={false} type="textarea" name="content" placeholder="Say something..." />
+                        <KTextField disabled={publishing} compact background={false} type="textarea" name="content" placeholder={reply ? 'Reply...' : 'Say something...'} />
                     </div>
                 </div>
             </div>
@@ -123,6 +124,15 @@
         justify-content: end;
         grid-auto-flow: column;
         gap: calc(var(--k-padding) * 2);
+    }
+
+    .reply:not(:focus-within) .actions,
+    .reply:not(:focus-within) hr {
+        display: none;
+    }
+    .reply:not(:focus-within) .field {
+        max-height: 1.5em;
+        overflow: hidden;
     }
 
     .content-field {

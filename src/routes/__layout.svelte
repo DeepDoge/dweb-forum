@@ -53,7 +53,7 @@
                         <KModalHashRoute hash="##claim-name">
                             <ClaimName on:done={() => history.back()} />
                         </KModalHashRoute>
-                        <KModalHashRoute hash="^##post:" size="50em">
+                        <KModalHashRoute align="start" hash="^##post:" size="50em">
                             {#if postId}
                                 <Post {postId} showReplies />
                             {/if}
