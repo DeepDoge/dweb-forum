@@ -24,6 +24,7 @@
 
     let repliesTimeline: Awaited<ReturnType<typeof getTimeline>> = null;
     $: repliesLength = repliesTimeline?.length;
+    $: repliesLoading = repliesTimeline?.loading
 
     $: postId?.toString() != $postData?.id.toString() && updatePost();
     async function updatePost() {
@@ -84,7 +85,7 @@
     {#if showReplies}
         <div class="replies">
             <PublishPost reply timelineId={repliesTimelineId} />
-            <div class="replies-title">Replies:</div>
+            <div class="replies-title">Replies{(!repliesTimeline || $repliesLoading) ? '...' : ':'}</div>
             <Timeline timelineId={repliesTimelineId} />
         </div>
     {/if}
