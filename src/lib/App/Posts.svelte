@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { getTimeline } from "$/plugins/api/timeline";
     import KIntersectionObserver from "$lib/kicho-ui/components/KIntersectionObserver.svelte";
-    export let timeline: Awaited<ReturnType<typeof getTimeline>>;
+        export let timeline: Awaited<ReturnType<typeof getTimeline>>;
     $: postIds = timeline?.postIds;
 
     let bottomIntersecting: boolean;

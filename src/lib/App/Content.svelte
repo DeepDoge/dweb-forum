@@ -6,7 +6,7 @@
     import AvatarOf from "./AvatarOf.svelte";
     import NicknameOf from "./NicknameOf.svelte";
     import ProfileMiniCard from "./ProfileMiniCard.svelte";
-
+    
     export let content: string;
     $: array = content?.split(/(\s+)/) ?? [];
 </script>

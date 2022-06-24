@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { getTimeline, TimelineId } from "$/plugins/api/timeline";
+    import { getTimeline,TimelineId } from "$/plugins/api/timeline";
     import Post from "$lib/App/Post.svelte";
     import Posts from "$lib/App/Posts.svelte";
-
+    
     export let timelineId: TimelineId;
 
     $: timelinePromise = getTimeline(timelineId);

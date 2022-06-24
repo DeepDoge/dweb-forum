@@ -4,7 +4,7 @@
     const scrollingElement = document.scrollingElement ?? document.body;
     window.addEventListener("scroll", () => scrollCache.set({ top: scrollingElement.scrollTop, left: scrollingElement.scrollLeft }));
 
-    export const currentTopicPost = writable<{ topic: string; postId: BigNumber }>(null);
+    export const currentTopicPost = writable<{ topic: string; postId?: BigNumber }>(null);
 </script>
 
 <script lang="ts">
@@ -18,7 +18,7 @@
     import type { ExtractGeneric } from "$lib/kicho-ui/types/util";
     import { BigNumber } from "ethers";
     import { writable } from "svelte/store";
-
+    
     const pushState = history.pushState;
     history.pushState = function (...params) {
         try {
@@ -69,7 +69,11 @@
             else if (topicPost) setCurrentPage(Topic, topicPost);
             else setCurrentPage(A4, {});
         } else if (isValidAddress(hash)) setCurrentPage(Profile, { address: hash });
-        else setCurrentPage(Topic, { topic: hash });
+        else 
+        {
+            $currentTopicPost = { topic: hash }
+            setCurrentPage(Topic, { topic: hash });
+        }
     }
 
     $: id = $page.url.hash.substring(1);

@@ -2,7 +2,7 @@
     import { stringToBigNumber } from "$/plugins/common/stringToBigNumber";
     import PublishPost from "./PublishPost.svelte";
     import Timeline from "./Timeline.svelte";
-
+    
     type TimelineProps = Timeline["$$prop_def"];
     interface $$Props extends Omit<TimelineProps, "timelineId"> {
         topic: string;

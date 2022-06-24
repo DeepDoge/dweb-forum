@@ -3,7 +3,7 @@
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KChip from "$lib/kicho-ui/components/KChip.svelte";
     import jazzicon from "@metamask/jazzicon";
-
+    
     export let address: string;
 
     $: loading = !address;

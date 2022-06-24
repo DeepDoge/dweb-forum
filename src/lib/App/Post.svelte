@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { getPost, getTimeline, TimelineId } from "$/plugins/api/timeline";
+    import { getPost,getTimeline,TimelineId } from "$/plugins/api/timeline";
     import { second } from "$/plugins/common/second";
-    import { bigNumberToString, decodePostContent } from "$/plugins/common/stringToBigNumber";
+    import { bigNumberToString,decodePostContent } from "$/plugins/common/stringToBigNumber";
     import { currentTopicPost } from "$/routes/_routing.svelte";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
@@ -13,7 +13,7 @@
     import ProfileMiniCard from "./ProfileMiniCard.svelte";
     import PublishPost from "./PublishPost.svelte";
     import Timeline from "./Timeline.svelte";
-
+    
     export let postId: BigNumber;
     export let showReplies = false;
     export let showParent = false;
@@ -48,14 +48,14 @@
             <svelte:self showParent postId={$postData.post.timelineId} />
         </div>
     {/if}
-    <a class="post" href={$currentTopicPost.topic && postId.gte(0) ? `##${$currentTopicPost.topic}:${postId}` : null}>
+    <a class="post" href={$currentTopicPost?.topic && postId.gte(0) ? `##${$currentTopicPost.topic}:${postId}` : null}>
         <KBoxEffect
             color="mode"
             radius="rounded"
             background
             {loading}
             hideContent={loading}
-            glow={$currentTopicPost.postId.eq(postId) ? "master" : false}
+            glow={$currentTopicPost?.postId?.eq(postId) ? "master" : false}
         >
             <div class="inner">
                 {#if title}

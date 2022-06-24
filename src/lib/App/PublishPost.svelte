@@ -1,17 +1,17 @@
 <script lang="ts">
     import type { TimelineId } from "$/plugins/api/timeline";
     import { isValidIpfsHash } from "$/plugins/common/isValidIpfsHash";
-    import { encodePostContent, stringToBigNumber } from "$/plugins/common/stringToBigNumber";
-    import { account, appContract, provider } from "$/plugins/wallet";
+    import { encodePostContent,stringToBigNumber } from "$/plugins/common/stringToBigNumber";
+    import { account,appContract,provider } from "$/plugins/wallet";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
-    import KDialog, { createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
+    import KDialog,{ createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import CID from "cids";
     import { createEventDispatcher } from "svelte";
     import AvatarOf from "./AvatarOf.svelte";
     import NicknameOf from "./NicknameOf.svelte";
-
+    
     const dispatchEvent = createEventDispatcher();
     const dialogManager = createDialogManager();
 
