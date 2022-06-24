@@ -1,16 +1,16 @@
 <script lang="ts">
-    import { getPost, getTimeline, TimelineId } from "$/plugins/api/timeline";
-    import { bigNumberToString, decodePostContent } from "$/plugins/common/stringToBigNumber";
+    import { getPost,getTimeline,TimelineId } from "$/plugins/api/timeline";
+    import { second } from "$/plugins/common/second";
+    import { bigNumberToString,decodePostContent } from "$/plugins/common/stringToBigNumber";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
-    import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
     import type { BigNumber } from "ethers";
+    import { format } from "timeago.js";
     import AvatarOf from "./AvatarOf.svelte";
     import Content from "./Content.svelte";
     import NicknameOf from "./NicknameOf.svelte";
     import ProfileMiniCard from "./ProfileMiniCard.svelte";
-    import { format } from "timeago.js";
-    import { second } from "$/plugins/common/second";
+    import Timeline from "./Timeline.svelte";
 
     export let postId: BigNumber;
     export let showReplies = false;
@@ -22,18 +22,14 @@
     $: repliesTimelineId = { group: 3, id: postId };
 
     let repliesTimeline: Awaited<ReturnType<typeof getTimeline>> = null;
-    $: replies = repliesTimeline?.postIds;
+    $: repliesLength = repliesTimeline?.length;
 
     $: postId?.toString() != $postData?.id.toString() && updatePost();
-    $: !showReplies && (repliesTimeline = null);
     async function updatePost() {
         postData = null;
         repliesTimeline = null;
         if (postId.lt(0)) return;
         postData = await getPost(postId);
-        if (showReplies) await updateReplies();
-    }
-    async function updateReplies() {
         repliesTimeline = await getTimeline(repliesTimelineId);
     }
 
@@ -69,15 +65,24 @@
                     {/if}
                 </div>
 
-                <div class="date k-text-singleline">{date?.toLocaleString()}</div>
+                <div class="footer">
+                    <div class="reply-counter">
+                        <svg aria-hidden="false" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <path
+                                fill="currentColor"
+                                d="M4.79805 3C3.80445 3 2.99805 3.8055 2.99805 4.8V15.6C2.99805 16.5936 3.80445 17.4 4.79805 17.4H7.49805V21L11.098 17.4H19.198C20.1925 17.4 20.998 16.5936 20.998 15.6V4.8C20.998 3.8055 20.1925 3 19.198 3H4.79805Z"
+                            />
+                        </svg>
+                        {$repliesLength ?? "..."}
+                    </div>
+                    <div class="date k-text-singleline">{date?.toLocaleString()}</div>
+                </div>
             </div>
         </KBoxEffect>
     </div>
-    {#if showReplies && $replies?.length > 0}
+    {#if showReplies}
         <div class="replies">
-            {#each $replies as item (item.toString())}
-                <svelte:self postIndex={item} />
-            {/each}
+            <Timeline timelineId={repliesTimelineId} />
         </div>
     {/if}
 </article>
@@ -93,19 +98,20 @@
 
     .post .inner {
         display: grid;
-        grid-template-columns: var(--avatar-size) 1fr;
+        grid-template-columns: 1.5ch 1fr;
+        align-items: center;
         grid-template-areas:
-            "title title"
             "avatar nickname"
-            "avatar content"
-            "date date";
-        gap: calc(var(--k-padding) * 2);
+            "title title"
+            "content content"
+            "footer footer";
+        gap: calc(var(--k-padding) * 1.25);
         padding: calc(var(--k-padding) * 2) calc(var(--k-padding) * 3);
     }
 
     .title {
         grid-area: title;
-        font-size: var(--k-font-x-larger);
+        font-weight: bold;
     }
 
     .avatar {
@@ -119,12 +125,24 @@
 
     .content {
         grid-area: content;
+        font-size: smaller;
     }
 
-    .date {
-        grid-area: date;
+    .footer {
+        grid-area: footer;
+        display: grid;
+        grid-auto-flow: column;
+        justify-content: space-between;
+        align-items: center;
         font-size: var(--k-font-xx-smaller);
-        justify-self: end;
+        gap: var(--k-padding);
+    }
+
+    .reply-counter {
+        display: grid;
+        grid-auto-flow: column;
+        align-items: center;
+        gap: 0.5ch;
     }
 
     .replies {

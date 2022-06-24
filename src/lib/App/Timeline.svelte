@@ -15,7 +15,7 @@
     {#await timelinePromise then timeline}
         <Posts {timeline} let:postId>
             <div class="post">
-                <Post {postId} showReplies />
+                <Post {postId} />
             </div>
         </Posts>
     {/await}

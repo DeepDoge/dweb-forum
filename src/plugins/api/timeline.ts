@@ -28,8 +28,8 @@ export async function getTimeline(timelineId: TimelineId)
     const postIds: Writable<BigNumber[]> = writable([])
     let loading: Writable<boolean> = writable(false)
 
-    const length = (await appContract.timelineLength(timelineId.group, timelineId.id));
-    let pivot = length
+    const length = writable(await appContract.timelineLength(timelineId.group, timelineId.id));
+    let pivot = get(length)
 
     const timelineKey = `${timelineId.group}:${timelineId.id}`
 
@@ -37,8 +37,9 @@ export async function getTimeline(timelineId: TimelineId)
 
     timelineListeners[timelineKey] = listenContract(
         appContract, appContract.filters.TimelineAddPost(timelineId.group, timelineId.id),
-        async (timelineGroup, timelineId, postId, timestamp) =>
+        async (timelineGroup, timelineId, postId, timelineLength, timestamp) =>
         {
+            length.set(timelineLength)
             if (get(postIds)[0] && postId.lte(get(postIds)[0])) return
             postIds.update((old) => [postId, ...old])
         })
@@ -81,6 +82,7 @@ export async function getTimeline(timelineId: TimelineId)
 
     return {
         postIds,
+        length,
         loadMore,
         loading
     }

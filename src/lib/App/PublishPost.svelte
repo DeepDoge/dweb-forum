@@ -55,7 +55,7 @@
     <form on:submit|preventDefault={(e) => publish({ 
         title: new FormData(e.currentTarget).get("title").toString(),
         content: new FormData(e.currentTarget).get("content").toString() 
-    })} class="publish-post">
+    }) && e.currentTarget.reset()} class="publish-post">
         <KBoxEffect color="mode" background radius="rounded">
             <div class="fields">
                 <KTextField disabled={publishing} size="x-larger" background={false} type="text" name="title" placeholder="Title" />
@@ -105,7 +105,7 @@
     .content-field {
         display: grid;
         gap: calc(var(--k-padding) * 2);
-        grid-template-columns: var(--avatar-size) 1fr;
+        grid-template-columns: 2em 1fr;
         grid-template-rows: auto auto;
         grid-template-areas: 
             "avatar nickname"

@@ -70,7 +70,6 @@
         --k-color-slave-contrast: rgba(255, 255, 255, 0.9);
         --k-color-gradient-contrast: rgba(255, 255, 255, 0.9);
         --k-border-width: 0.1em;
-        --avatar-size: 2em;
     }
 
     layout {

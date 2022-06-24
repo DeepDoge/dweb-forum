@@ -27,15 +27,16 @@ contract App {
         return timelines[group][id].length;
     }
 
-    event TimelineAddPost(uint256 indexed timelineGroup, uint256 indexed timelineId, uint256 postId, uint256 timestamp);
+    event TimelineAddPost(uint256 indexed timelineGroup, uint256 indexed timelineId, uint256 postId, uint256 timelineLength, uint256 timestamp);
 
     function addPostToTimeline(
         uint256 timelineGroup,
         uint256 timelineId,
         uint256 postId
     ) private {
-        timelines[timelineGroup][timelineId].push() = postId;
-        emit TimelineAddPost(timelineGroup, timelineId, postId, block.timestamp);
+        uint256[] storage timeline = timelines[timelineGroup][timelineId];
+        timeline.push() = postId;
+        emit TimelineAddPost(timelineGroup, timelineId, postId, timeline.length, block.timestamp);
     }
 
     /* 
