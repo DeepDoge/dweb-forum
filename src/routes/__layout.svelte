@@ -1,8 +1,9 @@
 <script lang="ts">
     import "$/lib/kicho-ui/root.css";
     import { isValidAddress } from "$/plugins/common/isValidAddress";
-    import { isContractsReady,provider } from "$/plugins/wallet";
+    import { isContractsReady, provider } from "$/plugins/wallet";
     import ClaimName from "$lib/App/ClaimName.svelte";
+    import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KModalHashRoute from "$lib/kicho-ui/components/KModalHashRoute.svelte";
     import KPageContainer from "$lib/kicho-ui/components/KPageContainer.svelte";
@@ -33,11 +34,11 @@
                                 <KTextField
                                     color="mode"
                                     background
-                                    blur
                                     bind:value={searchInput}
                                     placeholder="#Topic, 0xAddress, ENS name, PostIndex"
+                                    size="larger"
                                 />
-                                <KButton color="gradient">Search</KButton>
+                                <KButton color="master" size="larger">Search</KButton>
                             </form>
                         </KPageContainer>
 
@@ -63,12 +64,13 @@
 <style>
     :global(:root) {
         --root-font-size-mul: 1;
-        --k-color-master: #2e7bd2;
-        --k-color-slave: #3a44d5;
+        --k-color-master: #8360c3;
+        --k-color-slave: #2ebf91;
         --k-color-master-contrast: rgba(255, 255, 255, 0.9);
         --k-color-slave-contrast: rgba(255, 255, 255, 0.9);
         --k-color-gradient-contrast: rgba(255, 255, 255, 0.9);
         --k-border-width: 0.1em;
+        --avatar-size: 2em;
     }
 
     layout {
@@ -76,14 +78,14 @@
         gap: calc(var(--k-padding) * 4);
     }
 
-    layout::before {
+/*     layout::before {
         content: "";
         position: fixed;
         inset: 0;
         background-size: cover;
         background-image: linear-gradient(to left bottom, var(--k-color-master), var(--k-color-slave));
         filter: opacity(0.25);
-    }
+    } */
 
     .search-form {
         display: grid;
@@ -92,6 +94,7 @@
         align-items: stretch;
         align-content: stretch;
         gap: 0.5em;
+        padding-bottom: 10vh;
     }
 
     footer {

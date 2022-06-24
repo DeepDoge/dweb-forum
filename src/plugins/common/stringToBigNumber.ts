@@ -2,6 +2,7 @@ import { BigNumber } from "ethers";
 
 export function stringToBigNumber(value: string)
 {
+    if (!value) return BigNumber.from(0)
     return BigNumber.from(Uint8Array.from(value, (char) => char.charCodeAt(0)));
 }
 

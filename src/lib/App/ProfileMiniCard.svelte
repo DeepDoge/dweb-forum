@@ -20,7 +20,7 @@
 
 <style>
     .card {
-        min-width: min(15em, calc(100vw - var(--k-padding)));
+        min-width: min(15em, calc(100% - var(--k-padding)));
     }
 
     .card {

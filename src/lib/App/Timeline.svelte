@@ -10,19 +10,18 @@
 </script>
 
 <div class="timeline">
-<PublishPost {timelineId} />
+    <PublishPost {timelineId} />
 
-{#await timelinePromise then timeline}
-    <Posts {timeline} let:postId>
-        <div class="post">
-            <Post postId={postId} showReplies />
-        </div>
-    </Posts>
-{/await}
+    {#await timelinePromise then timeline}
+        <Posts {timeline} let:postId>
+            <div class="post">
+                <Post {postId} showReplies />
+            </div>
+        </Posts>
+    {/await}
 </div>
 
 <style>
-
     .timeline {
         display: grid;
         gap: calc(var(--k-padding) * 5);

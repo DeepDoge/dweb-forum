@@ -8,8 +8,9 @@
     import KDialog, { createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import CID from "cids";
-    import type { BigNumber } from "ethers";
     import { createEventDispatcher } from "svelte";
+    import AvatarOf from "./AvatarOf.svelte";
+    import NicknameOf from "./NicknameOf.svelte";
 
     const dispatchEvent = createEventDispatcher();
     const dialogManager = createDialogManager();
@@ -17,7 +18,7 @@
     export let timelineId: TimelineId;
 
     let publishing = false;
-    async function publish(params: { content: string }) {
+    async function publish(params: { title: string, content: string }) {
         try {
             let content = "";
             const parts = params.content?.split(/([\s,]+)/) ?? [];
@@ -28,7 +29,7 @@
             publishing = true;
             const gasPrice = await $provider.getGasPrice();
             await (
-                await appContract.publishPost(timelineId.group, timelineId.id, encodePostContent(content), {
+                await appContract.publishPost(timelineId.group, timelineId.id, stringToBigNumber(params.title.trim()), encodePostContent(content), [`0x${'0'.repeat(40)}`, `0x${'0'.repeat(40)}`, `0x${'0'.repeat(40)}`, `0x${'0'.repeat(40)}`, `0x${'0'.repeat(40)}`, `0x${'0'.repeat(40)}`, `0x${'0'.repeat(40)}`, `0x${'0'.repeat(40)}`], {
                     value: gasPrice
                         .mul(2)
                         .mul(await appContract.PUBLISH_GAS())
@@ -51,13 +52,30 @@
 
 {#if $account}
     <!-- svelte-ignore missing-declaration -->
-    <form on:submit|preventDefault={(e) => publish({ content: new FormData(e.currentTarget).get("content").toString() })} class="publish-post">
-        <KBoxEffect color="mode" blur background>
+    <form on:submit|preventDefault={(e) => publish({ 
+        title: new FormData(e.currentTarget).get("title").toString(),
+        content: new FormData(e.currentTarget).get("content").toString() 
+    })} class="publish-post">
+        <KBoxEffect color="mode" background radius="rounded">
             <div class="fields">
-                <KTextField disabled={publishing} type="textarea" name="content" placeholder="Say something..." />
+                <KTextField disabled={publishing} size="x-larger" background={false} type="text" name="title" placeholder="Title" />
+                <div class="content-field">
+                    <div class="avatar">
+                        <AvatarOf address={$account} />
+                    </div>
+                    <div class="nickname">
+                        <NicknameOf address={$account} />
+                    </div>
+                    <div class="field">
+                        <KTextField disabled={publishing} compact background={false} type="textarea" name="content" placeholder="Say something..." />
+                    </div>
+                </div>
             </div>
+            <hr />
             <div class="actions">
-                <KButton color="gradient" loading={publishing}>Publish</KButton>
+                <input type="submit" style="opacity:0;position:absolute;pointer-events:none;width:0;height:0" />
+                <KButton color="mode-pop" radius="fab" disabled={publishing} on:click={(e) => e.preventDefault()}>🎞</KButton>
+                <KButton color="master" radius="rounded" loading={publishing}>🗨 Post</KButton>
             </div>
         </KBoxEffect>
     </form>
@@ -74,14 +92,34 @@
 
     .fields {
         display: grid;
-        gap: 0.25em;
+        gap: calc(var(--k-padding) * 2);
     }
 
     .actions {
         display: grid;
         justify-content: end;
-        grid-auto-flow: row;
-        gap: 0.25em;
-        padding: 0 var(--k-padding);
+        grid-auto-flow: column;
+        gap: calc(var(--k-padding) * 2);
+    }
+
+    .content-field {
+        display: grid;
+        gap: calc(var(--k-padding) * 2);
+        grid-template-columns: var(--avatar-size) 1fr;
+        grid-template-rows: auto auto;
+        grid-template-areas: 
+            "avatar nickname"
+            "avatar field";
+    }
+
+    .content-field > .avatar {
+        grid-area: avatar;
+    }
+    .content-field > .nickname {
+        grid-area: nickname;
+        font-size: var(--k-font-x-smaller);
+    }
+    .content-field > .field {
+        grid-area: field;
     }
 </style>

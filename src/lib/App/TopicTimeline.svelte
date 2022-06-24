@@ -12,4 +12,4 @@ import { BigNumber } from "ethers";
     $: topicId = stringToBigNumber(topic);
 </script>
 
-<Timeline timelineId={{ group: 1, id: topicId }} />
+<Timeline timelineId={{ group: 5, id: topicId }} />

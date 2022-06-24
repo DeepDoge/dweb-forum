@@ -25,8 +25,8 @@ import { stringToBigNumber } from "$/plugins/common/stringToBigNumber";
 </script>
 
 <form class="claim-name-container" on:submit|preventDefault={setName}>
-    <KTextField bind:value={nickname} placeholder="Pick a nickname" disabled={claming} label="Claim Nickname" />
-    <KButton color="gradient" loading={claming}>Claim</KButton>
+    <KTextField radius="rounded" bind:value={nickname} placeholder="Pick a nickname" disabled={claming} label="Claim Nickname" />
+    <KButton color="gradient" radius="rounded" loading={claming}>Claim</KButton>
 </form>
 
 <style>
