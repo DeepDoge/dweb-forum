@@ -91,7 +91,14 @@
                         <NicknameOf address={$account} />
                     </div>
                     <div class="field">
-                        <KTextField disabled={publishing} compact background={false} type="textarea" name="content" placeholder={reply ? 'Reply...' : 'Say something...'} />
+                        <KTextField
+                            disabled={publishing}
+                            compact
+                            background={false}
+                            type="textarea"
+                            name="content"
+                            placeholder={reply ? "Reply..." : "Say something..."}
+                        />
                     </div>
                 </div>
             </div>
@@ -99,7 +106,7 @@
             <div class="actions">
                 <input type="submit" style="opacity:0;position:absolute;pointer-events:none;width:0;height:0" />
                 <KButton color="mode-pop" radius="fab" disabled={publishing} on:click={(e) => e.preventDefault()}>🎞</KButton>
-                <KButton color="master" radius="rounded" loading={publishing}>🗨 {reply ? 'Reply' :  'Post'}</KButton>
+                <KButton color="master" radius="rounded" loading={publishing}>🗨 {reply ? "Reply" : "Post"}</KButton>
             </div>
         </KBoxEffect>
     </form>

@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { getPost, getTimeline, TimelineId } from "$/plugins/api/timeline";
+    import { getPost,getTimeline,TimelineId } from "$/plugins/api/timeline";
     import { second } from "$/plugins/common/second";
-    import { bigNumberToString, decodePostContent } from "$/plugins/common/stringToBigNumber";
+    import { bigNumberToString,decodePostContent } from "$/plugins/common/stringToBigNumber";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
     import type { BigNumber } from "ethers";

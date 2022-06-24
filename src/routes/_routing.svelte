@@ -25,7 +25,7 @@
     const pages = [A4, Index, Profile, Topic] as const;
     type Page = ExtractGeneric<typeof pages>;
 
-        function setCurrentPage<T extends Page>(component: T, props: T["prototype"]["$$prop_def"]) {
+    function setCurrentPage<T extends Page>(component: T, props: T["prototype"]["$$prop_def"]) {
         const currentPageCache = currentPage;
         currentPage = component;
         const state = (pageStates[currentPage.name] = { ...pageStates[currentPage.name], props: props });
@@ -50,7 +50,8 @@
             const postPrefix = "post:";
 
             if (route === "claim-name") return; // modal route
-            else if (route.startsWith(postPrefix)) return; // modal route //setCurrentPage(Post, { postIndex: BigNumber.from(route.substring(postPrefix.length)) });
+            else if (route.startsWith(postPrefix))
+                return; // modal route //setCurrentPage(Post, { postIndex: BigNumber.from(route.substring(postPrefix.length)) });
             else setCurrentPage(A4, {});
         } else if (isValidAddress(hash)) setCurrentPage(Profile, { address: hash });
         else setCurrentPage(Topic, { topic: hash });

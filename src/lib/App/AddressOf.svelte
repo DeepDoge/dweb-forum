@@ -2,7 +2,13 @@
     export let address: string;
 </script>
 
-<div aria-label={address} title={address} class="address k-text-singleline" data-start={address?.substring(0, 39)} data-end={address?.substring(39)} />
+<div
+    aria-label={address}
+    title={address}
+    class="address k-text-singleline"
+    data-start={address?.substring(0, 39)}
+    data-end={address?.substring(39)}
+/>
 
 <style>
     .address {

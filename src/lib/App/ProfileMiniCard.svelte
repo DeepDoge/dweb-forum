@@ -1,7 +1,7 @@
 <script lang="ts">
     import AddressOf from "./AddressOf.svelte";
-    import NicknameOf from "./NicknameOf.svelte";
     import AvatarOf from "./AvatarOf.svelte";
+    import NicknameOf from "./NicknameOf.svelte";
 
     export let address: string;
 </script>

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { blankImageData } from "$/plugins/common/blankImage";
+    import { blankImageData } from "$/plugins/common/blankImage";
 
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KChip from "$lib/kicho-ui/components/KChip.svelte";
@@ -15,8 +15,6 @@ import { blankImageData } from "$/plugins/common/blankImage";
     $: jazziconDataURL = jazziconElement
         ? `data:image/svg+xml;base64,${window.btoa(new XMLSerializer().serializeToString(jazziconElement.querySelector("svg")))}`
         : blankImageData;
-
-    
 </script>
 
 <a href="#{address}" class="avatar-container">

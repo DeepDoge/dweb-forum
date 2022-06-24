@@ -1,7 +1,5 @@
 <script lang="ts">
     import type { getTimeline } from "$/plugins/api/timeline";
-import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
-    import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KIntersectionObserver from "$lib/kicho-ui/components/KIntersectionObserver.svelte";
     export let timeline: Awaited<ReturnType<typeof getTimeline>>;
     $: postIds = timeline?.postIds;
@@ -39,9 +37,7 @@ import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
             <div />
         </KIntersectionObserver>
     {:else}
-        <div class="end">
-            •
-        </div>
+        <div class="end">•</div>
     {/if}
 {/if}
 

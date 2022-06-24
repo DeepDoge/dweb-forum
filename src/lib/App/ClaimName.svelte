@@ -1,6 +1,5 @@
 <script lang="ts">
-import { stringToBigNumber } from "$/plugins/common/stringToBigNumber";
-
+    import { stringToBigNumber } from "$/plugins/common/stringToBigNumber";
     import { appContract } from "$/plugins/wallet";
     import { catchContract } from "$/plugins/wallet/catch";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
@@ -14,7 +13,7 @@ import { stringToBigNumber } from "$/plugins/common/stringToBigNumber";
     async function setName() {
         claming = true;
         try {
-            await (await appContract.setProfile(stringToBigNumber('nickname'), stringToBigNumber(nickname))).wait(1);
+            await (await appContract.setProfile(stringToBigNumber("nickname"), stringToBigNumber(nickname))).wait(1);
             dispatcher("done");
         } catch (error) {
             catchContract(error);

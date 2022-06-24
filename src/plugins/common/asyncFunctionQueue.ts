@@ -33,7 +33,7 @@ export function asyncFunctionQueue<F extends (...params: any) => Promise<any>>(f
                         queue.shift()
                         return r
                     }
-                    catch(err)
+                    catch (err)
                     {
                         queue.shift()
                         throw err

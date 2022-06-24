@@ -23,7 +23,7 @@ const providerChange = asyncFunctionQueue(async (provider: Web3Provider | JsonRp
     let chainId = (await provider.getNetwork()).chainId
 
     console.log(chainId, provider)
- 
+
     if (!(contractAddress = deployed[chainId]?.['App'] ?? null))
     {
         isContractsReady.set('wrongNetwork')

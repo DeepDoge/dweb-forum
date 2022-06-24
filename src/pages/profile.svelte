@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { page } from "$app/stores";
     import AvatarOf from "$lib/App/AvatarOf.svelte";
     import NicknameOf from "$lib/App/NicknameOf.svelte";
     import Timeline from "$lib/App/Timeline.svelte";

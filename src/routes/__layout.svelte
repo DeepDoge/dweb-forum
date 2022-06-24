@@ -5,8 +5,6 @@
     import { page } from "$app/stores";
     import ClaimName from "$lib/App/ClaimName.svelte";
     import Post from "$lib/App/Post.svelte";
-    import PublishPost from "$lib/App/PublishPost.svelte";
-    import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KModalHashRoute from "$lib/kicho-ui/components/KModalHashRoute.svelte";
     import KPageContainer from "$lib/kicho-ui/components/KPageContainer.svelte";

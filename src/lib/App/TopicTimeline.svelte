@@ -1,7 +1,6 @@
 <script lang="ts">
     import { stringToBigNumber } from "$/plugins/common/stringToBigNumber";
-import { BigNumber } from "ethers";
-import PublishPost from "./PublishPost.svelte";
+    import PublishPost from "./PublishPost.svelte";
     import Timeline from "./Timeline.svelte";
 
     type TimelineProps = Timeline["$$prop_def"];
@@ -11,7 +10,7 @@ import PublishPost from "./PublishPost.svelte";
 
     export let topic: $$Props["topic"];
     $: topicId = stringToBigNumber(topic);
-    $: timelineId = { group: 5, id: topicId }
+    $: timelineId = { group: 5, id: topicId };
 </script>
 
 <PublishPost {timelineId} />
