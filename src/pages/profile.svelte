@@ -1,5 +1,6 @@
 <script lang="ts">
     import { page } from "$app/stores";
+    import AvatarOf from "$lib/App/AvatarOf.svelte";
     import NicknameOf from "$lib/App/NicknameOf.svelte";
     import Timeline from "$lib/App/Timeline.svelte";
     import KPageContainer from "$lib/kicho-ui/components/KPageContainer.svelte";
@@ -9,7 +10,9 @@
 
 <div class="profile-page">
     <div class="profile">
-        <div class="avatar" />
+        <div class="avatar">
+            <AvatarOf {address} />
+        </div>
         <div class="name">
             <NicknameOf {address} />
         </div>
@@ -21,7 +24,7 @@
     <KPageContainer>
         <div class="content">
             <div class="published">
-                <Timeline timelineId={{ group: 2, id: address }} />
+                <Timeline timelineId={{ group: 0, id: address }} />
             </div>
         </div>
     </KPageContainer>

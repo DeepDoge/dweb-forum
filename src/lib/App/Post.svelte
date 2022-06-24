@@ -39,7 +39,7 @@
 </script>
 
 <article>
-    <div class="post">
+    <a class="post" href={postId.gte(0) ? `##post:${postId}` : null}>
         <KBoxEffect color="mode" radius="rounded" background {loading} hideContent={loading}>
             <div class="inner">
                 {#if title}
@@ -79,9 +79,10 @@
                 </div>
             </div>
         </KBoxEffect>
-    </div>
+    </a>
     {#if showReplies}
         <div class="replies">
+            <div class="replies-title">Replies:</div>
             <Timeline timelineId={repliesTimelineId} />
         </div>
     {/if}
@@ -98,13 +99,13 @@
 
     .post .inner {
         display: grid;
-        grid-template-columns: 1.5ch 1fr;
+        grid-template-columns: 1.5ch auto 1fr;
         align-items: center;
         grid-template-areas:
-            "avatar nickname"
-            "title title"
-            "content content"
-            "footer footer";
+            "avatar nickname ."
+            "title title title"
+            "content content content"
+            "footer footer footer";
         gap: calc(var(--k-padding) * 1.25);
         padding: calc(var(--k-padding) * 2) calc(var(--k-padding) * 3);
     }
@@ -146,6 +147,12 @@
     }
 
     .replies {
-        padding-left: calc(var(--k-padding) * 4);
+        padding-top: calc(var(--k-padding) * 4);
+    }
+
+    .replies-title {
+        font-size: var(--k-font-smaller);
+        font-weight: bold;
+        padding-bottom: calc(var(--k-padding) * 2);
     }
 </style>

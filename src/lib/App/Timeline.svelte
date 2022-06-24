@@ -10,8 +10,6 @@
 </script>
 
 <div class="timeline">
-    <PublishPost {timelineId} />
-
     {#await timelinePromise then timeline}
         <Posts {timeline} let:postId>
             <div class="post">

@@ -38,13 +38,13 @@
             <KButton loading={$loading} text on:click={async () => (lastLoadMoreResult = await timeline.loadMore())}>Load More</KButton>
         </KIntersectionObserver>
     {:else}
-        Reached to the END!
+        <!-- Reached to the END! -->
     {/if}
 {/if}
 
 <style>
     .posts {
         display: grid;
-        gap: calc(var(--k-padding) * 5);
+        gap: calc(var(--k-padding) * 2);
     }
 </style>

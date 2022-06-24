@@ -2,7 +2,10 @@
     import "$/lib/kicho-ui/root.css";
     import { isValidAddress } from "$/plugins/common/isValidAddress";
     import { isContractsReady, provider } from "$/plugins/wallet";
+    import { page } from "$app/stores";
     import ClaimName from "$lib/App/ClaimName.svelte";
+    import Post from "$lib/App/Post.svelte";
+    import PublishPost from "$lib/App/PublishPost.svelte";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KModalHashRoute from "$lib/kicho-ui/components/KModalHashRoute.svelte";
@@ -18,6 +21,9 @@
         if (searchInput.startsWith("#")) location.hash = searchInput;
         if (isValidAddress(searchInput)) location.hash = `#${searchInput}`;
     }
+
+    $: postIdString = $page.url.hash.substring("##post:".length);
+    $: postId = postIdString ? BigNumber.from(parseInt(postIdString)) : null;
 </script>
 
 <layout>
@@ -46,6 +52,13 @@
 
                         <KModalHashRoute hash="##claim-name">
                             <ClaimName on:done={() => history.back()} />
+                        </KModalHashRoute>
+                        <KModalHashRoute hash="^##post:" size="50em">
+                            {#if postId}
+                                <Post {postId} showReplies />
+                                Reply
+                                <PublishPost timelineId={{ group: 3, id: postId }} />
+                            {/if}
                         </KModalHashRoute>
                     </main>
                     <footer>...</footer>
@@ -77,7 +90,7 @@
         gap: calc(var(--k-padding) * 4);
     }
 
-/*     layout::before {
+    /*     layout::before {
         content: "";
         position: fixed;
         inset: 0;

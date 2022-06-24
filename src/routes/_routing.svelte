@@ -5,7 +5,6 @@
 <script lang="ts">
     import A4 from "$/pages/404.svelte";
     import Index from "$/pages/index.svelte";
-    import Post from "$/pages/post.svelte";
     import Profile from "$/pages/profile.svelte";
     import Topic from "$/pages/topic.svelte";
     import { isValidAddress } from "$/plugins/common/isValidAddress";
@@ -24,10 +23,10 @@
 
     let currentPage: Page = null;
     const pageStates: Record<string, { props: object; scroll?: ScrollToOptions }> = {};
-    const pages = [A4, Index, Post, Profile, Topic] as const;
+    const pages = [A4, Index, Profile, Topic] as const;
     type Page = ExtractGeneric<typeof pages>;
 
-    function setCurrentPage<T extends Page>(component: T, props: T["prototype"]["$$prop_def"]) {
+        function setCurrentPage<T extends Page>(component: T, props: T["prototype"]["$$prop_def"]) {
         const currentPageCache = currentPage;
         currentPage = component;
         const state = (pageStates[currentPage.name] = { ...pageStates[currentPage.name], props: props });
@@ -43,6 +42,10 @@
         if (state.scroll) setTimeout(() => window.scrollTo(state.scroll));
     }
 
+    function setCurrentModal<T extends Page>(component: T, props: T["prototype"]["$$prop_def"]) {
+        
+    }
+
     $: $page && onHashChange();
     async function onHashChange() {
         const hash = decodeURIComponent($page.url.hash.substring(1));
@@ -52,7 +55,7 @@
             const postPrefix = "post:";
 
             if (route === "claim-name") return; // modal route
-            else if (route.startsWith(postPrefix)) setCurrentPage(Post, { postIndex: BigNumber.from(route.substring(postPrefix.length)) });
+            else if (route.startsWith(postPrefix)) return; // modal route //setCurrentPage(Post, { postIndex: BigNumber.from(route.substring(postPrefix.length)) });
             else setCurrentPage(A4, {});
         } else if (isValidAddress(hash)) setCurrentPage(Profile, { address: hash });
         else setCurrentPage(Topic, { topic: hash });
