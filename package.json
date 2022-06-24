@@ -15,7 +15,8 @@
     "hardhat:node": "hardhat node --config src/plugins/hardhat/hardhat.config.ts --tsconfig src/plugins/hardhat/tsconfig.json --port 8546",
     "hardhat:deploy:dev": "npm run hardhat:compile && hardhat run src/plugins/hardhat/scripts/deploy.ts --network hardhat --config src/plugins/hardhat/hardhat.config.ts --tsconfig src/plugins/hardhat/tsconfig.json",
     "hardhat:deploy:local": "npm run hardhat:compile && hardhat run src/plugins/hardhat/scripts/deploy.ts --network localhost --config src/plugins/hardhat/hardhat.config.ts --tsconfig src/plugins/hardhat/tsconfig.json",
-    "hardhat:deploy:rinkeby": "npm run hardhat:compile && hardhat run src/plugins/hardhat/scripts/deploy.ts --network rinkeby --config src/plugins/hardhat/hardhat.config.ts --tsconfig src/plugins/hardhat/tsconfig.json"
+    "hardhat:deploy:rinkeby": "npm run hardhat:compile && hardhat run src/plugins/hardhat/scripts/deploy.ts --network rinkeby --config src/plugins/hardhat/hardhat.config.ts --tsconfig src/plugins/hardhat/tsconfig.json",
+    "hardhat:deploy:polygon": "npm run hardhat:compile && hardhat run src/plugins/hardhat/scripts/deploy.ts --network polygon --config src/plugins/hardhat/hardhat.config.ts --tsconfig src/plugins/hardhat/tsconfig.json"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.5.0",
@@ -39,6 +40,7 @@
     "ethereum-waffle": "^3.4.0",
     "ethers": "^5.5.3",
     "hardhat": "^2.8.3",
+    "hardhat-gas-reporter": "^1.0.8",
     "prettier": "^2.6.2",
     "prettier-plugin-solidity": "^1.0.0-beta.19",
     "svelte": "^3.44.0",

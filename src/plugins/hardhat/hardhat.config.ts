@@ -35,6 +35,10 @@ const config: HardhatUserConfig = {
       url: `https://rinkeby.infura.io/v3/${secrets.projectId}`,
       accounts: [secrets.privateKey]
     },
+    polygon: {
+      url: `https://polygon-rpc.com/`,
+      accounts: [secrets.privateKey]
+    }
   }
 }
 

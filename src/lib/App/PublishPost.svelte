@@ -74,7 +74,7 @@
             publish({
                 title: new FormData(e.currentTarget).get("title").toString(),
                 content: new FormData(e.currentTarget).get("content").toString(),
-            }) && e.currentTarget.reset()}
+            }).then(() => e.currentTarget.reset())}
         class="publish-post"
         class:reply
     >

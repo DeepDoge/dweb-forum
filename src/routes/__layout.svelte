@@ -1,7 +1,7 @@
 <script lang="ts">
     import "$/lib/kicho-ui/root.css";
     import { isValidAddress } from "$/plugins/common/isValidAddress";
-    import { isContractsReady, provider } from "$/plugins/wallet";
+    import { changeNetwork, isContractsReady, provider } from "$/plugins/wallet";
     import { page } from "$app/stores";
     import ClaimName from "$lib/App/ClaimName.svelte";
     import Post from "$lib/App/Post.svelte";
@@ -61,6 +61,9 @@
                 {/key}
             {:else if $isContractsReady === "wrongNetwork"}
                 Wrong Network
+                <span>
+                    <KButton color="master" on:click={() => changeNetwork(137)}>Switch to Polygon(MATIC) Network</KButton>
+                </span>
             {:else}
                 Getting Contracts
             {/if}

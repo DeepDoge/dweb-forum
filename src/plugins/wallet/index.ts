@@ -12,10 +12,46 @@ export const provider: Writable<Web3Provider | JsonRpcProvider> = writable(null)
 export const account: Writable<string> = writable(null)
 export let appContract: App = null
 
+isContractsReady.subscribe((value) => console.log('content ready', value))
+
 const eth = (window as any).ethereum
+
+export async function changeNetwork(targetChainId: number)
+{
+    if (eth.networkVersion !== targetChainId)
+    {
+        try
+        {
+            await eth.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: ethers.utils.hexlify(targetChainId) }]
+            });
+        } 
+        catch (err)
+        {
+            // This error code indicates that the chain has not been added to MetaMask
+            if (err.code === 4902)
+            {
+                await eth.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [
+                        {
+                            chainName: 'Polygon Mainnet',
+                            chainId: ethers.utils.hexlify(targetChainId),
+                            nativeCurrency: { name: 'MATIC', decimals: 18, symbol: 'MATIC' },
+                            rpcUrls: ['https://polygon-rpc.com/'],
+                            blockExplorerUrls: ['https://polygonscan.com/']
+                        }
+                    ]
+                });
+            }
+        }
+    }
+}
 
 const providerChange = asyncFunctionQueue(async (provider: Web3Provider | JsonRpcProvider) =>
 {
+    console.log('update', provider)
     isContractsReady.set(false)
     if (!provider) return
     await provider.ready
@@ -23,6 +59,7 @@ const providerChange = asyncFunctionQueue(async (provider: Web3Provider | JsonRp
     let chainId = (await provider.getNetwork()).chainId
 
     console.log(chainId, provider)
+
 
     if (!(contractAddress = deployed[chainId]?.['App'] ?? null))
     {
@@ -44,7 +81,7 @@ account.subscribe((account) =>
     provider.set(
         account ?
             new ethers.providers.Web3Provider(eth) :
-            new ethers.providers.JsonRpcProvider('https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161', { chainId: 4, name: 'rinkeby' })
+            new ethers.providers.JsonRpcProvider('https://polygon-rpc.com', { chainId: 137, name: 'polygon' })
     )
 })
 
