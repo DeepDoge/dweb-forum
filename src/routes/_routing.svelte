@@ -11,6 +11,7 @@
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
     import type { ExtractGeneric } from "$lib/kicho-ui/types/util";
+    import { BigNumber } from "ethers";
 
     const pushState = history.pushState;
     history.pushState = function (...params) {
@@ -30,7 +31,7 @@
         currentPage = component;
         const state = (pageStates[currentPage.name] = { ...pageStates[currentPage.name], props: props });
 
-        if (currentPageCache && currentPage !== currentPageCache) {
+        if (currentPageCache) {
             const scrollingElement = document.scrollingElement ?? document.body;
             pageStates[currentPageCache.name].scroll = {
                 left: scrollingElement.scrollLeft,
@@ -41,26 +42,36 @@
         if (state.scroll) setTimeout(() => window.scrollTo(state.scroll));
     }
 
+    function parseTopicPostHash(hash: string) {
+        const parts = hash.split(":");
+        if (parts.length !== 2) return false;
+        return {
+            topic: parts[0],
+            postId: BigNumber.from(parts[1]),
+        };
+    }
+
     $: $page && onHashChange();
     async function onHashChange() {
         const hash = decodeURIComponent($page.url.hash.substring(1));
         if (!hash) setCurrentPage(Index, {});
         else if (hash.startsWith("#")) {
             const route = hash.substring(1);
-            const postPrefix = "post:";
+            const topicPost = parseTopicPostHash(route);
 
             if (route === "claim-name") return; // modal route
-            else if (route.startsWith(postPrefix))
-                return; // modal route //setCurrentPage(Post, { postIndex: BigNumber.from(route.substring(postPrefix.length)) });
+            else if (topicPost) setCurrentPage(Topic, topicPost);
             else setCurrentPage(A4, {});
         } else if (isValidAddress(hash)) setCurrentPage(Profile, { address: hash });
         else setCurrentPage(Topic, { topic: hash });
     }
+
+    $: id = $page.url.hash.substring(1)
 </script>
 
 <!-- Have to do it this way because svelte doesnt have keep-alive -->
 {#each pages as page (page.name)}
-    <div style:display={currentPage === page ? "block" : "none"}>
+    <div id={currentPage === page ? id : null} style:display={currentPage === page ? "block" : "none"}>
         {#if pageStates[page.name]}
             <svelte:component this={page} {...pageStates[page.name].props} />
         {/if}

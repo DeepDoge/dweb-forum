@@ -33,7 +33,7 @@
                 await appContract.publishPost(
                     timelineId.group,
                     timelineId.id,
-                    stringToBigNumber(params.title.trim()),
+                    stringToBigNumber(params.title?.trim()),
                     encodePostContent(content),
                     [
                         `0x${"0".repeat(40)}`,
@@ -70,12 +70,17 @@
 {#if $account}
     <!-- svelte-ignore missing-declaration -->
     <form
-        on:submit|preventDefault={(e) =>
-            publish({
-                title: new FormData(e.currentTarget).get("title")?.toString(),
-                content: new FormData(e.currentTarget).get("content")?.toString(),
-            }).then(() => e.currentTarget.reset())}
+        on:submit|preventDefault={async (e) =>
+        {
+            const form = e.currentTarget
+            await publish({
+                title: new FormData(form).get("title")?.toString(),
+                content: new FormData(form).get("content")?.toString(),
+            })
+            form.reset()
+        }}
         class="publish-post"
+        class:publishing
         class:reply
     >
         <KBoxEffect color="mode" background radius="rounded">
@@ -133,11 +138,11 @@
         gap: calc(var(--k-padding) * 2);
     }
 
-    .reply:not(:focus-within) .actions,
-    .reply:not(:focus-within) hr {
+    .reply:not(:focus-within):not(.publishing) .actions,
+    .reply:not(:focus-within):not(.publishing) hr {
         display: none;
     }
-    .reply:not(:focus-within) .field {
+    .reply:not(:focus-within):not(.publishing) .field {
         max-height: 1.5em;
         overflow: hidden;
     }

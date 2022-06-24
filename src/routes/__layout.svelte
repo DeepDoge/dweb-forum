@@ -19,9 +19,6 @@
         if (searchInput.startsWith("#")) location.hash = searchInput;
         if (isValidAddress(searchInput)) location.hash = `#${searchInput}`;
     }
-
-    $: postIdString = $page.url.hash.substring("##post:".length);
-    $: postId = postIdString ? BigNumber.from(parseInt(postIdString)) : null;
 </script>
 
 <layout>
@@ -51,13 +48,8 @@
                         <KModalHashRoute hash="##claim-name">
                             <ClaimName on:done={() => history.back()} />
                         </KModalHashRoute>
-                        <KModalHashRoute align="start" hash="^##post:" size="50em">
-                            {#if postId}
-                                <Post {postId} showReplies />
-                            {/if}
-                        </KModalHashRoute>
                     </main>
-                    <footer>Web3 Forum</footer>
+                    <!-- <footer>Web3 Forum</footer> -->
                 {/key}
             {:else if $isContractsReady === "wrongNetwork"}
                 Wrong Network
@@ -108,7 +100,7 @@
         padding-bottom: 10vh;
     }
 
-    footer {
+    /* footer {
         text-align: center;
-    }
+    } */
 </style>

@@ -1,7 +1,8 @@
 <script lang="ts">
-    import { getPost,getTimeline,TimelineId } from "$/plugins/api/timeline";
+    import { currentTopic } from "$/pages/topic.svelte";
+    import { getPost, getTimeline, TimelineId } from "$/plugins/api/timeline";
     import { second } from "$/plugins/common/second";
-    import { bigNumberToString,decodePostContent } from "$/plugins/common/stringToBigNumber";
+    import { bigNumberToString, decodePostContent } from "$/plugins/common/stringToBigNumber";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
     import type { BigNumber } from "ethers";
@@ -15,6 +16,7 @@
 
     export let postId: BigNumber;
     export let showReplies = false;
+    export let showParent = false;
 
     let postData: Awaited<ReturnType<typeof getPost>> = null;
     $: postContent = $postData ? decodePostContent($postData.post.content) : null;
@@ -24,7 +26,7 @@
 
     let repliesTimeline: Awaited<ReturnType<typeof getTimeline>> = null;
     $: repliesLength = repliesTimeline?.length;
-    $: repliesLoading = repliesTimeline?.loading
+    $: repliesLoading = repliesTimeline?.loading;
 
     $: postId?.toString() != $postData?.id.toString() && updatePost();
     async function updatePost() {
@@ -41,7 +43,12 @@
 </script>
 
 <article>
-    <a class="post" href={postId.gte(0) ? `##post:${postId}` : null}>
+    {#if showParent && $postData?.post.timelineGroup.eq(3)}
+        <div class="parent">
+            <svelte:self showParent postId={$postData.post.timelineId} />
+        </div>
+    {/if}
+    <a class="post" id="post{postId}" href={$currentTopic && postId.gte(0) ? `##${$currentTopic}:${postId}` : null}>
         <KBoxEffect color="mode" radius="rounded" background {loading} hideContent={loading}>
             <div class="inner">
                 {#if title}
@@ -85,7 +92,7 @@
     {#if showReplies}
         <div class="replies">
             <PublishPost reply timelineId={repliesTimelineId} />
-            <div class="replies-title">Replies{(!repliesTimeline || $repliesLoading) ? '...' : ':'}</div>
+            <div class="replies-title">Replies{!repliesTimeline || $repliesLoading ? "..." : ":"}</div>
             <Timeline timelineId={repliesTimelineId} />
         </div>
     {/if}
@@ -94,10 +101,19 @@
 <style>
     article {
         display: grid;
-        grid-template-rows: auto auto;
         align-items: start;
         align-content: start;
         gap: calc(var(--k-padding) * 3);
+    }
+
+    .parent::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: calc(var(--k-padding) * 5);
+        height: calc(var(--k-padding) * 3);
+        transform: translateY(100%);
+        border-left: dashed .12em var(--k-color-slave);
     }
 
     .post .inner {
@@ -151,7 +167,7 @@
 
     .replies {
         display: grid;
-        gap: calc(var(--k-padding) * 3)
+        gap: calc(var(--k-padding) * 3);
     }
 
     .replies-title {

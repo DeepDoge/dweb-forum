@@ -11,7 +11,18 @@
     export let topic: $$Props["topic"];
     $: topicId = stringToBigNumber(topic);
     $: timelineId = { group: 5, id: topicId };
+
+    $: console.log(timelineId);
 </script>
 
-<PublishPost {timelineId} />
-<Timeline {timelineId} />
+<div class="topic">
+    <PublishPost {timelineId} />
+    <Timeline {timelineId} />
+</div>
+
+<style>
+    .topic {
+        display: grid;
+        gap: calc(var(--k-padding) * 3);
+    }
+</style>

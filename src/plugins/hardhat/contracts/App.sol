@@ -51,6 +51,8 @@ contract App {
         uint256 time;
         uint256 title;
         uint256[8] content;
+        uint256 timelineGroup;
+        uint256 timelineId;
     }
 
     uint256 public constant PUBLISH_GAS = 100;
@@ -80,7 +82,7 @@ contract App {
         payable(msg.sender).transfer(msg.value - cost);
 
         uint256 postId = postCounter++;
-        posts[postId] = Post(msg.sender, block.timestamp, title, content);
+        posts[postId] = Post(msg.sender, block.timestamp, title, content, timelineGroup, timelineId);
 
         addPostToTimeline(timelineGroup, timelineId, postId);
         addPostToTimeline(
