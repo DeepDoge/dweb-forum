@@ -48,7 +48,7 @@
             <svelte:self showParent postId={$postData.post.timelineId} />
         </div>
     {/if}
-    <a class="post" id="post{postId}" href={$currentTopic && postId.gte(0) ? `##${$currentTopic}:${postId}` : null}>
+    <a class="post" href={$currentTopic && postId.gte(0) ? `##${$currentTopic}:${postId}` : null}>
         <KBoxEffect color="mode" radius="rounded" background {loading} hideContent={loading}>
             <div class="inner">
                 {#if title}

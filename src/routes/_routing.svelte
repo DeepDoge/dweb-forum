@@ -1,5 +1,8 @@
 <script context="module" lang="ts">
     window.addEventListener("hashchange", () => goto(location.href));
+    const scrollCache = writable({ top: 0, left: 0 });
+    const scrollingElement = document.scrollingElement ?? document.body;
+    window.addEventListener("scroll", () => scrollCache.set({ top: scrollingElement.scrollTop, left: scrollingElement.scrollLeft }));
 </script>
 
 <script lang="ts">
@@ -12,6 +15,7 @@
     import { page } from "$app/stores";
     import type { ExtractGeneric } from "$lib/kicho-ui/types/util";
     import { BigNumber } from "ethers";
+    import { writable } from "svelte/store";
 
     const pushState = history.pushState;
     history.pushState = function (...params) {
@@ -32,7 +36,6 @@
         const state = (pageStates[currentPage.name] = { ...pageStates[currentPage.name], props: props });
 
         if (currentPageCache) {
-            const scrollingElement = document.scrollingElement ?? document.body;
             pageStates[currentPageCache.name].scroll = {
                 left: scrollingElement.scrollLeft,
                 top: scrollingElement.scrollTop,
@@ -66,14 +69,26 @@
         else setCurrentPage(Topic, { topic: hash });
     }
 
-    $: id = $page.url.hash.substring(1)
+    $: id = $page.url.hash.substring(1);
 </script>
+
+<div class="hash-scroll-fix" {id} style:--top={$scrollCache.top} style:--left={$scrollCache.left} />
 
 <!-- Have to do it this way because svelte doesnt have keep-alive -->
 {#each pages as page (page.name)}
-    <div id={currentPage === page ? id : null} style:display={currentPage === page ? "block" : "none"}>
+    <div style:display={currentPage === page ? "block" : "none"}>
         {#if pageStates[page.name]}
             <svelte:component this={page} {...pageStates[page.name].props} />
         {/if}
     </div>
 {/each}
+
+<style>
+    .hash-scroll-fix {
+        position: fixed;
+        top: calc(var(--top) * 1px);
+        left: calc(var(--left) * 1px);
+        width: 1px;
+        height: 1px;
+    }
+</style>
