@@ -72,8 +72,8 @@
     <form
         on:submit|preventDefault={(e) =>
             publish({
-                title: new FormData(e.currentTarget).get("title").toString(),
-                content: new FormData(e.currentTarget).get("content").toString(),
+                title: new FormData(e.currentTarget).get("title")?.toString(),
+                content: new FormData(e.currentTarget).get("content")?.toString(),
             }).then(() => e.currentTarget.reset())}
         class="publish-post"
         class:reply
