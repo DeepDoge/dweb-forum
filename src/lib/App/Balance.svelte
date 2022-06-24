@@ -12,4 +12,4 @@
     $: updateBalance($account);
 </script>
 
-{balance ?? "..."}
+{balance?.split('.')[0] ?? "..."}

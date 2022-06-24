@@ -30,13 +30,7 @@
                     <main>
                         <KPageContainer>
                             <form class="search-form" on:submit|preventDefault={search}>
-                                <KTextField
-                                    color="mode"
-                                    background
-                                    bind:value={searchInput}
-                                    placeholder="#Topic, 0xAddress, ENS name, PostIndex"
-                                    size="larger"
-                                />
+                                <KTextField background bind:value={searchInput} placeholder="#Topic, 0xAddress, ENS name, PostIndex" size="larger" />
                                 <KButton color="master" size="larger">Search</KButton>
                             </form>
                         </KPageContainer>
@@ -47,7 +41,6 @@
                             <ClaimName on:done={() => history.back()} />
                         </KModalHashRoute>
                     </main>
-                    <!-- <footer>Web3 Forum</footer> -->
                 {/key}
             {:else if $isContractsReady === "wrongNetwork"}
                 Wrong Network
@@ -79,14 +72,14 @@
         gap: calc(var(--k-padding) * 4);
     }
 
-    /*     layout::before {
+    layout::before {
         content: "";
         position: fixed;
         inset: 0;
         background-size: cover;
         background-image: linear-gradient(to left bottom, var(--k-color-master), var(--k-color-slave));
-        filter: opacity(0.25);
-    } */
+        filter: opacity(0.01);
+    }
 
     .search-form {
         display: grid;
@@ -97,8 +90,4 @@
         gap: 0.5em;
         padding-bottom: 10vh;
     }
-
-    /* footer {
-        text-align: center;
-    } */
 </style>
