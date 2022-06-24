@@ -2,16 +2,11 @@
     import Post from "$lib/App/Post.svelte";
     import TopicTimeline from "$lib/App/TopicTimeline.svelte";
     import type { BigNumber } from "ethers";
-    import { writable } from "svelte/store";
-
-    export const currentTopic = writable<string>(null);
 </script>
 
 <script lang="ts">
     export let topic: string;
     export let postId: BigNumber = null;
-
-    $: currentTopic.set(topic);
 </script>
 
 <div class="page">
@@ -35,7 +30,6 @@
 
 <style>
     .page {
-        padding: var(--k-page-padding);
         display: grid;
         gap: calc(var(--k-padding) * 4);
     }
@@ -46,7 +40,6 @@
         align-content: stretch;
         align-items: stretch;
         justify-items: stretch;
-        gap: calc(var(--k-padding) * 4);
         height: calc(100vh - calc(var(--k-padding) * 2));
     }
 
@@ -62,6 +55,14 @@
     .scroll {
         height: 100%;
         overflow-y: auto;
+    }
+
+    .scroll {
+        padding: calc(var(--k-padding) * 2);
+    }
+
+    h2 {
+        padding: 0 calc(var(--k-padding) * 2);
     }
 
     @media only screen and (max-width: 700px) {

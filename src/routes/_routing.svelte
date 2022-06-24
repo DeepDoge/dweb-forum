@@ -3,6 +3,8 @@
     const scrollCache = writable({ top: 0, left: 0 });
     const scrollingElement = document.scrollingElement ?? document.body;
     window.addEventListener("scroll", () => scrollCache.set({ top: scrollingElement.scrollTop, left: scrollingElement.scrollLeft }));
+
+    export const currentTopicPost = writable<{ topic: string; postId: BigNumber }>(null);
 </script>
 
 <script lang="ts">
@@ -61,6 +63,7 @@
         else if (hash.startsWith("#")) {
             const route = hash.substring(1);
             const topicPost = parseTopicPostHash(route);
+            if (topicPost) $currentTopicPost = topicPost;
 
             if (route === "claim-name") return; // modal route
             else if (topicPost) setCurrentPage(Topic, topicPost);

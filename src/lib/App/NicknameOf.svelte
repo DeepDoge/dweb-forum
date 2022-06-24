@@ -1,9 +1,9 @@
 <script context="module" lang="ts">
-    import { bigNumberToString,stringToBigNumber } from "$/plugins/common/stringToBigNumber";
+    import { bigNumberToString, stringToBigNumber } from "$/plugins/common/stringToBigNumber";
     import { appContract } from "$/plugins/wallet";
     import { listenContract } from "$/plugins/wallet/listen";
     import { onDestroy } from "svelte";
-    import { writable,Writable } from "svelte/store";
+    import { writable, Writable } from "svelte/store";
 
     const caches: Record<
         string,
@@ -49,7 +49,6 @@
 </script>
 
 <script lang="ts">
-    
     export let address: string;
     let name: Writable<string> = null;
 

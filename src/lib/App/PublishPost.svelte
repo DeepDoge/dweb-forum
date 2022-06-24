@@ -70,14 +70,13 @@
 {#if $account}
     <!-- svelte-ignore missing-declaration -->
     <form
-        on:submit|preventDefault={async (e) =>
-        {
-            const form = e.currentTarget
+        on:submit|preventDefault={async (e) => {
+            const form = e.currentTarget;
             await publish({
                 title: new FormData(form).get("title")?.toString(),
                 content: new FormData(form).get("content")?.toString(),
-            })
-            form.reset()
+            });
+            form.reset();
         }}
         class="publish-post"
         class:publishing

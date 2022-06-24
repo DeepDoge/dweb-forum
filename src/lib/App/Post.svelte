@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { currentTopic } from "$/pages/topic.svelte";
     import { getPost, getTimeline, TimelineId } from "$/plugins/api/timeline";
     import { second } from "$/plugins/common/second";
     import { bigNumberToString, decodePostContent } from "$/plugins/common/stringToBigNumber";
+    import { currentTopicPost } from "$/routes/_routing.svelte";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
     import type { BigNumber } from "ethers";
@@ -48,8 +48,15 @@
             <svelte:self showParent postId={$postData.post.timelineId} />
         </div>
     {/if}
-    <a class="post" href={$currentTopic && postId.gte(0) ? `##${$currentTopic}:${postId}` : null}>
-        <KBoxEffect color="mode" radius="rounded" background {loading} hideContent={loading}>
+    <a class="post" href={$currentTopicPost.topic && postId.gte(0) ? `##${$currentTopicPost.topic}:${postId}` : null}>
+        <KBoxEffect
+            color="mode"
+            radius="rounded"
+            background
+            {loading}
+            hideContent={loading}
+            glow={$currentTopicPost.postId.eq(postId) ? "master" : false}
+        >
             <div class="inner">
                 {#if title}
                     <div class="title">
@@ -113,12 +120,21 @@
         left: calc(var(--k-padding) * 5);
         height: calc(var(--k-padding) * 3);
         transform: translateY(100%);
-        border-left: dashed .12em var(--k-color-slave);
+        border-left: dashed 0.12em var(--k-color-slave);
+    }
+
+    .post {
+        transition: var(--k-transition);
+        transition-property: transform;
+    }
+
+    .post:hover {
+        transform: translateY(-0.1rem) scale(1.005);
     }
 
     .post .inner {
         display: grid;
-        grid-template-columns: 1.5ch auto 1fr;
+        grid-template-columns: 2ch auto 1fr;
         align-items: center;
         grid-template-areas:
             "avatar nickname ."

@@ -26,7 +26,7 @@ export async function changeNetwork(targetChainId: number)
                 method: 'wallet_switchEthereumChain',
                 params: [{ chainId: ethers.utils.hexlify(targetChainId) }]
             });
-        } 
+        }
         catch (err)
         {
             // This error code indicates that the chain has not been added to MetaMask

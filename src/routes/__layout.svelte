@@ -2,9 +2,7 @@
     import "$/lib/kicho-ui/root.css";
     import { isValidAddress } from "$/plugins/common/isValidAddress";
     import { changeNetwork, isContractsReady, provider } from "$/plugins/wallet";
-    import { page } from "$app/stores";
     import ClaimName from "$lib/App/ClaimName.svelte";
-    import Post from "$lib/App/Post.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KModalHashRoute from "$lib/kicho-ui/components/KModalHashRoute.svelte";
     import KPageContainer from "$lib/kicho-ui/components/KPageContainer.svelte";
