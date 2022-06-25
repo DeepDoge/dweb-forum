@@ -47,6 +47,7 @@ async function main()
   }
 
   const App = await ethers.getContractFactory("App")
+  console.log('Deploying App')
   const app = await App.deploy()
 
   await app.deployed()
