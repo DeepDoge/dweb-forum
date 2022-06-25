@@ -1,7 +1,7 @@
 <script lang="ts">
     import { getPost,getTimeline,TimelineId } from "$/plugins/api/timeline";
     import { second } from "$/plugins/common/second";
-    import { bigNumberToString,decodePostContent } from "$/plugins/common/stringToBigNumber";
+    import { decodeBigNumberArrayToString } from "$/plugins/common/stringToBigNumber";
     import { currentTopicPost } from "$/routes/_routing.svelte";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
@@ -19,7 +19,7 @@
     export let showParent = false;
 
     let postData: Awaited<ReturnType<typeof getPost>> = null;
-    $: postContent = $postData ? decodePostContent($postData.post.content) : null;
+    $: postContent = $postData ? decodeBigNumberArrayToString($postData.post.content) : null;
 
     let repliesTimelineId: TimelineId;
     $: repliesTimelineId = { group: 3, id: postId };
@@ -38,7 +38,7 @@
     }
 
     $: date = $second && ((postData && format(new Date($postData.post.time.toNumber() * 1000))) ?? null);
-    $: title = (postData && bigNumberToString($postData.post.title)) ?? null;
+    $: title = (postData && decodeBigNumberArrayToString([$postData.post.title])) ?? null;
     $: loading = postId && !postData;
 </script>
 

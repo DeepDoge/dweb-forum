@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-    import { bigNumberToString,stringToBigNumber } from "$/plugins/common/stringToBigNumber";
+    import { decodeBigNumberArrayToString, stringToBigNumber } from "$/plugins/common/stringToBigNumber";
     import { appContract } from "$/plugins/wallet";
     import { listenContract } from "$/plugins/wallet/listen";
     import { onDestroy } from "svelte";
@@ -23,10 +23,10 @@
                 appContract,
                 appContract.filters.ProfileSet(address, stringToBigNumber("nickname")),
                 (owner, key, newName) => {
-                    caches[address].value.set(bigNumberToString(newName));
+                    caches[address].value.set(decodeBigNumberArrayToString([newName]));
                 }
             );
-            appContract.profiles(address, stringToBigNumber("nickname")).then((value) => caches[address]?.value.set(bigNumberToString(value)));
+            appContract.profiles(address, stringToBigNumber("nickname")).then((value) => caches[address]?.value.set(decodeBigNumberArrayToString([value])));
         }
         caches[address].listenerCount++;
         return caches[address].value;
