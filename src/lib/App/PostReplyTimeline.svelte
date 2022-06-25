@@ -3,7 +3,6 @@
     import Post from "$lib/App/Post.svelte";
     import Posts from "$lib/App/Posts.svelte";
     import { BigNumber } from "ethers";
-    import { get } from "svelte/store";
     import PublishPost from "./PublishPost.svelte";
 
     export let postId: BigNumber;
@@ -39,7 +38,7 @@
     }
 </script>
 
-<div class:loading>
+<div>
     <Posts timeline={repliesTimeline} let:postIds>
         {#each [...prefixPostIds, ...postIds] as postId (postId.toString())}
             {#if postId.eq(0)}
@@ -56,9 +55,5 @@
     div {
         display: grid;
         gap: calc(var(--k-padding) * 3);
-    }
-
-    .loading {
-        pointer-events: none;
     }
 </style>
