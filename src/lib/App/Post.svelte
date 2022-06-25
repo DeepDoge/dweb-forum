@@ -1,5 +1,4 @@
 <script lang="ts">
-    import A4 from "$/pages/404.svelte";
     import { getPost, getTimeline, TimelineId } from "$/plugins/api/timeline";
     import { second } from "$/plugins/common/second";
     import { decodeBigNumberArrayToString } from "$/plugins/common/stringToBigNumber";
@@ -12,13 +11,9 @@
     import AvatarOf from "./AvatarOf.svelte";
     import Content from "./Content.svelte";
     import NicknameOf from "./NicknameOf.svelte";
-    import Posts from "./Posts.svelte";
     import ProfileMiniCard from "./ProfileMiniCard.svelte";
-    import PublishPost from "./PublishPost.svelte";
 
     export let postId: BigNumber;
-    export let showReplies = false;
-    export let showParent = false;
     export let asLink = false;
 
     let postData: Awaited<ReturnType<typeof getPost>> = null;
@@ -29,7 +24,6 @@
 
     let repliesTimeline: Awaited<ReturnType<typeof getTimeline>> = null;
     $: repliesLength = repliesTimeline?.length;
-    $: repliesLoading = repliesTimeline?.loading;
 
     $: postId?.toString() != $postData?.id.toString() && updatePost();
     async function updatePost() {
@@ -46,11 +40,6 @@
 </script>
 
 <article>
-    {#if showParent && $postData?.post.timelineGroup.eq(3)}
-        <div class="parent">
-            <svelte:self showParent {asLink} postId={$postData.post.timelineId} />
-        </div>
-    {/if}
     <a class="post" href={asLink ? `#${$route.route}#${postId}` : null}>
         <KBoxEffect
             color="mode"
@@ -86,6 +75,7 @@
                             <KChip color="slave">Reply to: @{$postData.post.timelineId}</KChip>
                         </a>
                     {/if}
+                    <KChip color="mode-pop">@{$postData?.id}</KChip>
                 </div>
                 <div class="content k-text-multiline">
                     {#if $postData}
@@ -110,17 +100,6 @@
             </div>
         </KBoxEffect>
     </a>
-    {#if showReplies}
-        <div class="replies">
-            <PublishPost reply timelineId={repliesTimelineId} />
-            <div class="replies-title">Replies{!repliesTimeline || $repliesLoading ? "..." : ":"}</div>
-            {#if repliesTimeline}
-                <Posts timeline={repliesTimeline} let:postId>
-                    <svelte:self {postId} {asLink} />
-                </Posts>
-            {/if}
-        </div>
-    {/if}
 </article>
 
 <style>
@@ -130,17 +109,6 @@
         align-content: start;
         gap: calc(var(--k-padding) * 3);
     }
-
-    .parent::after {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        left: calc(var(--k-padding) * 5);
-        height: calc(var(--k-padding) * 3);
-        transform: translateY(100%);
-        border-left: dashed 0.12em var(--k-color-slave);
-    }
-
     .post {
         transition: var(--k-transition);
         transition-property: transform;
@@ -201,15 +169,5 @@
         grid-auto-flow: column;
         align-items: center;
         gap: 0.5ch;
-    }
-
-    .replies {
-        display: grid;
-        gap: calc(var(--k-padding) * 3);
-    }
-
-    .replies-title {
-        font-size: var(--k-font-smaller);
-        font-weight: bold;
     }
 </style>

@@ -1,15 +1,15 @@
 <script lang="ts">
     import type { getTimeline } from "$/plugins/api/timeline";
     import KIntersectionObserver from "$lib/kicho-ui/components/KIntersectionObserver.svelte";
-        export let timeline: Awaited<ReturnType<typeof getTimeline>>;
+
+    export let timeline: Awaited<ReturnType<typeof getTimeline>>;
     $: postIds = timeline?.postIds;
 
-    let bottomIntersecting: boolean;
+    let bottomIntersecting = false;
     let bottomEnd = false;
     let bottomLoop = false;
-    $: !bottomEnd && !bottomLoop && bottomIntersecting && onChange(bottomIntersecting);
-
-    $: loading = timeline.loading;
+    $: timeline && !bottomEnd && !bottomLoop && bottomIntersecting && onChange(bottomIntersecting);
+    $: timeline && (bottomEnd = false)
 
     let lastLoadMoreResult: Awaited<ReturnType<typeof timeline["loadMore"]>>;
     async function onChange(value: typeof bottomIntersecting) {
@@ -27,11 +27,7 @@
 </script>
 
 {#if timeline}
-    <div class="posts">
-        {#each $postIds as postId (postId.toString())}
-            <slot {postId} />
-        {/each}
-    </div>
+    <slot postIds={$postIds} />
     {#if !bottomEnd}
         <KIntersectionObserver bind:intersecting={bottomIntersecting} rootMargin="{window.innerHeight * 5}px 0px">
             <div />
@@ -42,11 +38,6 @@
 {/if}
 
 <style>
-    .posts {
-        display: grid;
-        gap: calc(var(--k-padding) * 2);
-    }
-
     .end {
         display: grid;
         place-content: center;

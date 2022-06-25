@@ -4,8 +4,11 @@
     import Post from "$lib/App/Post.svelte";
     import Posts from "$lib/App/Posts.svelte";
     import { BigNumber } from "ethers";
+    import PostReplyTimeline from "./PostReplyTimeline.svelte";
 
     export let timelineId: TimelineId;
+
+    $: selectedPostId = /[0-9]/.test($route.hash) ? BigNumber.from($route.hash) : null;
 
     $: timelinePromise = getTimeline(timelineId);
 </script>
@@ -20,8 +23,10 @@
                 <div class="timeline">
                     <slot />
                     {#await timelinePromise then timeline}
-                        <Posts {timeline} let:postId>
-                            <Post {postId} asLink />
+                        <Posts {timeline} let:postIds>
+                            {#each postIds as postId (postId.toString())}
+                                <Post {postId} asLink />
+                            {/each}
                         </Posts>
                     {/await}
                 </div>
@@ -35,7 +40,7 @@
                     </slot>
                 </header>
                 <div class="scroll k-slim-scrollbar">
-                    <Post postId={BigNumber.from($route.hash)} showParent showReplies asLink />
+                    <PostReplyTimeline postId={selectedPostId} />
                 </div>
             </div>
         {/if}
@@ -45,7 +50,7 @@
 <style>
     .timeline {
         display: grid;
-        gap: calc(var(--k-padding) * 5);
+        gap: calc(var(--k-padding) * 3);
     }
 
     .page {
