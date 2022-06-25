@@ -1,5 +1,5 @@
 # What is this?
-This is a web3 based forum, or social media, or how ever you wanna call it, idk.
+This is a Web3 + IPFS based forum, or social media, or how ever you wanna call it, idk.
 
 # How to use it?
 It's still in early stages. <br />
