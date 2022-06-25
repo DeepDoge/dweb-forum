@@ -8,7 +8,7 @@ This is a Web3 + IPFS based forum, or social media, or how ever you wanna call i
 # How to use it?
 It's still in early stages. <br />
 But if you wanna try it, 
-the [3b2db3d](https://github.com/DeepDoge/web3-forum/commit/3b2db3dceb97cdbf0c890a98c1b08d05c34c0971) version is live on Polygon Network at: <br /> 
-- [ipfs://bafybeigosfsaqhqlasc3tju4xegagep7lzufo2vqojut446kbyj2oxnbxa/#uranus](ipfs://bafybeigosfsaqhqlasc3tju4xegagep7lzufo2vqojut446kbyj2oxnbxa/#uranus)
-- https://bafybeigosfsaqhqlasc3tju4xegagep7lzufo2vqojut446kbyj2oxnbxa.ipfs.dweb.link/#uranus
-- https://bafybeigosfsaqhqlasc3tju4xegagep7lzufo2vqojut446kbyj2oxnbxa.ipfs.cf-ipfs.com/#uranus
+the [3a67f4d](https://github.com/DeepDoge/web3-forum/commit/3a67f4d6ecd4cb9cd9d9da87ce2bf6c3d2215b68) version is live on Polygon Network at: <br /> 
+- ipfs://bafybeiecvgqdd4jedajucvhzwencui2snwyw64n675ilearupylbmxx5wm/#hello
+- https://bafybeiecvgqdd4jedajucvhzwencui2snwyw64n675ilearupylbmxx5wm.ipfs.dweb.link/#hello
+- https://bafybeiecvgqdd4jedajucvhzwencui2snwyw64n675ilearupylbmxx5wm.ipfs.cf-ipfs.com/#hello
