@@ -189,7 +189,6 @@
     .replies {
         display: grid;
         gap: calc(var(--k-padding) * 3);
-        padding-left: calc(var(--k-padding) * 3);
     }
 
     .replies-title {

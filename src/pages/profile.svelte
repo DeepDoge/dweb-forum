@@ -1,4 +1,5 @@
 <script lang="ts">
+    import AddressOf from "$lib/App/AddressOf.svelte";
     import AvatarOf from "$lib/App/AvatarOf.svelte";
     import NicknameOf from "$lib/App/NicknameOf.svelte";
     import Posts from "$lib/App/Posts.svelte";
@@ -34,7 +35,7 @@
             <NicknameOf {address} />
         </div>
         <div class="address">
-            {address}
+            <AddressOf {address} />
         </div>
     </div>
 
@@ -43,10 +44,10 @@
             <Timeline timelineId={{ group: mode, id: address }}>
                 <svelte:fragment slot="timeline-header">
                     <div class="tabs">
-                    {#each tabs as tab (tab.mode)}
-                        <KButton on:click={() => (mode = tab.mode)} color="master" background={tab.mode === mode}>{tab.name}</KButton>
-                    {/each}
-                </div>
+                        {#each tabs as tab (tab.mode)}
+                            <KButton on:click={() => (mode = tab.mode)} color="master" background={tab.mode === mode}>{tab.name}</KButton>
+                        {/each}
+                    </div>
                 </svelte:fragment>
             </Timeline>
         </div>
