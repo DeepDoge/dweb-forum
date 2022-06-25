@@ -1,10 +1,28 @@
 <script lang="ts">
     import AvatarOf from "$lib/App/AvatarOf.svelte";
     import NicknameOf from "$lib/App/NicknameOf.svelte";
+    import Posts from "$lib/App/Posts.svelte";
     import Timeline from "$lib/App/Timeline.svelte";
-    import KPageContainer from "$lib/kicho-ui/components/KPageContainer.svelte";
+    import KButton from "$lib/kicho-ui/components/KButton.svelte";
 
     export let address: string;
+
+    const enum Mode {
+        Posts = 0,
+        Replies = 1,
+        Mentions = 2,
+    }
+
+    export let mode: Mode = Mode.Posts;
+
+    const tabs: {
+        name: string;
+        mode: Mode;
+    }[] = [
+        { name: "Posts", mode: Mode.Posts },
+        { name: "Replies", mode: Mode.Replies },
+        { name: "Mentions", mode: Mode.Mentions },
+    ];
 </script>
 
 <div class="profile-page">
@@ -20,13 +38,19 @@
         </div>
     </div>
 
-    <KPageContainer>
-        <div class="content">
-            <div class="published">
-                <Timeline timelineId={{ group: 2, id: address }} />
-            </div>
+    <div class="content">
+        <div class="posts">
+            <Timeline timelineId={{ group: mode, id: address }}>
+                <svelte:fragment slot="timeline-header">
+                    <div class="tabs">
+                    {#each tabs as tab (tab.mode)}
+                        <KButton on:click={() => (mode = tab.mode)} color="master" background={tab.mode === mode}>{tab.name}</KButton>
+                    {/each}
+                </div>
+                </svelte:fragment>
+            </Timeline>
         </div>
-    </KPageContainer>
+    </div>
 </div>
 
 <style>
@@ -35,6 +59,16 @@
         grid-auto-flow: row;
         grid-template-columns: 1fr;
         gap: 0.5em;
+    }
+
+    .tabs {
+        display: grid;
+        grid-auto-flow: column;
+        gap: calc(var(--k-padding) * 2);
+    }
+
+    .content {
+        padding: var(--k-page-padding);
     }
 
     .profile {

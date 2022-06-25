@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { getPost,getTimeline,TimelineId } from "$/plugins/api/timeline";
+    import { getPost, getTimeline, TimelineId } from "$/plugins/api/timeline";
     import { second } from "$/plugins/common/second";
     import { decodeBigNumberArrayToString } from "$/plugins/common/stringToBigNumber";
-    import { currentTopicPost } from "$/routes/_routing.svelte";
+    import { route } from "$/routes/_routing.svelte";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
     import type { BigNumber } from "ethers";
@@ -10,13 +10,14 @@
     import AvatarOf from "./AvatarOf.svelte";
     import Content from "./Content.svelte";
     import NicknameOf from "./NicknameOf.svelte";
+    import Posts from "./Posts.svelte";
     import ProfileMiniCard from "./ProfileMiniCard.svelte";
     import PublishPost from "./PublishPost.svelte";
-    import Timeline from "./Timeline.svelte";
-    
+
     export let postId: BigNumber;
     export let showReplies = false;
     export let showParent = false;
+    export let asLink = false;
 
     let postData: Awaited<ReturnType<typeof getPost>> = null;
     $: postContent = $postData ? decodeBigNumberArrayToString($postData.post.content) : null;
@@ -45,17 +46,17 @@
 <article>
     {#if showParent && $postData?.post.timelineGroup.eq(3)}
         <div class="parent">
-            <svelte:self showParent postId={$postData.post.timelineId} />
+            <svelte:self showParent {asLink} postId={$postData.post.timelineId} />
         </div>
     {/if}
-    <a class="post" href={$currentTopicPost?.topic && postId.gte(0) ? `##${$currentTopicPost.topic}:${postId}` : null}>
+    <a class="post" href={asLink ? `#${$route.route}#${postId}` : null}>
         <KBoxEffect
             color="mode"
             radius="rounded"
             background
             {loading}
             hideContent={loading}
-            glow={$currentTopicPost?.postId?.eq(postId) ? "master" : false}
+            glow={$route.hash && postId?.eq($route.hash) ? "master" : false}
         >
             <div class="inner">
                 {#if title}
@@ -100,7 +101,11 @@
         <div class="replies">
             <PublishPost reply timelineId={repliesTimelineId} />
             <div class="replies-title">Replies{!repliesTimeline || $repliesLoading ? "..." : ":"}</div>
-            <Timeline timelineId={repliesTimelineId} />
+            {#if repliesTimeline}
+                <Posts timeline={repliesTimeline} let:postId>
+                    <svelte:self {postId} {asLink} />
+                </Posts>
+            {/if}
         </div>
     {/if}
 </article>
@@ -184,6 +189,7 @@
     .replies {
         display: grid;
         gap: calc(var(--k-padding) * 3);
+        padding-left: calc(var(--k-padding) * 3);
     }
 
     .replies-title {

@@ -4,19 +4,9 @@
     import { account } from "$/plugins/wallet";
     import AddressOf from "$lib/App/AddressOf.svelte";
     import AvatarOf from "$lib/App/AvatarOf.svelte";
-    import Balance from "$lib/App/Balance.svelte";
     import NicknameOf from "$lib/App/NicknameOf.svelte";
-    import ProfileMiniCard from "$lib/App/ProfileMiniCard.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
-    import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
-    import { BigNumber } from "ethers";
-
-    let searchInput: string;
-    async function search() {
-        if (/^\d+$/.test(searchInput)) location.hash = `##post:${BigNumber.from(searchInput)}`;
-        if (searchInput.startsWith("#")) location.hash = searchInput;
-        if (isValidAddress(searchInput)) location.hash = `#${searchInput}`;
-    }
+    import { route } from "./_routing.svelte";
 </script>
 
 <header>
@@ -27,7 +17,7 @@
             </div>
             <div class="nickname"><NicknameOf address={$account} /></div>
             <div class="address">
-                <KButton text href="##claim-name" title="Claim name for: {$account}">
+                <KButton text href="#{$route.route}#claim-name" title="Claim name for: {$account}">
                     <div>
                         <AddressOf address={$account} />
                     </div>
@@ -41,9 +31,6 @@
 
 <style>
     header {
-        position: sticky;
-        top: 0;
-        z-index: 1;
         display: grid;
         grid-template-columns: 1fr auto;
         align-items: center;

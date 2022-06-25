@@ -9,7 +9,7 @@
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import { BigNumber } from "ethers";
     import Header from "./_header.svelte";
-    import Routing from "./_routing.svelte";
+    import Routing, { route } from "./_routing.svelte";
 
     let searchInput: string;
     async function search() {
@@ -37,7 +37,7 @@
 
                         <Routing />
 
-                        <KModalHashRoute hash="##claim-name">
+                        <KModalHashRoute hash="claim-name" hashOverride={$route.hash}>
                             <ClaimName on:done={() => history.back()} />
                         </KModalHashRoute>
                     </main>
