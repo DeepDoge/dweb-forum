@@ -45,6 +45,16 @@
                         `0x${"0".repeat(40)}`,
                         `0x${"0".repeat(40)}`,
                     ],
+                    [
+                        { key: 0, value: 0 },
+                        { key: 0, value: 0 },
+                        { key: 0, value: 0 },
+                        { key: 0, value: 0 },
+                        { key: 0, value: 0 },
+                        { key: 0, value: 0 },
+                        { key: 0, value: 0 },
+                        { key: 0, value: 0 }
+                    ],
                     {
                         value: gasPrice
                             .mul(2)

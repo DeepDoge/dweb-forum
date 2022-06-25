@@ -69,13 +69,19 @@ contract App {
 
     uint256 public postCounter = 0;
 
+    struct MetadataCalldata {
+        uint256 key;
+        uint256 value;
+    }
+
     function publishPost(
         uint256 timelineGroup,
         uint256 timelineId,
         uint256 title,
         uint256[8] calldata content,
-        address[8] calldata profileMentions
-    ) external payable {
+        address[8] calldata profileMentions,
+        MetadataCalldata[8] calldata metadatas
+    ) external payable returns(uint256) {
         uint256 cost = tx.gasprice * PUBLISH_GAS;
         require(timelineGroup > LAST_INTERNAL_TIMELINE_GROUP, "Can't post on internal timeline group.");
         require(msg.value >= cost, "Not enough fee paid to post.");
@@ -92,10 +98,18 @@ contract App {
         );
 
         for (uint256 i = 0; i < profileMentions.length; i++) {
+            if (profileMentions[i] == address(0)) break;
             addPostToTimeline(TIMELINE_GROUP_PROFILE_MENTIONS, uint256(uint160(address(profileMentions[i]))), postId);
         }
-    }
 
+        for (uint256 i = 0; i < metadatas.length; i++) {
+            MetadataCalldata calldata metadata = metadatas[i];
+            if (metadata.key == 0) break;
+            setPostMetadata(postId, metadata.key, metadata.value);
+        }
+
+        return postId;
+    }
     modifier onlyPostOwner(uint256 postId) {
         require(posts[postId].owner == msg.sender, "You don't own this post.");
         _;
@@ -143,7 +157,7 @@ contract App {
         uint256 postIndex,
         uint256 key,
         uint256 value
-    ) external onlyPostOwner(postIndex) {
+    ) public onlyPostOwner(postIndex) {
         postMetadatas[postIndex][key] = value;
         emit PostMetadataSet(postIndex, key, value, block.timestamp);
     }
