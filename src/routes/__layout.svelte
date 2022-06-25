@@ -1,19 +1,17 @@
 <script lang="ts">
     import "$/lib/kicho-ui/root.css";
     import { isValidAddress } from "$/plugins/common/isValidAddress";
-    import { changeNetwork, isContractsReady, provider } from "$/plugins/wallet";
+    import { changeNetwork,isContractsReady,provider } from "$/plugins/wallet";
     import ClaimName from "$lib/App/ClaimName.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KModalHashRoute from "$lib/kicho-ui/components/KModalHashRoute.svelte";
     import KPageContainer from "$lib/kicho-ui/components/KPageContainer.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
-    import { BigNumber } from "ethers";
     import Header from "./_header.svelte";
-    import Routing, { route } from "./_routing.svelte";
-
+    import Routing,{ route } from "./_routing.svelte";
+    
     let searchInput: string;
     async function search() {
-        if (/^\d+$/.test(searchInput)) location.hash = `##post:${BigNumber.from(searchInput)}`;
         if (searchInput.startsWith("#")) location.hash = searchInput;
         if (isValidAddress(searchInput)) location.hash = `#${searchInput}`;
     }
@@ -30,7 +28,7 @@
                     <main>
                         <KPageContainer>
                             <form class="search-form" on:submit|preventDefault={search}>
-                                <KTextField background bind:value={searchInput} placeholder="#Topic, 0xAddress, ENS name, PostIndex" size="larger" />
+                                <KTextField background bind:value={searchInput} placeholder="#Topic, 0xAddress, ENS name" size="larger" />
                                 <KButton color="master" size="larger">Search</KButton>
                             </form>
                         </KPageContainer>

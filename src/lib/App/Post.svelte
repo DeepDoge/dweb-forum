@@ -1,9 +1,11 @@
 <script lang="ts">
+    import A4 from "$/pages/404.svelte";
     import { getPost, getTimeline, TimelineId } from "$/plugins/api/timeline";
     import { second } from "$/plugins/common/second";
     import { decodeBigNumberArrayToString } from "$/plugins/common/stringToBigNumber";
     import { route } from "$/routes/_routing.svelte";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
+    import KChip from "$lib/kicho-ui/components/KChip.svelte";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
     import type { BigNumber } from "ethers";
     import { format } from "timeago.js";
@@ -74,6 +76,17 @@
                         <ProfileMiniCard address={$postData?.post.owner} />
                     </KHoverMenu>
                 </a>
+                <div class="chip">
+                    {#if $postData?.post.timelineGroup.eq(5)}
+                        <a href="#{decodeBigNumberArrayToString([$postData.post.timelineId])}#{$postData.id}">
+                            <KChip>#{decodeBigNumberArrayToString([$postData.post.timelineId])}</KChip>
+                        </a>
+                    {:else if $postData?.post.timelineGroup.eq(3)}
+                        <a href="#{$route.route}#{$postData.post.timelineId}">
+                            <KChip color="slave">Reply to: @{$postData.post.timelineId}</KChip>
+                        </a>
+                    {/if}
+                </div>
                 <div class="content k-text-multiline">
                     {#if $postData}
                         <Content mentions={$postData.post.mentions} content={postContent} />
@@ -139,13 +152,13 @@
 
     .post .inner {
         display: grid;
-        grid-template-columns: 2ch auto 1fr;
+        grid-template-columns: 2ch auto 1fr auto;
         align-items: center;
         grid-template-areas:
-            "avatar nickname ."
-            "title title title"
-            "content content content"
-            "footer footer footer";
+            "avatar nickname . chip"
+            "title title title title"
+            "content content content content"
+            "footer footer footer footer";
         gap: calc(var(--k-padding) * 1.25);
         padding: calc(var(--k-padding) * 2) calc(var(--k-padding) * 3);
     }
@@ -162,6 +175,10 @@
     .nickname {
         grid-area: nickname;
         font-size: var(--k-font-x-smaller);
+    }
+
+    .chip {
+        grid-area: chip;
     }
 
     .content {

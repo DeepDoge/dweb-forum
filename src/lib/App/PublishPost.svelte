@@ -102,7 +102,19 @@
             <div class="actions">
                 <input type="submit" style="opacity:0;position:absolute;pointer-events:none;width:0;height:0" />
                 <KButton color="mode-pop" radius="fab" disabled={publishing} on:click={(e) => e.preventDefault()}>🎞</KButton>
-                <KButton color="master" radius="rounded" loading={publishing}>🗨 {reply ? "Reply" : "Post"}</KButton>
+                <KButton color="master" radius="rounded" loading={publishing}>
+                    <div class="publish-button-inner">
+                        <svg x="0px" y="0px" viewBox="0 0 512 512" fill="currentColor">
+                            <path
+                                d="M268.191,0C133.754,0,24.381,109.373,24.381,243.81c0,34.621,7.07,67.95,21.016,99.206L1.17,480.134
+			c-2.999,9.338-0.122,19.578,7.339,25.99c4.51,3.852,10.167,5.876,15.872,5.876c3.706,0,7.461-0.853,10.898-2.56l98.865-49.445
+			c0.439,0.244,0.853,0.463,1.292,0.707c33.451,16.628,94.964,26.917,132.754,26.917c134.437,0,243.81-109.373,243.81-243.81
+			S402.627,0,268.191,0z"
+                            />
+                        </svg>
+                        {reply ? "Reply" : "Post"}
+                    </div>
+                </KButton>
             </div>
         </KBoxEffect>
     </form>
@@ -111,6 +123,13 @@
 {/if}
 
 <style>
+    .publish-button-inner {
+        display: grid;
+        grid-template-columns: 1.5ch auto;
+        align-items: center;
+        gap: var(--k-padding);
+    }
+
     form {
         display: grid;
         gap: calc(var(--k-padding) * 2);
