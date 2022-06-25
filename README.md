@@ -1,3 +1,6 @@
+[![forthebadge](https://forthebadge.com/images/badges/0-percent-optimized.svg)](https://forthebadge.com)
+[![forthebadge](https://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg)](https://forthebadge.com)
+
 # What is this?
 This is a Web3 + IPFS based forum, or social media, or how ever you wanna call it, idk.
 
