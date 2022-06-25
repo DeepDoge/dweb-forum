@@ -2,10 +2,11 @@ import type { BigNumberish } from "ethers"
 import { BigNumber } from "ethers"
 import type { Writable } from "svelte/store"
 import { get, writable } from "svelte/store"
+import { decodeBigNumberArrayToString, stringToBigNumber } from "../common/stringToBigNumber"
 import { appContract } from "../wallet"
 import { listenContract } from "../wallet/listen"
 
-export type PostData = Awaited<ReturnType<typeof appContract.getPostData>>
+export type PostData = Omit<Awaited<ReturnType<typeof appContract.getPostData>>, 'metadata'> & { metadata: Record<string, string | BigNumber> }
 export type TimelineId = { group: BigNumberish, id: BigNumberish }
 const posts: Record<string, Writable<PostData>> = {}
 const timelines: Record<string, Timeline> = {}
@@ -18,10 +19,25 @@ interface Timeline
     loading: Writable<boolean>
 }
 
-export async function getPost(postId: BigNumber)
+function encodeMetadataKeys(keys: string[]): [BigNumber, BigNumber][]
+{
+    return keys.map((key) => [stringToBigNumber(key), BigNumber.from(0)])
+}
+
+function decodeMetadataResponse(reponseMetadata: ReturnType<typeof encodeMetadataKeys>): PostData['metadata']
+{
+    const metadata: PostData['metadata'] = {}
+    for (const item of reponseMetadata)
+        metadata[decodeBigNumberArrayToString([item[0]]), decodeBigNumberArrayToString([item[1]])]
+    return metadata
+}
+
+export async function getPost(postId: BigNumber, ...metadataKeys: string[])
 {
     const key = postId.toString()
-    return posts[key] ?? (posts[key] = writable(await appContract.getPostData(postId)))
+    metadataKeys.push('hidden')
+    const response = await appContract.getPostData(postId, encodeMetadataKeys(metadataKeys));
+    return posts[key] ?? (posts[key] = writable<PostData>({ ...response, metadata: decodeMetadataResponse(response.metadata) }))
 }
 
 function setPostData(postData: PostData)
@@ -72,7 +88,8 @@ export async function getTimeline(timelineId: TimelineId): Promise<Timeline>
                 postIds.update((old) => [...old, BigNumber.from(-i - 1)])
                 promises.push((async () =>
                 {
-                    const postData = await appContract.getTimelinePostData(timelineId.group, timelineId.id, pivot)
+                    const response = await appContract.getTimelinePostData(timelineId.group, timelineId.id, pivot, encodeMetadataKeys(['hidden']))
+                    const postData: PostData = { ...response, metadata: decodeMetadataResponse(response.metadata) }
                     setPostData(postData)
                     return postData
                 })())

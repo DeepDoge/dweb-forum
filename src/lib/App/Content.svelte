@@ -6,7 +6,8 @@
     import AvatarOf from "./AvatarOf.svelte";
     import NicknameOf from "./NicknameOf.svelte";
     import ProfileMiniCard from "./ProfileMiniCard.svelte";
-    
+
+    export let mentions: string[];
     export let content: string;
     $: array = content?.split(/(\s+)/) ?? [];
 </script>
@@ -19,6 +20,16 @@
                 <NicknameOf address={part} />
                 <KHoverMenu>
                     <ProfileMiniCard address={part} />
+                </KHoverMenu>
+            </div>
+        </a>
+    {:else if part.startsWith("0x") && /[0-9]/.test(part.substring("0x".length)) && mentions[parseInt(part.substring("0x".length))]}
+        <a data-address={mentions[parseInt(part.substring("0x".length))]} class="profile-inline" href="#{mentions[parseInt(part.substring("0x".length))]}">
+            <AvatarOf address={mentions[parseInt(part.substring("0x".length))]} />
+            <div class="no-select">
+                <NicknameOf address={mentions[parseInt(part.substring("0x".length))]} />
+                <KHoverMenu>
+                    <ProfileMiniCard address={mentions[parseInt(part.substring("0x".length))]} />
                 </KHoverMenu>
             </div>
         </a>

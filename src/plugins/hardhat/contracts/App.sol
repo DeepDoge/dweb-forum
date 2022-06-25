@@ -22,6 +22,7 @@ contract App {
     */
 
     mapping(uint256 => mapping(uint256 => uint256[])) timelines;
+    mapping(uint256 => mapping(uint256 => mapping(uint256 => uint256[2]))) postIdToPostIndexOnTimelineMap;
 
     function timelineLength(uint256 group, uint256 id) external view returns (uint256) {
         return timelines[group][id].length;
@@ -34,7 +35,15 @@ contract App {
         uint256 timelineId,
         uint256 postId
     ) private {
+        uint256[2] storage postIndexMap = postIdToPostIndexOnTimelineMap[timelineGroup][timelineId][postId];
+
+        // Stop duplicate
+        if (postIndexMap[1] == 1) return;
         uint256[] storage timeline = timelines[timelineGroup][timelineId];
+        postIndexMap[0] = timeline.length;
+        postIndexMap[1] = 1;
+
+        // Add post to timeline
         timeline.push() = postId;
         emit TimelineAddPost(timelineGroup, timelineId, postId, timeline.length, block.timestamp);
     }
@@ -48,14 +57,13 @@ contract App {
     mapping(uint256 => Post) public posts;
     struct Post {
         address owner;
+        uint256 timelineGroup;
+        uint256 timelineId;
         uint256 time;
         uint256 title;
         uint256[8] content;
-        uint256 timelineGroup;
-        uint256 timelineId;
+        address[8] mentions;
     }
-
-    uint256 public constant PUBLISH_GAS = 100;
 
     /* INTERNAL TIMELINE GROUPS */
     uint256 public constant TIMELINE_GROUP_PROFILE_POSTS = 0;
@@ -67,28 +75,19 @@ contract App {
     uint256 public constant TIMELINE_GROUP_TOPICS = 5;
     uint256 public constant LAST_DEFAULT_TIMELINE_GROUP = 5;
 
-    uint256 public postCounter = 0;
-
-    struct MetadataCalldata {
-        uint256 key;
-        uint256 value;
-    }
+    uint256 public postCounter = 1;
 
     function publishPost(
         uint256 timelineGroup,
         uint256 timelineId,
         uint256 title,
         uint256[8] calldata content,
-        address[8] calldata profileMentions,
-        MetadataCalldata[8] calldata metadatas
-    ) external payable returns(uint256) {
-        uint256 cost = tx.gasprice * PUBLISH_GAS;
+        address[8] calldata mentions
+    ) external returns (uint256) {
         require(timelineGroup > LAST_INTERNAL_TIMELINE_GROUP, "Can't post on internal timeline group.");
-        require(msg.value >= cost, "Not enough fee paid to post.");
-        payable(msg.sender).transfer(msg.value - cost);
 
         uint256 postId = postCounter++;
-        posts[postId] = Post(msg.sender, block.timestamp, title, content, timelineGroup, timelineId);
+        posts[postId] = Post(msg.sender, timelineGroup, timelineId, block.timestamp, title, content, mentions);
 
         addPostToTimeline(timelineGroup, timelineId, postId);
         addPostToTimeline(
@@ -97,19 +96,14 @@ contract App {
             postId
         );
 
-        for (uint256 i = 0; i < profileMentions.length; i++) {
-            if (profileMentions[i] == address(0)) break;
-            addPostToTimeline(TIMELINE_GROUP_PROFILE_MENTIONS, uint256(uint160(address(profileMentions[i]))), postId);
-        }
-
-        for (uint256 i = 0; i < metadatas.length; i++) {
-            MetadataCalldata calldata metadata = metadatas[i];
-            if (metadata.key == 0) break;
-            setPostMetadata(postId, metadata.key, metadata.value);
+        for (uint256 i = 0; i < mentions.length; i++) {
+            if (mentions[i] == address(0)) break;
+            addPostToTimeline(TIMELINE_GROUP_PROFILE_MENTIONS, uint256(uint160(address(mentions[i]))), postId);
         }
 
         return postId;
     }
+
     modifier onlyPostOwner(uint256 postId) {
         require(posts[postId].owner == msg.sender, "You don't own this post.");
         _;
@@ -123,25 +117,34 @@ contract App {
 
     mapping(uint256 => PostHistory[]) public postHistory;
     struct PostHistory {
-        uint256[8] content;
         uint256 time;
+        uint256 title;
+        uint256[8] content;
+        address[8] mentions;
     }
 
-    event PostEdit(uint256 indexed postId, uint256[8] content, uint256 timestamp);
+    event PostEdit(uint256 indexed postId, uint256 title, uint256[8] content, address[8] mentions, uint256 time);
 
-    function editPost(uint256 postId, uint256[8] calldata content) external onlyPostOwner(postId) {
+    function editPost(
+        uint256 postId,
+        uint256 title,
+        uint256[8] calldata content,
+        address[8] calldata mentions
+    ) external onlyPostOwner(postId) {
         {
             Post memory post = posts[postId];
-            postHistory[postId].push() = PostHistory(post.content, post.time);
+            postHistory[postId].push() = PostHistory(post.time, post.title, post.content, post.mentions);
         }
 
         {
             Post storage post = posts[postId];
-            post.content = content;
             post.time = block.timestamp;
+            post.title = title;
+            post.content = content;
+            post.mentions = mentions;
         }
 
-        emit PostEdit(postId, content, block.timestamp);
+        emit PostEdit(postId, title, content, mentions, block.timestamp);
     }
 
     /* 
@@ -171,18 +174,22 @@ contract App {
     struct PostData {
         uint256 id;
         Post post;
+        uint256[2][] metadata;
     }
 
     function getTimelinePostData(
         uint256 timelineGroup,
         uint256 timelineId,
-        uint256 postIndex
+        uint256 postIndex,
+        uint256[2][] memory metadata
     ) external view returns (PostData memory) {
         uint256 postId = timelines[timelineGroup][timelineId][postIndex];
-        return PostData(postId, posts[postId]);
+        for (uint256 i = 0; i < metadata.length; i++) metadata[i][1] = postMetadatas[postId][metadata[i][0]];
+        return PostData(postId, posts[postId], metadata);
     }
 
-    function getPostData(uint256 postId) external view returns (PostData memory) {
-        return PostData(postId, posts[postId]);
+    function getPostData(uint256 postId, uint256[2][] memory metadata) external view returns (PostData memory) {
+        for (uint256 i = 0; i < metadata.length; i++) metadata[i][1] = postMetadatas[postId][metadata[i][0]];
+        return PostData(postId, posts[postId], metadata);
     }
 }

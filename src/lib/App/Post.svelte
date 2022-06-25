@@ -75,7 +75,7 @@
                 </a>
                 <div class="content k-text-multiline">
                     {#if $postData}
-                        <Content content={postContent} />
+                        <Content mentions={$postData.post.mentions} content={postContent} />
                     {:else}
                         ...
                     {/if}

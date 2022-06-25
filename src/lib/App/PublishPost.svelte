@@ -1,17 +1,18 @@
 <script lang="ts">
     import type { TimelineId } from "$/plugins/api/timeline";
+    import { isValidAddress } from "$/plugins/common/isValidAddress";
     import { isValidIpfsHash } from "$/plugins/common/isValidIpfsHash";
-    import { encodeStringToBigNumberArray,stringToBigNumber } from "$/plugins/common/stringToBigNumber";
-    import { account,appContract,provider } from "$/plugins/wallet";
+    import { encodeStringToBigNumberArray, stringToBigNumber } from "$/plugins/common/stringToBigNumber";
+    import { account, appContract, provider } from "$/plugins/wallet";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
-    import KDialog,{ createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
+    import KDialog, { createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import CID from "cids";
     import { createEventDispatcher } from "svelte";
     import AvatarOf from "./AvatarOf.svelte";
     import NicknameOf from "./NicknameOf.svelte";
-    
+
     const dispatchEvent = createEventDispatcher();
     const dialogManager = createDialogManager();
 
@@ -23,46 +24,27 @@
         try {
             let content = "";
             const parts = params.content?.split(/([\s,]+)/) ?? [];
-            for (const part of parts)
+
+            const mentions: string[] = [];
+
+            for (const part of parts) {
                 if (isValidIpfsHash(part) && part.startsWith("bafy")) content += new CID(part).toV0().toString();
-                else content += part;
+                if (isValidAddress(part)) {
+                    content += `0x${mentions.length}`;
+                    mentions.push(part);
+                } else content += part;
+            }
+
+            while (mentions.length < 8) mentions.push(`0x${"0".repeat(40)}`);
 
             publishing = true;
-            const gasPrice = await $provider.getGasPrice();
             await (
                 await appContract.publishPost(
                     timelineId.group,
                     timelineId.id,
                     stringToBigNumber(params.title?.trim()),
                     encodeStringToBigNumberArray(content),
-                    [
-                        `0x${"0".repeat(40)}`,
-                        `0x${"0".repeat(40)}`,
-                        `0x${"0".repeat(40)}`,
-                        `0x${"0".repeat(40)}`,
-                        `0x${"0".repeat(40)}`,
-                        `0x${"0".repeat(40)}`,
-                        `0x${"0".repeat(40)}`,
-                        `0x${"0".repeat(40)}`,
-                    ],
-                    [
-                        { key: 0, value: 0 },
-                        { key: 0, value: 0 },
-                        { key: 0, value: 0 },
-                        { key: 0, value: 0 },
-                        { key: 0, value: 0 },
-                        { key: 0, value: 0 },
-                        { key: 0, value: 0 },
-                        { key: 0, value: 0 }
-                    ],
-                    {
-                        value: gasPrice
-                            .mul(2)
-                            .mul(await appContract.PUBLISH_GAS())
-                            .mul(100)
-                            .div(99),
-                        gasPrice,
-                    }
+                    mentions
                 )
             ).wait(1);
 

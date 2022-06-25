@@ -23,7 +23,7 @@
     <KPageContainer>
         <div class="content">
             <div class="published">
-                <Timeline timelineId={{ group: 0, id: address }} />
+                <Timeline timelineId={{ group: 2, id: address }} />
             </div>
         </div>
     </KPageContainer>
