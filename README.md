@@ -12,3 +12,8 @@ the [c4f1c84](https://github.com/DeepDoge/web3-forum/commit/c4f1c840e0d807116059
 - ipfs://bafybeidl3whi4qoopsrm72levljtfxncdmvhlpu6h5w6tgwx53rlbnrhk4/#hello
 - https://bafybeidl3whi4qoopsrm72levljtfxncdmvhlpu6h5w6tgwx53rlbnrhk4.ipfs.dweb.link/#hello
 - https://bafybeidl3whi4qoopsrm72levljtfxncdmvhlpu6h5w6tgwx53rlbnrhk4.ipfs.cf-ipfs.com/#hello
+
+# TODO
+- Contract optimizations
+- Compress IPFS hashes inside the content string before sending it to the Contract
+- idk many other stuff
