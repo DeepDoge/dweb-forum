@@ -21,7 +21,9 @@
             <div class="scroll k-slim-scrollbar">
                 <div class="timeline">
                     <slot />
-                    {#await timelinePromise then timeline}
+                    {#await timelinePromise}
+                        <Post postId={BigNumber.from(-1)}></Post>
+                    {:then timeline}
                         <Posts {timeline} let:postIds>
                             {#each postIds as postId (postId.toString())}
                                 <Post {postId} asLink />
