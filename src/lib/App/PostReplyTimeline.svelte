@@ -38,7 +38,7 @@
     {#if $route.route}
         <div class="back-button">
             <KButton size="normal" color={$route.route.startsWith("0x") ? "slave" : "master"} href="#{$route.route}">
-                {$route.route}
+                {$route.route.startsWith('0x') ? $route.route : `#${$route.route}`}
             </KButton>
         </div>
     {/if}
