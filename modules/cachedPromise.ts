@@ -21,9 +21,9 @@ export function cachedPromise<P extends Record<string, any>, R>(keyGetter: (para
         }
 
         console.log('caching new value', stringKey)
-        const resultPromise = (onGoingTasks[stringKey] = func(params))
-        caches.set(key, await resultPromise)
-        return await resultPromise
+        const result = await (onGoingTasks[stringKey] = func(params))
+        caches.set(key, result)
+        return result
     }
 
     const taskWithInternalAccess: typeof task & 
