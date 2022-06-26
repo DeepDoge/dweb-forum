@@ -125,7 +125,7 @@
 
     .post .inner {
         display: grid;
-        grid-template-columns: 2ch 1fr 0 auto;
+        grid-template-columns: 2ch auto 1fr auto;
         align-items: center;
         grid-template-areas:
             "avatar nickname . chip"
