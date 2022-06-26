@@ -8,13 +8,13 @@
 
     export let timelineId: TimelineId;
 
-    $: selectedPostId = /[0-9]/.test($route.hash) ? BigNumber.from($route.hash) : null;
-
+    $: selectedPostId = $route.hash ? (/[0-9]/.test($route.hash) ? BigNumber.from($route.hash) : selectedPostId) : null;
+    $: console.log(selectedPostId)
     $: timelinePromise = getTimeline({ timelineId });
 </script>
 
 <div class="page">
-    <div class="container" class:show-post={$route.hash}>
+    <div class="container" class:show-post={selectedPostId}>
         <div class="master">
             <header>
                 <slot name="timeline-header" />
@@ -32,7 +32,7 @@
                 </div>
             </div>
         </div>
-        {#if /[0-9]/.test($route.hash)}
+        {#if selectedPostId}
             <div class="slave">
                 <header class="post-header">
                     <slot name="post-header">

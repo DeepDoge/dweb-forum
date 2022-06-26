@@ -47,7 +47,7 @@
             background
             {loading}
             hideContent={loading}
-            glow={$route.hash && postId?.eq($route.hash) ? "master" : false}
+            glow={/[0-9]/.test($route.hash) && postId?.eq($route.hash) ? "master" : false}
         >
             <div class="inner">
                 <div class="avatar">
