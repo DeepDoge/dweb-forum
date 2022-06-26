@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { getPost, getTimeline, TimelineId } from "$/plugins/api/timeline";
+    import { getPost, getTimeline, PostData, Timeline, TimelineId } from "$/plugins/api/timeline";
     import { second } from "$/plugins/common/second";
     import { decodeBigNumberArrayToString } from "$/plugins/common/stringToBigNumber";
     import { route } from "$/routes/_routing.svelte";
@@ -7,6 +7,7 @@
     import KChip from "$lib/kicho-ui/components/KChip.svelte";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
     import type { BigNumber } from "ethers";
+    import type { Writable } from "svelte/store";
     import { format } from "timeago.js";
     import AvatarOf from "./AvatarOf.svelte";
     import Content from "./Content.svelte";
@@ -16,21 +17,25 @@
     export let postId: BigNumber;
     export let asLink = false;
 
-    let postData: Awaited<ReturnType<typeof getPost>> = null;
+    let postData: Writable<PostData> = null;
     $: postContent = $postData ? decodeBigNumberArrayToString($postData.post.content) : null;
+
+    let parentPostData: Writable<PostData> = null;
 
     let repliesTimelineId: TimelineId;
     $: repliesTimelineId = { group: 3, id: postId };
 
-    let repliesTimeline: Awaited<ReturnType<typeof getTimeline>> = null;
+    let repliesTimeline: Timeline = null;
     $: repliesLength = repliesTimeline?.length;
 
     $: postId?.toString() != $postData?.id.toString() && updatePost();
     async function updatePost() {
         postData = null;
         repliesTimeline = null;
+        parentPostData = null;
         if (postId.lt(0)) return;
         postData = await getPost({ postId });
+        if ($postData.post.timelineGroup.eq(3)) parentPostData = await getPost({ postId: $postData.post.timelineId });
         repliesTimeline = await getTimeline({ timelineId: repliesTimelineId });
     }
 
@@ -60,13 +65,13 @@
                     </KHoverMenu>
                 </a>
                 <div class="chip">
-                    {#if $postData?.post.timelineGroup.eq(5)}
+                    {#if parentPostData}
+                        <a href="#{$route.route}#{$parentPostData.id}">
+                            <KChip color="slave">Reply to: <NicknameOf address={$parentPostData.post.owner} /> @{$postData.post.timelineId}</KChip>
+                        </a>
+                    {:else if $postData?.post.timelineGroup.eq(5)}
                         <a href="#{decodeBigNumberArrayToString([$postData.post.timelineId])}#{$postData.id}">
                             <KChip>#{decodeBigNumberArrayToString([$postData.post.timelineId])}</KChip>
-                        </a>
-                    {:else if $postData?.post.timelineGroup.eq(3)}
-                        <a href="#{$route.route}#{$postData.post.timelineId}">
-                            <KChip color="slave">Reply to: @{$postData.post.timelineId}</KChip>
                         </a>
                     {/if}
                     <KChip color="mode-pop">@{$postData?.id}</KChip>

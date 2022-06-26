@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { TimelineId } from "$/plugins/api/timeline";
+    import { getPost, TimelineId } from "$/plugins/api/timeline";
     import { isValidAddress } from "$/plugins/common/isValidAddress";
     import { isValidIpfsHash } from "$/plugins/common/isValidIpfsHash";
     import { encodeStringToBigNumberArray, stringToBigNumber } from "$/plugins/common/stringToBigNumber";
@@ -9,7 +9,9 @@
     import KDialog, { createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import CID from "cids";
+    import { BigNumber } from "ethers";
     import { createEventDispatcher } from "svelte";
+    import { get } from "svelte/store";
     import AvatarOf from "./AvatarOf.svelte";
     import NicknameOf from "./NicknameOf.svelte";
 
@@ -26,6 +28,8 @@
             const parts = params.content?.split(/([\s,]+)/) ?? [];
 
             const mentions: string[] = [];
+
+            if (BigNumber.from(timelineId.group).eq(3)) mentions.push(get(await getPost({ postId: BigNumber.from(timelineId.id) })).post.owner);
 
             for (const part of parts) {
                 if (isValidIpfsHash(part) && part.startsWith("bafy")) content += new CID(part).toV0().toString();
