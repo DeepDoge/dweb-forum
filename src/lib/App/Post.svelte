@@ -74,7 +74,9 @@
                             <KChip>#{decodeBigNumberArrayToString([$postData.post.timelineId])}</KChip>
                         </a>
                     {/if}
+                    <div>
                     <KChip color="mode-pop">@{$postData?.id}</KChip>
+                </div>
                 </div>
 
                 {#if title}
@@ -147,6 +149,10 @@
 
     .chip {
         grid-area: chip;
+        display: grid;
+        grid-auto-flow: column;
+        align-items: center;
+        gap: .5ch;
     }
 
     .title {
