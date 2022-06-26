@@ -8,7 +8,7 @@ export function cachedPromise<P extends Record<string, any>, R>(keyGetter: (para
     {
         const stringKey = keyGetter(params)
         const key = keys[stringKey] ?? (keys[stringKey] = {})
-        
+
         const cache = caches.get(key)
         if (cache) return cache
 
@@ -21,7 +21,7 @@ export function cachedPromise<P extends Record<string, any>, R>(keyGetter: (para
         }
 
         console.log('caching new value', stringKey)
-        const resultPromise = (onGoing[stringKey] = func(params))
+        const resultPromise = (onGoingTasks[stringKey] = func(params))
         caches.set(key, await resultPromise)
         return await resultPromise
     }
