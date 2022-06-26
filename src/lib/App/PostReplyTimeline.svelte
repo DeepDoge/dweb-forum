@@ -38,7 +38,7 @@
     {#if $route.route}
         <div class="back-button">
             <KButton size="normal" color={$route.route.startsWith("0x") ? "slave" : "master"} href="#{$route.route}">
-                {$route.route.startsWith('0x') ? $route.route : `#${$route.route}`}
+                {$route.route.startsWith("0x") ? $route.route : `#${$route.route}`}
             </KButton>
         </div>
     {/if}
@@ -52,7 +52,9 @@
                     <PublishPost reply timelineId={repliesTimelineId} />
                     <b>Replies{$repliesTimelineLoading ? "..." : ":"}</b>
                 {:else}
+                <div class="post" class:root-post={prefixPostIds.map((item) => item.toString()).includes(postId.toString())}>
                     <Post {postId} asLink />
+                </div>
                 {/if}
             {/each}
         </Posts>
@@ -66,6 +68,14 @@
         align-items: center;
     }
 
+    .root-post + .root-post::before {
+        content: "";
+        position: absolute;
+        border-left: dashed .15em var(--k-color-slave);
+        height: var(--gap);
+        transform: translateY(-100%) translateX(calc(var(--k-padding) * 5));
+    }
+
     .post-reply-timeline {
         display: grid;
         gap: calc(var(--k-padding) * 5);
@@ -73,7 +83,8 @@
 
     .posts {
         display: grid;
-        gap: calc(var(--k-padding) * 3);
+        --gap: calc(var(--k-padding) * 3);
+        gap: var(--gap)
     }
 
     .loading {
