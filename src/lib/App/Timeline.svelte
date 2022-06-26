@@ -9,7 +9,6 @@
     export let timelineId: TimelineId;
 
     $: selectedPostId = $route.hash ? (/[0-9]/.test($route.hash) ? BigNumber.from($route.hash) : selectedPostId) : null;
-    $: console.log(selectedPostId)
     $: timelinePromise = getTimeline({ timelineId });
 </script>
 

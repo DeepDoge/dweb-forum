@@ -13,8 +13,6 @@ export const provider: Writable<Web3Provider | JsonRpcProvider> = writable(null)
 export const account: Writable<string> = writable(null)
 export let appContract: App = null
 
-isContractsReady.subscribe((value) => console.log('content ready', value))
-
 const eth = (window as any).ethereum
 
 export async function changeNetwork(targetChainId: number)
