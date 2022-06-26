@@ -10,7 +10,7 @@
 
     $: selectedPostId = /[0-9]/.test($route.hash) ? BigNumber.from($route.hash) : null;
 
-    $: timelinePromise = getTimeline(timelineId);
+    $: timelinePromise = getTimeline({ timelineId });
 </script>
 
 <div class="page">
@@ -34,9 +34,9 @@
         </div>
         {#if /[0-9]/.test($route.hash)}
             <div class="slave">
-                <header>
+                <header class="post-header">
                     <slot name="post-header">
-                        <h2>Post</h2>
+                        <h2 aria-label="post timeline">Post</h2>
                     </slot>
                 </header>
                 <div class="scroll k-slim-scrollbar">
@@ -48,11 +48,6 @@
 </div>
 
 <style>
-    .timeline {
-        display: grid;
-        gap: calc(var(--k-padding) * 3);
-    }
-
     .page {
         display: grid;
         gap: calc(var(--k-padding) * 4);
@@ -64,13 +59,17 @@
         align-content: stretch;
         align-items: stretch;
         justify-items: stretch;
-        height: calc(100vh - calc(var(--k-padding) * 2));
+        height: 100vh;
+    }
+
+    .timeline {
+        display: grid;
+        gap: calc(var(--k-padding) * 3);
     }
 
     .container > * {
         display: grid;
-        grid-template-rows: auto 1fr;
-        gap: calc(var(--k-padding) * 4);
+        align-content: start;
     }
 
     .scroll {
@@ -82,13 +81,30 @@
         padding: calc(var(--k-padding) * 2);
     }
 
+    header > :global(*) {
+        font-size: 1em;
+    }
+
     header {
-        padding: 0 calc(var(--k-padding) * 2);
+        display: grid;
+        grid-auto-flow: column;
+        align-items: center;
+        font-size: var(--k-font-larger);
+        gap: calc(var(--k-padding) * 2);
+        padding: calc(var(--k-padding) * 2);
+        background-attachment: fixed;
+    }
+
+    .post-header {
+        justify-content: start;
     }
 
     @media only screen and (max-width: 700px) {
         .show-post .master {
-            display: none;
+            position: absolute;
+            width: 0;
+            height: 0;
+            opacity: 0;
         }
     }
 </style>

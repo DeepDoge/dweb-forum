@@ -3,7 +3,7 @@
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KChip from "$lib/kicho-ui/components/KChip.svelte";
     import jazzicon from "@metamask/jazzicon";
-    
+
     export let address: string;
 
     $: loading = !address;
@@ -16,9 +16,9 @@
         : blankImageData;
 </script>
 
-<a href="#{address}" class="avatar-container">
+<a href={address ? `#${address}` : null} class="avatar-container">
     <div class="avatar">
-        <KBoxEffect color="mode" radius="fab" background {loading} hideContent={loading}>
+        <KBoxEffect color="mode-pop" radius="fab" background {loading} hideContent={loading}>
             <img alt={address} src={jazziconDataURL} />
         </KBoxEffect>
     </div>

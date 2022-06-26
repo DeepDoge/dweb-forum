@@ -24,7 +24,11 @@
             </div>
         </a>
     {:else if part.startsWith("0x") && /[0-9]/.test(part.substring("0x".length)) && mentions[parseInt(part.substring("0x".length))]}
-        <a data-address={mentions[parseInt(part.substring("0x".length))]} class="profile-inline" href="#{mentions[parseInt(part.substring("0x".length))]}">
+        <a
+            data-address={mentions[parseInt(part.substring("0x".length))]}
+            class="profile-inline"
+            href="#{mentions[parseInt(part.substring('0x'.length))]}"
+        >
             <AvatarOf address={mentions[parseInt(part.substring("0x".length))]} />
             <div class="no-select">
                 <NicknameOf address={mentions[parseInt(part.substring("0x".length))]} />

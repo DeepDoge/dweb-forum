@@ -2,7 +2,6 @@
     import AddressOf from "$lib/App/AddressOf.svelte";
     import AvatarOf from "$lib/App/AvatarOf.svelte";
     import NicknameOf from "$lib/App/NicknameOf.svelte";
-    import Posts from "$lib/App/Posts.svelte";
     import Timeline from "$lib/App/Timeline.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
 
@@ -67,11 +66,6 @@
         grid-auto-flow: column;
         gap: calc(var(--k-padding) * 2);
     }
-
-    .content {
-        padding: var(--k-page-padding);
-    }
-
     .profile {
         display: flex;
         gap: 0.5em;

@@ -2,23 +2,10 @@ import type { BigNumberish } from "ethers"
 import { BigNumber } from "ethers"
 import type { Writable } from "svelte/store"
 import { get, writable } from "svelte/store"
+import { cachedPromise } from "../../../modules/cachedPromise"
 import { decodeBigNumberArrayToString, stringToBigNumber } from "../common/stringToBigNumber"
 import { appContract } from "../wallet"
 import { listenContract } from "../wallet/listen"
-
-export type PostData = Omit<Awaited<ReturnType<typeof appContract.getPostData>>, 'metadata'> & { metadata: Record<string, string | BigNumber> }
-export type TimelineId = { group: BigNumberish, id: BigNumberish }
-const posts: Record<string, Promise<Writable<PostData>>> = {}
-const timelines: Record<string, Promise<Timeline>> = {}
-const postRoots: Record<string, Promise<BigNumber[]>> = {}
-
-export interface Timeline
-{
-    postIds: Writable<BigNumber[]>,
-    length: Writable<BigNumber>,
-    loadMore(): Promise<boolean | void>,
-    loading: Writable<boolean>
-}
 
 function encodeMetadataKeys(keys: string[]): [BigNumber, BigNumber][]
 {
@@ -33,55 +20,54 @@ function decodeMetadataResponse(reponseMetadata: ReturnType<typeof encodeMetadat
     return metadata
 }
 
-export async function getPost(postId: BigNumber)
-{
-    const key = postId.toString()
-    const cache = posts[key]
-    if (cache) return await cache
+export type PostData = Omit<Awaited<ReturnType<typeof appContract.getPostData>>, 'metadata'> & { metadata: Record<string, string | BigNumber> }
 
-    return posts[key] = (async () => {
-        const response = await appContract.getPostData(postId, encodeMetadataKeys(['hidden']));
+export const getPost = cachedPromise<{ postId: BigNumber }, Writable<PostData>>(
+    (params) => params.postId.toString(),
+    async (params) =>
+    {
+        const response = await appContract.getPostData(params.postId, encodeMetadataKeys(['hidden']));
         return writable<PostData>({ ...response, metadata: decodeMetadataResponse(response.metadata) })
-    })()
-}
+    }
+)
 
 async function setPostData(postData: PostData)
 {
     const key = postData.id.toString()
-    posts[key] ? (await posts[key]).set(postData) : (posts[key] = (async () => writable(postData))())
+    getPost._getCache(key) ? getPost._getCache(key).set(postData) : getPost._setCache(key, writable(postData))
 }
 
-export async function getPostRoot(postId: BigNumber): Promise<BigNumber[]>
-{
-    const cache = postRoots[postId.toString()]
-    if (cache) return await cache
-
-    return postRoots[postId.toString()] = (async () =>
+export const getPostRoot = cachedPromise<{ postId: BigNumber }, BigNumber[]>(
+    (params) => params.postId.toString(),
+    async (params) =>
     {
         const result: BigNumber[] = []
-        let postData = get(await getPost(postId));
+        let postData = get(await getPost(params));
         while (postData?.post.timelineGroup.eq(3))
         {
-            postData = get(await getPost(postData.post.timelineId));
+            postData = get(await getPost({ postId: postData.post.timelineId }));
             result.unshift(postData.id);
         }
 
         return result
-    })()
+    }
+)
+
+export type TimelineId = { group: BigNumberish, id: BigNumberish }
+
+export interface Timeline
+{
+    postIds: Writable<BigNumber[]>,
+    length: Writable<BigNumber>,
+    loadMore(): Promise<boolean | void>,
+    loading: Writable<boolean>
 }
 
 const timelineListeners: Record<string, () => void> = {}
-
-export async function getTimeline(timelineId: TimelineId): Promise<Timeline>
-{
-    const timelineIdKey = `${timelineId.group}:${timelineId.id}`
-    let cache = timelines[timelineIdKey];
-    if (cache) return await cache;
-
-    return await (timelines[timelineIdKey] = (async () =>
+export const getTimeline = cachedPromise<{ timelineId: TimelineId }, Timeline>(
+    (params) => `${params.timelineId.group}:${params.timelineId.id}`,
+    async ({ timelineId }) =>
     {
-        console.log('new timeline', timelineId)
-
         const postIds: Writable<BigNumber[]> = writable([])
         let loading: Writable<boolean> = writable(false)
 
@@ -138,12 +124,11 @@ export async function getTimeline(timelineId: TimelineId): Promise<Timeline>
             }
         }
 
-        setTimeout(() => delete timelines[timelineIdKey], 1000 * 60)
         return {
             postIds,
             length,
             loadMore,
             loading
         }
-    })())
-}
+    }
+)

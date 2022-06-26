@@ -40,14 +40,20 @@
 
         $route = { route: currentRoute, hash: currentRouteHash, props };
 
-        if (currentPageCache) {
+        if (currentPageCache && currentPage !== currentPageCache) {
             pageStates[currentPageCache.name].scroll = {
                 left: scrollingElement.scrollLeft,
                 top: scrollingElement.scrollTop,
             };
         }
 
-        if (state.scroll) setTimeout(() => window.scrollTo(state.scroll));
+        setTimeout(() => {
+            if (state.scroll) window.scrollTo(state.scroll);
+            if (currentRoute)
+                setTimeout(() => {
+                    if (scrollingElement.scrollTop < window.innerHeight) window.scrollTo({ top: window.innerHeight, behavior: "smooth" });
+                });
+        });
     }
 
     $: $page && onHashChange();
@@ -55,7 +61,7 @@
         const hashValue = decodeURIComponent($page.url.hash.substring(1));
         const separatorIndex = hashValue.indexOf("#");
         currentRoute = hashValue.substring(0, separatorIndex >= 0 ? separatorIndex : undefined);
-        currentRouteHash = separatorIndex >= 0 ? hashValue.substring(separatorIndex + 1) : '';
+        currentRouteHash = separatorIndex >= 0 ? hashValue.substring(separatorIndex + 1) : "";
         if (!currentRoute) setCurrentPage(Index, {});
         else if (isValidAddress(currentRoute)) setCurrentPage(Profile, { address: currentRoute });
         else setCurrentPage(Topic, { topic: currentRoute });
@@ -69,7 +75,7 @@
 
 <!-- Have to do it this way because svelte doesnt have keep-alive -->
 {#each pages as page (page.name)}
-    <div style:display={currentPage === page ? "block" : "none"}>
+    <div class="page" style:display={currentPage === page ? "block" : "none"}>
         {#if pageStates[page.name]}
             <svelte:component this={page} {...pageStates[page.name].props} />
         {/if}

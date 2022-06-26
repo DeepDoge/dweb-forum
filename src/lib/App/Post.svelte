@@ -30,8 +30,8 @@
         postData = null;
         repliesTimeline = null;
         if (postId.lt(0)) return;
-        postData = await getPost(postId);
-        repliesTimeline = await getTimeline(repliesTimelineId);
+        postData = await getPost({ postId });
+        repliesTimeline = await getTimeline({ timelineId: repliesTimelineId });
     }
 
     $: date = $second && ((postData && format(new Date($postData.post.time.toNumber() * 1000))) ?? null);
@@ -50,12 +50,6 @@
             glow={$route.hash && postId?.eq($route.hash) ? "master" : false}
         >
             <div class="inner">
-                {#if title}
-                    <div class="title">
-                        {title}
-                    </div>
-                {/if}
-
                 <div class="avatar">
                     <AvatarOf address={$postData?.post.owner} />
                 </div>
@@ -77,6 +71,12 @@
                     {/if}
                     <KChip color="mode-pop">@{$postData?.id}</KChip>
                 </div>
+
+                {#if title}
+                    <div class="title">
+                        {title}
+                    </div>
+                {/if}
                 <div class="content k-text-multiline">
                     {#if $postData}
                         <Content mentions={$postData.post.mentions} content={postContent} />
@@ -114,9 +114,9 @@
         transition-property: transform;
     }
 
-    .post:hover {
+    /*  .post:hover {
         transform: translateY(-0.1rem) scale(1.005);
-    }
+    } disabled because cancels z-index */
 
     .post .inner {
         display: grid;
@@ -129,11 +129,6 @@
             "footer footer footer footer";
         gap: calc(var(--k-padding) * 1.25);
         padding: calc(var(--k-padding) * 2) calc(var(--k-padding) * 3);
-    }
-
-    .title {
-        grid-area: title;
-        font-weight: bold;
     }
 
     .avatar {
@@ -149,9 +144,16 @@
         grid-area: chip;
     }
 
+    .title {
+        grid-area: title;
+        font-weight: bold;
+        font-size: var(--k-font-x-larger);
+    }
+
     .content {
         grid-area: content;
-        font-size: smaller;
+        font-size: var(--k-font-larger);
+        padding: calc(var(--k-padding) * 2) 0;
     }
 
     .footer {

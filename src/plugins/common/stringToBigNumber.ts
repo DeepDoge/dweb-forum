@@ -9,7 +9,7 @@ function BytesToString(bytes: Uint8Array)
 function stringToBytes(value: string)
 {
     const utf8Encode = new TextEncoder();
-    return utf8Encode.encode(value) 
+    return utf8Encode.encode(value)
 }
 
 export function stringToBigNumber(value: string)

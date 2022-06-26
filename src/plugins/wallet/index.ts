@@ -1,6 +1,7 @@
 import deployed from '$/plugins/hardhat/scripts/deployed.json'
 import type { App } from '$/plugins/hardhat/typechain-types'
 import { App__factory } from "$/plugins/hardhat/typechain-types"
+import { globalDialogManager } from '$/routes/__layout.svelte'
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers"
 import { ethers } from "ethers"
 import type { Writable } from 'svelte/store'
@@ -85,9 +86,16 @@ account.subscribe((account) =>
     )
 })
 
+export async function connectWallet()
+{
+    if (eth)
+        await eth.request({ method: "eth_requestAccounts" }).then((addresses: string[]) => addresses[0] && account.set(addresses[0]))
+    else await globalDialogManager.alert("No Web3 Wallet found on the browser.")
+}
+
 if (eth)
 {
-    eth.request({ method: "eth_requestAccounts" }).then((addresses: string[]) => addresses[0] && account.set(addresses[0]))
+    connectWallet()
 
     // detect Metamask account change
     eth.on('accountsChanged', function (accounts: string[])

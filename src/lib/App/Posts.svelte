@@ -9,7 +9,7 @@
     let bottomEnd = false;
     let bottomLoop = false;
     $: timeline && !bottomEnd && !bottomLoop && bottomIntersecting && onChange(bottomIntersecting);
-    $: timeline && (bottomEnd = false)
+    $: timeline && (bottomEnd = false);
 
     let lastLoadMoreResult: Awaited<ReturnType<typeof timeline["loadMore"]>>;
     async function onChange(value: typeof bottomIntersecting) {

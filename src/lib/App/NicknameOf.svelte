@@ -3,7 +3,7 @@
     import { appContract } from "$/plugins/wallet";
     import { listenContract } from "$/plugins/wallet/listen";
     import { onDestroy } from "svelte";
-    import { writable,Writable } from "svelte/store";
+    import { writable, Writable } from "svelte/store";
 
     const caches: Record<
         string,
@@ -26,7 +26,9 @@
                     caches[address].value.set(decodeBigNumberArrayToString([newName]));
                 }
             );
-            appContract.profiles(address, stringToBigNumber("nickname")).then((value) => caches[address]?.value.set(decodeBigNumberArrayToString([value])));
+            appContract
+                .profiles(address, stringToBigNumber("nickname"))
+                .then((value) => caches[address]?.value.set(decodeBigNumberArrayToString([value])));
         }
         caches[address].listenerCount++;
         return caches[address].value;
