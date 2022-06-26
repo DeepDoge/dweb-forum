@@ -62,7 +62,7 @@
     :global(:root) {
         --root-font-size-mul: 1;
         --k-color-master: #8360c3;
-        --k-color-slave: #2ebf91;
+        --k-color-slave: #208b69;
         --k-color-master-contrast: rgba(255, 255, 255, 0.9);
         --k-color-slave-contrast: rgba(255, 255, 255, 0.9);
         --k-color-gradient-contrast: rgba(255, 255, 255, 0.9);
