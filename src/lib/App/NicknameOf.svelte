@@ -70,6 +70,13 @@
     onDestroy(() => address && dispose(address));
 </script>
 
-<span title={$name?.trim() || "Nameless"}>
+<span class="k-text-singleline" title={$name?.trim() || "Nameless"}>
     {$name?.trim() || "Nameless"}
 </span>
+
+<style>
+    span {
+        display: inline-block;
+        max-width: 100%;
+    }
+</style>

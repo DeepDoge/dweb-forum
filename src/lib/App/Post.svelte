@@ -58,7 +58,7 @@
                 <div class="avatar">
                     <AvatarOf address={$postData?.post.owner} />
                 </div>
-                <a href="#{$postData?.post.owner}" class="nickname">
+                <a href="#{$postData?.post.owner}" class="nickname k-text-singleline">
                     <NicknameOf address={$postData?.post.owner} />
                     <KHoverMenu>
                         <ProfileMiniCard address={$postData?.post.owner} />
@@ -125,7 +125,7 @@
 
     .post .inner {
         display: grid;
-        grid-template-columns: 2ch auto 1fr auto;
+        grid-template-columns: 2ch 1fr 0 auto;
         align-items: center;
         grid-template-areas:
             "avatar nickname . chip"
