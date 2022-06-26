@@ -13,16 +13,12 @@ export function cachedPromise<P extends Record<string, any>, R>(keyGetter: (para
         if (cache) return cache
 
         const onGoing = onGoingTasks[stringKey]
-        if (onGoing) 
-        {
-            const result = await onGoing
-            if (onGoingTasks[stringKey]) delete onGoingTasks[stringKey]
-            return result
-        }
+        if (onGoing) return await onGoing
 
         console.log('caching new value', stringKey)
         const result = await (onGoingTasks[stringKey] = func(params))
         caches.set(key, result)
+        delete onGoingTasks[stringKey]
         return result
     }
 
