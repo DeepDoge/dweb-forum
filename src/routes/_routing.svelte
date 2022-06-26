@@ -49,10 +49,6 @@
 
         setTimeout(() => {
             if (state.scroll) window.scrollTo(state.scroll);
-            if (currentRoute)
-                setTimeout(() => {
-                    if (scrollingElement.scrollTop < window.innerHeight) window.scrollTo({ top: window.innerHeight, behavior: "smooth" });
-                });
         });
     }
 

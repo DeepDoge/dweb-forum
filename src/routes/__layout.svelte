@@ -33,16 +33,6 @@
                         <form class="search-form" on:submit|preventDefault={search}>
                             <KTextField background bind:value={searchInput} placeholder="#Topic, 0xAddress, ENS name" size="larger" />
                             <KButton color="master" size="larger">Search</KButton>
-
-                            {#if $route.route}
-                                <div
-                                    class="down-button"
-                                    aria-hidden
-                                    on:click={() => window.scrollTo({ top: window.innerHeight, behavior: "smooth" })}
-                                >
-                                    ⌄
-                                </div>
-                            {/if}
                         </form>
 
                         <Routing />
@@ -96,30 +86,10 @@
     .search-form {
         display: grid;
         grid-template-columns: 1fr auto;
-        align-items: center;
+        align-items: stretch;
         gap: 0.5em;
-        height: 100vh;
         margin: auto;
         width: var(--k-page-width);
         padding: var(--k-page-padding);
-        padding-top: 0;
-    }
-
-    .down-button {
-        position: absolute;
-        inset: 0;
-        top: unset;
-        display: grid;
-        align-items: end;
-        justify-content: center;
-        padding: calc(var(--k-padding) * 3);
-        cursor: pointer;
-        font-size: var(--k-font-xx-larger);
-        transition: var(--k-transition);
-        transition-property: transform;
-    }
-
-    .down-button:hover {
-        transform: translateY(-10%) scale(1.1);
     }
 </style>

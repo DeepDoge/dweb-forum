@@ -36,9 +36,6 @@
 
 <style>
     header {
-        position: absolute;
-        z-index: 1;
-        width: 100%;
         display: grid;
         grid-template-columns: 1fr auto;
         align-items: center;
