@@ -71,6 +71,9 @@
         gap: 0.5em;
         align-items: center;
         flex-direction: column;
+        padding: var(--k-page-padding);
+        padding-top: 0;
+        padding-bottom: 0;
     }
 
     .avatar {

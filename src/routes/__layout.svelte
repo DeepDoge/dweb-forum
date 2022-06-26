@@ -31,8 +31,8 @@
                     <Header />
                     <main>
                         <form class="search-form" on:submit|preventDefault={search}>
-                            <KTextField background bind:value={searchInput} placeholder="#Topic, 0xAddress, ENS name" size="larger" />
-                            <KButton color="master" size="larger">Search</KButton>
+                            <KTextField background bind:value={searchInput} placeholder="#Topic, 0xAddress, ENS name" />
+                            <KButton color="master">Search</KButton>
                         </form>
 
                         <Routing />
@@ -83,6 +83,10 @@
         filter: opacity(0.01);
     }
 
+    main {
+        display: grid;
+        gap: calc(var(--k-padding) * 5);
+    }
     .search-form {
         display: grid;
         grid-template-columns: 1fr auto;
