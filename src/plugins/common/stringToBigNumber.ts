@@ -47,7 +47,7 @@ export function encodeStringToBigNumberArray(value: string)
         if (end !== desiredEnd) break
     }
 
-    while (result.length < 8)
+    while (result.length < 8) // in the contract length of uint256 array is 8. so its uint256[8]. we fill the slots left in the array with 0s 
         result.push(BigNumber.from(0))
 
     return result
