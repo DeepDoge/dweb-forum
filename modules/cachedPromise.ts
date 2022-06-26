@@ -3,18 +3,25 @@ export function cachedPromise<P extends Record<string, any>, R>(keyGetter: (para
 {
     const keys: Record<string, object> = {}
     const caches: WeakMap<object, R> = new WeakMap()
-    const onGoingTasks: WeakMap<object, Promise<R>> = new WeakMap()
+    const onGoingTasks: Record<string, Promise<R>> = {}
     async function task(params: P): Promise<R>
     {
         const stringKey = keyGetter(params)
         const key = keys[stringKey] ?? (keys[stringKey] = {})
+        
         const cache = caches.get(key)
         if (cache) return cache
-        const onGoing = onGoingTasks.get(key)
-        if (onGoing) return await onGoing
+
+        const onGoing = onGoingTasks[stringKey]
+        if (onGoing) 
+        {
+            const result = await onGoing
+            if (onGoingTasks[stringKey]) delete onGoingTasks[stringKey]
+            return result
+        }
+
         console.log('caching new value', stringKey)
-        const resultPromise = func(params)
-        onGoingTasks.set(key, resultPromise)
+        const resultPromise = (onGoing[stringKey] = func(params))
         caches.set(key, await resultPromise)
         return await resultPromise
     }
