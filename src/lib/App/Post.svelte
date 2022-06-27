@@ -2,7 +2,7 @@
     import { getPost, getTimeline, PostData, Timeline, TimelineId } from "$/plugins/api/timeline";
     import { second } from "$/plugins/common/second";
     import { decodeBigNumberArrayToString } from "$/plugins/common/stringToBigNumber";
-    import { route } from "$/routes/_routing.svelte";
+    import { currentRoute } from "$/routes/_routing.svelte";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KChip from "$lib/kicho-ui/components/KChip.svelte";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
@@ -42,11 +42,11 @@
     $: date = $second && ((postData && format(new Date($postData.post.time.toNumber() * 1000))) ?? null);
     $: title = (postData && decodeBigNumberArrayToString([$postData.post.title])) ?? null;
     $: loading = postId && !postData;
-    $: isSelected = /[0-9]/.test($route.hash) && postId?.eq($route.hash)
+    $: isSelected = /[0-9]/.test($currentRoute.hash) && postId?.eq($currentRoute.hash)
 </script>
 
 <article>
-    <a class="post" href={asLink ? `#${$route.route}#${postId}` : null}>
+    <a class="post" href={asLink ? `#${$currentRoute.path}#${postId}` : null}>
         <KBoxEffect
             color="mode"
             radius="rounded"
@@ -67,7 +67,7 @@
                 </a>
                 <div class="chip">
                     {#if parentPostData}
-                        <a href="#{$route.route}#{$parentPostData.id}">
+                        <a href="#{$currentRoute.path}#{$parentPostData.id}">
                             <KChip color="slave">Reply to: <NicknameOf address={$parentPostData.post.owner} /> @{$postData.post.timelineId}</KChip>
                         </a>
                     {:else if $postData?.post.timelineGroup.eq(5)}

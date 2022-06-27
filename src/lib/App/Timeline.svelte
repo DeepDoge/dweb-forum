@@ -1,6 +1,6 @@
 <script lang="ts">
     import { getTimeline, TimelineId } from "$/plugins/api/timeline";
-    import { route } from "$/routes/_routing.svelte";
+    import { currentRoute } from "$/routes/_routing.svelte";
     import Post from "$lib/App/Post.svelte";
     import Posts from "$lib/App/Posts.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
@@ -9,11 +9,22 @@
 
     export let timelineId: TimelineId;
 
-    $: selectedPostId = $route.hash ? (/[0-9]/.test($route.hash) ? BigNumber.from($route.hash) : selectedPostId) : null;
+    let selectedPostId: BigNumber = null;
+    $: selectedPostId = $currentRoute.hash ? (/[0-9]/.test($currentRoute.hash) ? BigNumber.from($currentRoute.hash) : selectedPostId) : null;
     $: timelinePromise = getTimeline({ timelineId });
+
+    
+    let fixed = false;
+    async function updateFixed() {
+        fixed = selectedPostId && window.innerWidth <= 800
+        document.body.style.overflow = fixed ? "hidden" : null;
+    }
+    $: updateFixed() && selectedPostId;
 </script>
 
-<div class="grid" class:show-post={selectedPostId}>
+<svelte:window on:resize={updateFixed} />
+
+<div class="grid">
     <div class="timeline">
         <header class="sticky">
             <slot name="timeline-header" />
@@ -32,19 +43,20 @@
         </div>
     </div>
     {#if selectedPostId}
-        <div class="post">
+        <div class="post" class:fixed>
             <div class="sticky">
                 <header>
                     <slot name="post-header">
-                        {#if $route.route}
-                            <KButton size="smaller" color="mode-pop" href="#{$route.route}">
+                        {#if $currentRoute.path}
+                            <KButton size="smaller" color="mode-pop" href="#{$currentRoute.path}">
                                 {"← Back"}
                             </KButton>
                         {/if}
                         <h2 aria-label="post timeline">Post</h2>
                     </slot>
                 </header>
-                <div class="posts k-slim-scrollbar"> <!-- on:scroll={() => window.scrollTo(0, window.innerHeight * 2)}> -->
+                <div class="posts k-slim-scrollbar">
+                    <!-- on:scroll={() => window.scrollTo(0, window.innerHeight * 2)}> -->
                     <PostReplyTimeline postId={selectedPostId} />
                 </div>
             </div>
@@ -92,6 +104,13 @@
         height: 100vh;
     }
 
+    .post.fixed {
+        position: fixed;
+        inset: 0;
+        background-color: var(--k-color-body);
+        z-index: 1;
+    }
+
     .post header {
         justify-content: start;
     }
@@ -99,14 +118,5 @@
     .post .posts {
         height: 100%;
         overflow-y: auto;
-    }
-
-    @media only screen and (max-width: 700px) {
-        .show-post .timeline {
-            position: absolute;
-            width: 0;
-            height: 0;
-            opacity: 0;
-        }
     }
 </style>

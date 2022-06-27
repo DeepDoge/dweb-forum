@@ -12,7 +12,7 @@
     import KModalHashRoute from "$lib/kicho-ui/components/KModalHashRoute.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import Header from "./_header.svelte";
-    import Routing,{ route } from "./_routing.svelte";
+    import Routing,{ currentRoute } from "./_routing.svelte";
     
     let searchInput: string;
     async function search() {
@@ -37,7 +37,7 @@
 
                         <Routing />
 
-                        <KModalHashRoute hash="claim-name" hashOverride={$route.hash}>
+                        <KModalHashRoute hash="claim-name" hashOverride={$currentRoute.hash}>
                             <ClaimName on:done={() => history.back()} />
                         </KModalHashRoute>
 

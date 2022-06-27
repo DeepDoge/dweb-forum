@@ -16,7 +16,7 @@
     import NicknameOf from "$lib/App/NicknameOf.svelte";
     import Timeline from "$lib/App/Timeline.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
-    import { route } from "$/routes/_routing.svelte"
+    import { currentRoute } from "$/routes/_routing.svelte"
 
     export let address: string;
     export let modeKey: ProfilePageTabsKey
@@ -43,7 +43,7 @@
                 <svelte:fragment slot="timeline-header">
                     <div class="tabs">
                         {#each tabsEntries as [path, tab] (path)}
-                            <KButton href="#{address}/{path}#{$route.hash}" color="master" background={tab.mode === mode}>{tab.name}</KButton>
+                            <KButton href="#{address}/{path}#{$currentRoute.hash}" color="master" background={tab.mode === mode}>{tab.name}</KButton>
                         {/each}
                     </div>
                 </svelte:fragment>

@@ -5,7 +5,7 @@
     import AvatarOf from "$lib/App/AvatarOf.svelte";
     import NicknameOf from "$lib/App/NicknameOf.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
-    import { route } from "./_routing.svelte";
+    import { currentRoute } from "./_routing.svelte";
 
     let height: number = 0;
 </script>
@@ -19,7 +19,7 @@
                 </div>
                 <div class="nickname"><NicknameOf address={$account} /></div>
                 <div class="address">
-                    <KButton text href="#{$route.route}#claim-name" title="Claim name for: {$account}">
+                    <KButton text href="#{$currentRoute.path}#claim-name" title="Claim name for: {$account}">
                         <div>
                             <AddressOf address={$account} />
                         </div>
@@ -29,7 +29,7 @@
         {:else}
             <KButton color="gradient" glow="gradient" glowMultiplier={0.5} on:click={() => connectWallet()}>Connect Wallet</KButton>
         {/if}
-        <KButton radius="fab" color={$route.route || $route.hash ? "mode-pop" : "master"} href="#">Home</KButton>
+        <KButton radius="fab" color={$currentRoute.path || $currentRoute.hash ? "mode-pop" : "master"} href="#">Home</KButton>
         <!-- <div class="account-balance k-text-singleline">Balance: <b><Balance /></b></div> -->
     </KBoxEffect>
 </header>

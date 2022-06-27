@@ -4,11 +4,23 @@
     const scrollingElement = document.scrollingElement ?? document.body;
     window.addEventListener("scroll", () => scrollCache.set({ top: scrollingElement.scrollTop, left: scrollingElement.scrollLeft }));
 
-    export const route = writable<{ route: string; path: string[]; hash: string; props: Record<string, any> }>({
+    const pages = [A4, Index, Profile, Topic] as const;
+    type Page = ExtractGeneric<typeof pages>;
+
+    interface Route<P extends Page = Page> {
+        page: P;
+        path: string;
+        pathArr: string[];
+        hash: string;
+        props: P["prototype"]["$$prop_def"];
+    }
+
+    export const currentRoute = writable<Route>({
         hash: null,
-        path: [],
+        pathArr: [],
         props: {},
-        route: null,
+        page: null,
+        path: null,
     });
 </script>
 
@@ -31,31 +43,28 @@
         } catch (error) {}
     };
 
-    let currentPage: Page = null;
-    let currentRoute: string;
-    let currentRoutePath: string[];
-    let currentRouteHash: string;
-    const pageStates: Record<string, { props: Record<string, any>; scroll?: ScrollToOptions }> = {};
-    const pages = [A4, Index, Profile, Topic] as const;
-    type Page = ExtractGeneric<typeof pages>;
+    const pageStates: Record<string, { props: Record<string, any> }> = {};
+    const routeScrolls: Record<string, ScrollToOptions> = {};
 
-    function setCurrentPage<T extends Page>(component: T, props: T["prototype"]["$$prop_def"]) {
-        const currentPageCache = currentPage;
-        currentPage = component;
-        const state = (pageStates[currentPage.name] = { ...pageStates[currentPage.name], props: props });
+    function setCurrentPage<R extends Route>(route: R) {
+        const routeCache = $currentRoute;
+        $currentRoute = route;
+        const key = route.path;
+        const keyCache = routeCache.path;
+        const state = (pageStates[route.page.name] = { ...pageStates[route.page.name], props: route.props });
+        const scroll = routeScrolls[key];
 
-        $route = { route: currentRoute, hash: currentRouteHash, path: currentRoutePath, props };
-
-        if (currentPage !== currentPageCache) {
-            if (currentPageCache) {
-                pageStates[currentPageCache.name].scroll = {
+        // Scroll
+        if (key !== keyCache) {
+            if (routeCache) {
+                routeScrolls[keyCache] = {
                     left: scrollingElement.scrollLeft,
                     top: scrollingElement.scrollTop,
                 };
             }
 
             setTimeout(() => {
-                if (state.scroll) window.scrollTo(state.scroll);
+                if (scroll) window.scrollTo(scroll);
             });
         }
     }
@@ -65,16 +74,14 @@
         const hashValue = decodeURIComponent($page.url.hash.substring(1));
         const separatorIndex = hashValue.indexOf("#");
 
-        currentRoute = hashValue.substring(0, separatorIndex >= 0 ? separatorIndex : undefined);
-        currentRouteHash = separatorIndex >= 0 ? hashValue.substring(separatorIndex + 1) : "";
-        currentRoutePath = currentRoute.split("/");
+        const path = hashValue.substring(0, separatorIndex >= 0 ? separatorIndex : undefined);
+        const hash = separatorIndex >= 0 ? hashValue.substring(separatorIndex + 1) : "";
+        const pathArr = path.split("/");
 
-        console.log(currentRoutePath);
-
-        if (!currentRoute) setCurrentPage(Index, {});
-        else if (isValidAddress(currentRoutePath[0]) && profilePageTabsKeys.includes((currentRoutePath[1] ?? "") as any))
-            setCurrentPage(Profile, { address: currentRoutePath[0], modeKey: currentRoutePath[1] ?? "" as any });
-        else setCurrentPage(Topic, { topic: currentRoute });
+        if (!path) setCurrentPage({ page: Index, path, pathArr, hash, props: {} });
+        else if (isValidAddress(pathArr[0]) && profilePageTabsKeys.includes((pathArr[1] ?? "") as any))
+            setCurrentPage({ page: Profile, path, pathArr, hash, props: { address: pathArr[0], modeKey: pathArr[1] ?? ("" as any) } });
+        else setCurrentPage({ page: Index, path, pathArr, hash, props: { topic: path } });
         // else setCurrentPage(A4, {});
     }
 
@@ -85,7 +92,7 @@
 
 <!-- Have to do it this way because svelte doesnt have keep-alive -->
 {#each pages as page (page.name)}
-    <div class="page" style:display={currentPage === page ? "block" : "none"}>
+    <div class="page" style:display={$currentRoute.page.name === page.name ? "block" : "none"}>
         {#if pageStates[page.name]}
             <svelte:component this={page} {...pageStates[page.name].props} />
         {/if}
