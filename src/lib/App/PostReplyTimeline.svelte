@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { getPost,getPostRoot,getTimeline,PostData,Timeline,TimelineId } from "$/plugins/api/timeline";
+    import { getPost, getPostRoot, getTimeline, PostData, Timeline, TimelineId } from "$/plugins/api/timeline";
     import { decodeBigNumberArrayToString } from "$/plugins/common/stringToBigNumber";
     import Post from "$lib/App/Post.svelte";
     import Posts from "$lib/App/Posts.svelte";
@@ -26,16 +26,13 @@
         if (loading) return;
         loading = true;
 
-        const [root, timeline] = await Promise.all([
-            await getPostRoot({ postId }),
-            await getTimeline({ timelineId: repliesTimelineId })
-        ]);
+        const [root, timeline] = await Promise.all([await getPostRoot({ postId }), await getTimeline({ timelineId: repliesTimelineId })]);
         // await timeline.loadMore();
 
         prefixPostIds = [...root, postId, BigNumber.from(0)];
         repliesTimeline = timeline;
 
-        (async () => topPostData = await getPost({ postId: prefixPostIds[0] }))()
+        (async () => (topPostData = await getPost({ postId: prefixPostIds[0] })))();
 
         loading = false;
     }
@@ -54,18 +51,20 @@
         {#if loading && prefixPostIds.length === 0}
             <Post postId={BigNumber.from(-1)} />
         {/if}
-        <Posts timeline={repliesTimeline} let:postIds>
-            {#each [...prefixPostIds, ...postIds] as postId (postId.toString())}
-                {#if postId.eq(0)}
-                    <PublishPost reply timelineId={repliesTimelineId} />
-                    <b>Replies{$repliesTimelineLoading ? "..." : ":"}</b>
-                {:else}
-                    <div class="post" class:root-post={prefixPostIds.map((item) => item.toString()).includes(postId.toString())}>
-                        <Post {postId} asLink />
-                    </div>
-                {/if}
-            {/each}
-        </Posts>
+        {#if repliesTimeline}
+            <Posts timeline={repliesTimeline} let:postIds>
+                {#each [...prefixPostIds, ...postIds] as postId (postId.toString())}
+                    {#if postId.eq(0)}
+                        <PublishPost reply timelineId={repliesTimelineId} />
+                        <b>Replies{$repliesTimelineLoading ? "..." : ":"}</b>
+                    {:else}
+                        <div class="post" class:root-post={prefixPostIds.map((item) => item.toString()).includes(postId.toString())}>
+                            <Post {postId} asLink />
+                        </div>
+                    {/if}
+                {/each}
+            </Posts>
+        {/if}
     </div>
 </div>
 

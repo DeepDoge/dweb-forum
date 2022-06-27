@@ -1,9 +1,10 @@
 <script lang="ts">
     import type { getTimeline } from "$/plugins/api/timeline";
     import KIntersectionObserver from "$lib/kicho-ui/components/KIntersectionObserver.svelte";
+    import { onDestroy, onMount } from "svelte";
 
     export let timeline: Awaited<ReturnType<typeof getTimeline>>;
-    $: postIds = timeline?.postIds;
+    $: postIds = timeline.postIds;
 
     let bottomIntersecting = false;
     let bottomEnd = false;
@@ -24,17 +25,18 @@
         }
         bottomLoop = false;
     }
+
+    onMount(() => timeline.listen());
+    onDestroy(() => timeline.unlisten());
 </script>
 
-{#if timeline}
-    <slot postIds={$postIds} />
-    {#if !bottomEnd}
-        <KIntersectionObserver bind:intersecting={bottomIntersecting} rootMargin="{window.innerHeight * 5}px 0px">
-            <div />
-        </KIntersectionObserver>
-    {:else}
-        <div class="end">•</div>
-    {/if}
+<slot postIds={$postIds} />
+{#if !bottomEnd}
+    <KIntersectionObserver bind:intersecting={bottomIntersecting} rootMargin="{window.innerHeight * 5}px 0px">
+        <div />
+    </KIntersectionObserver>
+{:else}
+    <div class="end">•</div>
 {/if}
 
 <style>

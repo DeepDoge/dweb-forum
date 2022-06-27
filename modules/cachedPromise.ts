@@ -1,4 +1,3 @@
-
 export function cachedPromise<P extends Record<string, any>, R>(keyGetter: (params: P) => string, func: (params: P) => Promise<R>)
 {
     const keys: Record<string, object> = {}
@@ -19,11 +18,12 @@ export function cachedPromise<P extends Record<string, any>, R>(keyGetter: (para
         const result = await (onGoingTasks[stringKey] = func(params))
         caches.set(key, result)
         delete onGoingTasks[stringKey]
+
         return result
     }
 
-    const taskWithInternalAccess: typeof task & 
-    { 
+    const taskWithInternalAccess: typeof task &
+    {
         _getCache(key: string): R
         _setCache(key: string, value: R): void
     } = task as any

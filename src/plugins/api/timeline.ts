@@ -60,10 +60,12 @@ export interface Timeline
     postIds: Writable<BigNumber[]>,
     length: Writable<BigNumber>,
     loadMore(): Promise<boolean | void>,
+    listen(): void
+    unlisten(): void
     loading: Writable<boolean>
 }
 
-const timelineListeners: Record<string, () => void> = {}
+const timelineListeners: Record<string, { count: number, unlisten: () => void }> = {}
 export const getTimeline = cachedPromise<{ timelineId: TimelineId }, Timeline>(
     (params) => `${params.timelineId.group}:${params.timelineId.id}`,
     async ({ timelineId }) =>
@@ -76,16 +78,27 @@ export const getTimeline = cachedPromise<{ timelineId: TimelineId }, Timeline>(
 
         const timelineKey = `${timelineId.group}:${timelineId.id}`
 
-        if (timelineListeners[timelineKey]) timelineListeners[timelineKey]()
+        function listen()
+        {
+            if (timelineListeners[timelineKey]) timelineListeners[timelineKey].count++
+            else timelineListeners[timelineKey] = {
+                count: 0, unlisten: listenContract(
+                    appContract, appContract.filters.TimelineAddPost(timelineId.group, timelineId.id),
+                    async (timelineGroup, timelineId, postId, timelineLength, timestamp) =>
+                    {
+                        length.set(timelineLength)
+                        if (get(postIds)[0] && postId.lte(get(postIds)[0])) return
+                        postIds.update((old) => [postId, ...old])
+                    })
+            }
+        }
 
-        timelineListeners[timelineKey] = listenContract(
-            appContract, appContract.filters.TimelineAddPost(timelineId.group, timelineId.id),
-            async (timelineGroup, timelineId, postId, timelineLength, timestamp) =>
-            {
-                length.set(timelineLength)
-                if (get(postIds)[0] && postId.lte(get(postIds)[0])) return
-                postIds.update((old) => [postId, ...old])
-            })
+        function unlisten()
+        {
+            const listener = timelineListeners[timelineKey]
+            console.log('unlisten timeline', timelineKey, listener.count)
+            if (--listener.count <= 0) listener.unlisten()
+        }
 
         async function loadMore(): Promise<boolean | void>
         {
@@ -128,6 +141,8 @@ export const getTimeline = cachedPromise<{ timelineId: TimelineId }, Timeline>(
             postIds,
             length,
             loadMore,
+            listen,
+            unlisten,
             loading
         }
     }
