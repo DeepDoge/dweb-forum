@@ -17,6 +17,8 @@
     export let postId: BigNumber;
     export let asLink = false;
 
+    export let disableParentHoverPreview = false;
+
     let postData: Writable<PostData> = null;
     $: postContent = $postData ? decodeBigNumberArrayToString($postData.post.content) : null;
 
@@ -42,26 +44,19 @@
     $: date = $second && ((postData && format(new Date($postData.post.time.toNumber() * 1000))) ?? null);
     $: title = (postData && decodeBigNumberArrayToString([$postData.post.title])) ?? null;
     $: loading = postId && !postData;
-    $: isSelected = /[0-9]/.test($currentRoute.hash) && postId?.eq($currentRoute.hash)
+    $: isSelected = /[0-9]/.test($currentRoute.hash) && postId?.eq($currentRoute.hash);
 </script>
 
 <article>
-    <a class="post" href={asLink ? `#${$currentRoute.path}#${postId}` : null}>
-        <KBoxEffect
-            color="mode"
-            radius="rounded"
-            background
-            {loading}
-            hideContent={loading}
-            glow={isSelected ? "master" : false}
-        >
+    <a class="post" href={asLink && postId.gte(0) ? `#${$currentRoute.path}#${postId}` : null}>
+        <KBoxEffect color="mode" radius="rounded" background {loading} hideContent={loading} glow={isSelected ? "master" : false}>
             <div class="inner">
                 <div class="avatar">
                     <AvatarOf address={$postData?.post.owner} />
                 </div>
-                <a href="#{$postData?.post.owner}" class="nickname k-text-singleline">
+                <a href="#{$postData?.post.owner}" class="nickname">
                     <NicknameOf address={$postData?.post.owner} />
-                    <KHoverMenu>
+                    <KHoverMenu background direction="right">
                         <ProfileMiniCard address={$postData?.post.owner} />
                     </KHoverMenu>
                 </a>
@@ -69,6 +64,11 @@
                     {#if parentPostData}
                         <a href="#{$currentRoute.path}#{$parentPostData.id}">
                             <KChip color="slave">Reply to: <NicknameOf address={$parentPostData.post.owner} /> @{$postData.post.timelineId}</KChip>
+                            {#if !disableParentHoverPreview}
+                                <KHoverMenu direction="left">
+                                    <svelte:self postId={$postData.post.timelineId} disableParentHoverPreview />
+                                </KHoverMenu>
+                            {/if}
                         </a>
                     {:else if $postData?.post.timelineGroup.eq(5)}
                         <a href="#{decodeBigNumberArrayToString([$postData.post.timelineId])}#{$postData.id}">
@@ -76,8 +76,8 @@
                         </a>
                     {/if}
                     <div>
-                    <KChip color="mode-pop">@{$postData?.id}</KChip>
-                </div>
+                        <KChip color="mode-pop">@{$postData?.id}</KChip>
+                    </div>
                 </div>
 
                 {#if title}
@@ -153,7 +153,7 @@
         display: grid;
         grid-auto-flow: column;
         align-items: center;
-        gap: .5ch;
+        gap: 0.5ch;
     }
 
     .title {

@@ -32,7 +32,7 @@
             <AvatarOf address={mentions[parseInt(part.substring("0x".length))]} />
             <div class="no-select">
                 <NicknameOf address={mentions[parseInt(part.substring("0x".length))]} />
-                <KHoverMenu>
+                <KHoverMenu background>
                     <ProfileMiniCard address={mentions[parseInt(part.substring("0x".length))]} />
                 </KHoverMenu>
             </div>
