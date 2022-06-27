@@ -39,7 +39,7 @@
 </script>
 
 <div class:loading class="post-reply-timeline">
-    {#if topPostData && $topPostData.post.timelineGroup.eq(5)}
+    {#if topPostData && $topPostData.post.timelineGroup.eq(TimelineGroup.Topics)}
         <div class="topic-button">
             <KButton size="normal" color="master" href="#{decodeBigNumberArrayToString([$topPostData.post.timelineId])}">
                 #{decodeBigNumberArrayToString([$topPostData.post.timelineId])}

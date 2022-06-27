@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { getPost, TimelineId } from "$/plugins/api/app";
+    import { getPost, TimelineGroup, TimelineId } from "$/plugins/api/app";
     import { isValidAddress } from "$/plugins/common/isValidAddress";
     import { isValidIpfsHash } from "$/plugins/common/isValidIpfsHash";
     import { encodeStringToBigNumberArray, stringToBigNumber } from "$/plugins/common/stringToBigNumber";
@@ -29,7 +29,7 @@
 
             const mentions: string[] = [];
 
-            if (BigNumber.from(timelineId.group).eq(3)) mentions.push(get(await getPost({ postId: BigNumber.from(timelineId.id) })).post.owner);
+            if (BigNumber.from(timelineId.group).eq(TimelineGroup.Replies)) mentions.push(get(await getPost({ postId: BigNumber.from(timelineId.id) })).post.owner);
 
             for (const part of parts) {
                 if (isValidIpfsHash(part) && part.startsWith("bafy")) content += new CID(part).toV0().toString();

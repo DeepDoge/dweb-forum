@@ -55,7 +55,7 @@ export const getPostRoot = cachedPromise<{ postId: BigNumber }, BigNumber[]>(
     {
         const result: BigNumber[] = []
         let postData = get(await getPost(params));
-        while (postData?.post.timelineGroup.eq(3))
+        while (postData?.post.timelineGroup.eq(TimelineGroup.Replies))
         {
             postData = get(await getPost({ postId: postData.post.timelineId }));
             result.unshift(postData.id);

@@ -37,7 +37,7 @@
         parentPostData = null;
         if (postId.lt(0)) return;
         postData = await getPost({ postId });
-        if ($postData.post.timelineGroup.eq(3)) parentPostData = await getPost({ postId: $postData.post.timelineId });
+        if ($postData.post.timelineGroup.eq(TimelineGroup.Replies)) parentPostData = await getPost({ postId: $postData.post.timelineId });
         repliesTimeline = await getTimeline({ timelineId: repliesTimelineId });
     }
 
@@ -70,7 +70,7 @@
                                 </KHoverMenu>
                             {/if}
                         </a>
-                    {:else if $postData?.post.timelineGroup.eq(5)}
+                    {:else if $postData?.post.timelineGroup.eq(TimelineGroup.Topics)}
                         <a href="#{decodeBigNumberArrayToString([$postData.post.timelineId])}#{$postData.id}">
                             <KChip>#{decodeBigNumberArrayToString([$postData.post.timelineId])}</KChip>
                         </a>
