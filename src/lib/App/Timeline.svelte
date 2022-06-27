@@ -12,78 +12,47 @@
     $: timelinePromise = getTimeline({ timelineId });
 </script>
 
-<div class="page">
-    <div class="container" class:show-post={selectedPostId}>
-        <div class="master">
-            <header>
-                <slot name="timeline-header" />
-            </header>
-            <div class="scroll k-slim-scrollbar">
-                <div class="timeline">
-                    <slot />
-                    {#await timelinePromise}
-                        <Post postId={BigNumber.from(-1)}></Post>
-                    {:then timeline}
-                        <Posts {timeline} let:postIds>
-                            {#each postIds as postId (postId.toString())}
-                                <Post {postId} asLink />
-                            {/each}
-                        </Posts>
-                    {/await}
-                </div>
-            </div>
+<div class="grid" class:show-post={selectedPostId}>
+    <div class="timeline">
+        <header class="sticky">
+            <slot name="timeline-header" />
+        </header>
+        <div class="posts">
+            <slot />
+            {#await timelinePromise}
+                <Post postId={BigNumber.from(-1)} />
+            {:then timeline}
+                <Posts {timeline} let:postIds>
+                    {#each postIds as postId (postId.toString())}
+                        <Post {postId} asLink />
+                    {/each}
+                </Posts>
+            {/await}
         </div>
-        {#if selectedPostId}
-            <div class="slave">
-                <header class="post-header">
+    </div>
+    {#if selectedPostId}
+        <div class="post">
+            <div class="sticky">
+                <header>
                     <slot name="post-header">
                         <h2 aria-label="post timeline">Post</h2>
                     </slot>
                 </header>
-                <div class="scroll k-slim-scrollbar">
+                <div class="posts k-slim-scrollbar">
                     <PostReplyTimeline postId={selectedPostId} />
                 </div>
             </div>
-        {/if}
-    </div>
+        </div>
+    {/if}
 </div>
 
 <style>
-    .page {
-        display: grid;
-        gap: calc(var(--k-padding) * 4);
-    }
-
-    .container {
+    .grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
         align-content: stretch;
         align-items: stretch;
         justify-items: stretch;
-        height: 100vh;
-    }
-
-    .timeline {
-        display: grid;
-        gap: calc(var(--k-padding) * 3);
-    }
-
-    .container > * {
-        display: grid;
-        align-content: start;
-    }
-
-    .scroll {
-        height: 100%;
-        overflow-y: auto;
-    }
-
-    .scroll {
-        padding: calc(var(--k-padding) * 2);
-    }
-
-    header > :global(*) {
-        font-size: 1em;
     }
 
     header {
@@ -94,14 +63,45 @@
         gap: calc(var(--k-padding) * 2);
         padding: calc(var(--k-padding) * 2);
         background-attachment: fixed;
+        background-color: var(--k-color-body);
     }
 
-    .post-header {
+    header > :global(*) {
+        font-size: 1em;
+    }
+
+    .posts {
+        padding: calc(var(--k-padding) * 2);
+    }
+
+    .sticky {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    .timeline .posts {
+        display: grid;
+        gap: calc(var(--k-padding) * 3);
+    }
+
+    .post .sticky {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        height: 100vh;
+    }
+
+    .post header {
         justify-content: start;
     }
 
+    .post .posts {
+        height: 100%;
+        overflow-y: auto;
+    }
+
     @media only screen and (max-width: 700px) {
-        .show-post .master {
+        .show-post .timeline {
             position: absolute;
             width: 0;
             height: 0;

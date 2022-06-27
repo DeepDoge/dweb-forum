@@ -38,12 +38,8 @@
 <div class:loading class="post-reply-timeline">
     {#if $route.route}
         <div class="back-button">
-            <KButton size="normal" color={$route.route.startsWith("0x") ? "slave" : "master"} href="#{$route.route}">
-                {#if $route.route.startsWith("0x")}
-                    <AddressOf address={$route.route} />
-                {:else}
-                    #{$route.route}
-                {/if}
+            <KButton size="normal" color="mode-pop" href="#{$route.route}">
+                {"<- Back"}
             </KButton>
         </div>
     {/if}

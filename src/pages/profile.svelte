@@ -1,28 +1,27 @@
+<script context="module" lang="ts">
+    export const profilePageTabs = Object.freeze({
+        "": { name: "Posts", mode: 0 },
+        replies: { name: "Replies", mode: 1 },
+        mentions: { name: "Mentions", mode: 2 },
+    } as const);
+    export type ProfilePageTabsKey = Extract<keyof typeof profilePageTabs, string>;
+    export const profilePageTabsKeys: readonly ProfilePageTabsKey[] = Object.freeze(Object.keys(profilePageTabs)) as any
+
+    const tabsEntries = Object.entries(profilePageTabs)
+</script>
+
 <script lang="ts">
     import AddressOf from "$lib/App/AddressOf.svelte";
     import AvatarOf from "$lib/App/AvatarOf.svelte";
     import NicknameOf from "$lib/App/NicknameOf.svelte";
     import Timeline from "$lib/App/Timeline.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
+    import { route } from "$/routes/_routing.svelte"
 
     export let address: string;
+    export let modeKey: ProfilePageTabsKey
 
-    const enum Mode {
-        Posts = 0,
-        Replies = 1,
-        Mentions = 2,
-    }
-
-    export let mode: Mode = Mode.Posts;
-
-    const tabs: {
-        name: string;
-        mode: Mode;
-    }[] = [
-        { name: "Posts", mode: Mode.Posts },
-        { name: "Replies", mode: Mode.Replies },
-        { name: "Mentions", mode: Mode.Mentions },
-    ];
+    $: mode = profilePageTabs[modeKey].mode;
 </script>
 
 <div class="profile-page">
@@ -43,8 +42,8 @@
             <Timeline timelineId={{ group: mode, id: address }}>
                 <svelte:fragment slot="timeline-header">
                     <div class="tabs">
-                        {#each tabs as tab (tab.mode)}
-                            <KButton on:click={() => (mode = tab.mode)} color="master" background={tab.mode === mode}>{tab.name}</KButton>
+                        {#each tabsEntries as [path, tab] (path)}
+                            <KButton href="#{address}/{path}#{$route.hash}" color="master" background={tab.mode === mode}>{tab.name}</KButton>
                         {/each}
                     </div>
                 </svelte:fragment>

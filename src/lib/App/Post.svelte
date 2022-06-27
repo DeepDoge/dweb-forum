@@ -42,6 +42,7 @@
     $: date = $second && ((postData && format(new Date($postData.post.time.toNumber() * 1000))) ?? null);
     $: title = (postData && decodeBigNumberArrayToString([$postData.post.title])) ?? null;
     $: loading = postId && !postData;
+    $: isSelected = /[0-9]/.test($route.hash) && postId?.eq($route.hash)
 </script>
 
 <article>
@@ -52,7 +53,7 @@
             background
             {loading}
             hideContent={loading}
-            glow={/[0-9]/.test($route.hash) && postId?.eq($route.hash) ? "master" : false}
+            glow={isSelected ? "master" : false}
         >
             <div class="inner">
                 <div class="avatar">

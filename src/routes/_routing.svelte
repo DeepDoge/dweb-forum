@@ -4,13 +4,18 @@
     const scrollingElement = document.scrollingElement ?? document.body;
     window.addEventListener("scroll", () => scrollCache.set({ top: scrollingElement.scrollTop, left: scrollingElement.scrollLeft }));
 
-    export const route = writable<{ route: string; hash: string; props: Record<string, any> }>({ hash: null, props: {}, route: null });
+    export const route = writable<{ route: string; path: string[]; hash: string; props: Record<string, any> }>({
+        hash: null,
+        path: [],
+        props: {},
+        route: null,
+    });
 </script>
 
 <script lang="ts">
     import A4 from "$/pages/404.svelte";
     import Index from "$/pages/index.svelte";
-    import Profile from "$/pages/profile.svelte";
+    import Profile, { profilePageTabs, profilePageTabsKeys } from "$/pages/profile.svelte";
     import Topic from "$/pages/topic.svelte";
     import { isValidAddress } from "$/plugins/common/isValidAddress";
     import { goto } from "$app/navigation";
@@ -28,6 +33,7 @@
 
     let currentPage: Page = null;
     let currentRoute: string;
+    let currentRoutePath: string[];
     let currentRouteHash: string;
     const pageStates: Record<string, { props: Record<string, any>; scroll?: ScrollToOptions }> = {};
     const pages = [A4, Index, Profile, Topic] as const;
@@ -38,28 +44,36 @@
         currentPage = component;
         const state = (pageStates[currentPage.name] = { ...pageStates[currentPage.name], props: props });
 
-        $route = { route: currentRoute, hash: currentRouteHash, props };
+        $route = { route: currentRoute, hash: currentRouteHash, path: currentRoutePath, props };
 
-        if (currentPageCache && currentPage !== currentPageCache) {
-            pageStates[currentPageCache.name].scroll = {
-                left: scrollingElement.scrollLeft,
-                top: scrollingElement.scrollTop,
-            };
+        if (currentPage !== currentPageCache) {
+            if (currentPageCache) {
+                pageStates[currentPageCache.name].scroll = {
+                    left: scrollingElement.scrollLeft,
+                    top: scrollingElement.scrollTop,
+                };
+            }
+
+            setTimeout(() => {
+                if (state.scroll) window.scrollTo(state.scroll);
+            });
         }
-
-        setTimeout(() => {
-            if (state.scroll) window.scrollTo(state.scroll);
-        });
     }
 
     $: $page && onHashChange();
     async function onHashChange() {
         const hashValue = decodeURIComponent($page.url.hash.substring(1));
         const separatorIndex = hashValue.indexOf("#");
+
         currentRoute = hashValue.substring(0, separatorIndex >= 0 ? separatorIndex : undefined);
         currentRouteHash = separatorIndex >= 0 ? hashValue.substring(separatorIndex + 1) : "";
+        currentRoutePath = currentRoute.split("/");
+
+        console.log(currentRoutePath);
+
         if (!currentRoute) setCurrentPage(Index, {});
-        else if (isValidAddress(currentRoute)) setCurrentPage(Profile, { address: currentRoute });
+        else if (isValidAddress(currentRoutePath[0]) && profilePageTabsKeys.includes((currentRoutePath[1] ?? "") as any))
+            setCurrentPage(Profile, { address: currentRoutePath[0], modeKey: currentRoutePath[1] as any });
         else setCurrentPage(Topic, { topic: currentRoute });
         // else setCurrentPage(A4, {});
     }
