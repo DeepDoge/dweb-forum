@@ -1,13 +1,20 @@
 <script lang="ts">
     import KBoxEffect from "$/lib/kicho-ui/components/effects/KBoxEffect.svelte";
+    import { getTimeline, TimelineGroup } from "$/plugins/api/app";
     import { account, connectWallet } from "$/plugins/wallet";
     import AddressOf from "$lib/App/AddressOf.svelte";
     import AvatarOf from "$lib/App/AvatarOf.svelte";
     import NicknameOf from "$lib/App/NicknameOf.svelte";
+    import Post from "$lib/App/Post.svelte";
+    import Posts from "$lib/App/Posts.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
+    import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
+import { get } from "svelte/store";
     import { currentRoute } from "./_routing.svelte";
 
     let height: number = 0;
+
+    const metionsTimelinePromise = getTimeline({ timelineId: { group: TimelineGroup.ProfileMentions, id: $account } });
 </script>
 
 <header style:--height={height} bind:clientHeight={height}>
@@ -29,6 +36,23 @@
         {:else}
             <KButton color="gradient" glow="gradient" glowMultiplier={0.5} on:click={() => connectWallet()}>Connect Wallet</KButton>
         {/if}
+        {#if $account}
+            <KButton color="mode-pop" radius="fab">
+                {#await metionsTimelinePromise}
+                    N...
+                {:then timeline}
+                    N: {get(timeline.length)}
+                    <KHoverMenu background direction="left">
+                        <b>Notifications</b>
+                        <Posts {timeline} let:postIds>
+                            {#each postIds as postId (postId.toString())}
+                                <Post {postId} asLink />
+                            {/each}
+                        </Posts>
+                    </KHoverMenu>
+                {/await}
+            </KButton>
+        {/if}
         <KButton radius="fab" color={$currentRoute.path || $currentRoute.hash ? "mode-pop" : "master"} href="#">Home</KButton>
         <!-- <div class="account-balance k-text-singleline">Balance: <b><Balance /></b></div> -->
     </KBoxEffect>
@@ -37,7 +61,7 @@
 <style>
     header {
         display: grid;
-        grid-template-columns: 1fr auto;
+        grid-template-columns: 1fr auto auto;
         align-items: center;
         justify-content: space-between;
         justify-items: start;
