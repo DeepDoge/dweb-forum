@@ -44,7 +44,7 @@
                         <h2 aria-label="post timeline">Post</h2>
                     </slot>
                 </header>
-                <div class="posts k-slim-scrollbar">
+                <div class="posts k-slim-scrollbar"> <!-- on:scroll={() => window.scrollTo(0, window.innerHeight * 2)}> -->
                     <PostReplyTimeline postId={selectedPostId} />
                 </div>
             </div>
