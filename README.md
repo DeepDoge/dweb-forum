@@ -9,9 +9,9 @@ This is a Web3 + IPFS based forum, or social media, or how ever you wanna call i
 It's still in early stages. <br />
 But if you wanna try it, 
 the [6a8ea8f](https://github.com/DeepDoge/web3-forum/commit/6a8ea8f26f489d338eb6e08fc84e2513c51d09ad) version is live on Polygon Network at: <br /> 
-- ipfs://bafybeiawou265bnifa6lxq2tm2f6odtseuewb3mm35h2x5qk7epl4aqpzi/#hello
-- https://bafybeiawou265bnifa6lxq2tm2f6odtseuewb3mm35h2x5qk7epl4aqpzi.ipfs.dweb.link/#hello
-- https://bafybeiawou265bnifa6lxq2tm2f6odtseuewb3mm35h2x5qk7epl4aqpzi.ipfs.cf-ipfs.com/#hello
+- ipfs://bafybeiawou265bnifa6lxq2tm2f6odtseuewb3mm35h2x5qk7epl4aqpzi
+- https://bafybeiawou265bnifa6lxq2tm2f6odtseuewb3mm35h2x5qk7epl4aqpzi.ipfs.dweb.link
+- https://bafybeiawou265bnifa6lxq2tm2f6odtseuewb3mm35h2x5qk7epl4aqpzi.ipfs.cf-ipfs.com
 
 # TODO
 - Contract optimizations
