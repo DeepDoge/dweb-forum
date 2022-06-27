@@ -2,9 +2,11 @@
     import { stringToBigNumber } from "$/plugins/common/stringToBigNumber";
     import { profileContract } from "$/plugins/wallet";
     import { catchContract } from "$/plugins/wallet/catch";
+    import { waitContractUntil } from "$/plugins/wallet/listen";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import { createEventDispatcher } from "svelte";
+    import { account } from "$/plugins/wallet";
 
     const dispatcher = createEventDispatcher();
 
@@ -13,7 +15,8 @@
     async function setName() {
         claming = true;
         try {
-            await (await profileContract.setProfile(stringToBigNumber("nickname"), stringToBigNumber(nickname))).wait(1);
+            await profileContract.setProfile(stringToBigNumber("nickname"), stringToBigNumber(nickname));
+            await waitContractUntil(profileContract, profileContract.filters.ProfileSet($account, stringToBigNumber("nickname")), () => true);
             dispatcher("done");
         } catch (error) {
             catchContract(error);

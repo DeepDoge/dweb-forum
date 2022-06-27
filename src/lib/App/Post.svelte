@@ -46,13 +46,6 @@
     $: loading = postId && !postData;
     $: selected = /[0-9]/.test($currentRoute.hash) && postId?.eq($currentRoute.hash);
 
-    function scrollIntoViewIfNeeded(target: HTMLElement) {
-        const rect = target.getBoundingClientRect();
-        if (rect.bottom > window.innerHeight) target.scrollIntoView(/* false */);
-        if (rect.top < 0) target.scrollIntoView();
-    }
-
-    $: selected && element && scrollIntoViewIfNeeded(element);
     let element: HTMLElement;
 </script>
 

@@ -37,7 +37,7 @@ import { get } from "svelte/store";
             <KButton color="gradient" glow="gradient" glowMultiplier={0.5} on:click={() => connectWallet()}>Connect Wallet</KButton>
         {/if}
         {#if $account}
-            <KButton color="mode-pop" radius="fab">
+            <KButton color="slave" radius="fab">
                 {#await metionsTimelinePromise}
                     N...
                 {:then timeline}

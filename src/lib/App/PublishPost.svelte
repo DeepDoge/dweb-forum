@@ -4,12 +4,15 @@
     import { isValidIpfsHash } from "$/plugins/common/isValidIpfsHash";
     import { encodeStringToBigNumberArray, stringToBigNumber } from "$/plugins/common/stringToBigNumber";
     import { account, appContract, provider } from "$/plugins/wallet";
+    import { waitContractUntil } from "$/plugins/wallet/listen";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KDialog, { createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import CID from "cids";
+    import { group } from "console";
     import { BigNumber } from "ethers";
+    import { id } from "ethers/lib/utils";
     import { createEventDispatcher } from "svelte";
     import { get } from "svelte/store";
     import AvatarOf from "./AvatarOf.svelte";
@@ -29,7 +32,8 @@
 
             const mentions: string[] = [];
 
-            if (BigNumber.from(timelineId.group).eq(TimelineGroup.Replies)) mentions.push(get(await getPost({ postId: BigNumber.from(timelineId.id) })).post.owner);
+            if (BigNumber.from(timelineId.group).eq(TimelineGroup.Replies))
+                mentions.push(get(await getPost({ postId: BigNumber.from(timelineId.id) })).post.owner);
 
             for (const part of parts) {
                 if (isValidIpfsHash(part) && part.startsWith("bafy")) content += new CID(part).toV0().toString();
@@ -42,19 +46,27 @@
             while (mentions.length < 8) mentions.push(`0x${"0".repeat(40)}`);
 
             publishing = true;
-            await (
-                await appContract.publishPost(
-                    timelineId.group,
-                    timelineId.id,
-                    stringToBigNumber(params.title?.trim()),
-                    encodeStringToBigNumberArray(content),
-                    mentions
-                )
-            ).wait(1);
+
+            await waitContractUntil(
+                appContract,
+                appContract.filters.PostPublished(
+                    (
+                        await appContract.publishPost(
+                            timelineId.group,
+                            timelineId.id,
+                            stringToBigNumber(params.title?.trim()),
+                            encodeStringToBigNumberArray(content),
+                            mentions
+                        )
+                    ).blockNumber
+                ),
+                () => true
+            );
 
             dispatchEvent("done");
         } catch (error) {
             await dialogManager.alert(error.message);
+            throw error;
         } finally {
             publishing = false;
         }

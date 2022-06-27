@@ -26,7 +26,16 @@
         bottomLoop = false;
     }
 
-    onMount(() => timeline.listen());
+    $: onTimelineChange() && timeline
+    let timelineCache: typeof timeline = null
+    async function onTimelineChange()
+    {
+        timelineCache?.unlisten()
+        timeline?.listen()
+
+        timelineCache = timeline
+    }
+
     onDestroy(() => timeline.unlisten());
 </script>
 

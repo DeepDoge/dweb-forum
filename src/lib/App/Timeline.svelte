@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { getTimeline, TimelineGroup, TimelineId } from "$/plugins/api/app";
+    import { getTimeline, Timeline, TimelineGroup, TimelineId } from "$/plugins/api/app";
     import { currentRoute } from "$/routes/_routing.svelte";
     import Post from "$lib/App/Post.svelte";
     import Posts from "$lib/App/Posts.svelte";
@@ -12,7 +12,9 @@
 
     let selectedPostId: BigNumber = null;
     $: selectedPostId = $currentRoute.hash ? (/[0-9]/.test($currentRoute.hash) ? BigNumber.from($currentRoute.hash) : selectedPostId) : null;
-    $: timelinePromise = getTimeline({ timelineId });
+    let timeline: Timeline = null;
+    $: getTimeline({ timelineId }).then((value) => (timeline = value));
+    $: timelineNewToLoad = timeline?.newToLoad;
 
     let fixed = false;
     async function updateFixed() {
@@ -33,15 +35,20 @@
             {#if timelineId.group > TimelineGroup.LastInternal}
                 <PublishPost {timelineId} reply={timelineId.group === TimelineGroup.Replies} />
             {/if}
-            {#await timelinePromise}
+            {#if !timeline}
                 <Post postId={BigNumber.from(-1)} />
-            {:then timeline}
+            {:else}
+                <div class="refresh-button">
+                    <KButton title="Refresh" on:click={() => timelineId = { ...timelineId }} background={!$timelineNewToLoad.eq(0)} color="mode-pop">
+                        {$timelineNewToLoad.eq(0) ? "Up to date" : `Refresh (${$timelineNewToLoad.toString()} new)`}
+                    </KButton>
+                </div>
                 <Posts {timeline} let:postIds>
                     {#each postIds as postId (postId.toString())}
                         <Post {postId} asLink />
                     {/each}
                 </Posts>
-            {/await}
+            {/if}
         </div>
     </div>
     {#if selectedPostId}
@@ -83,6 +90,11 @@
         padding: calc(var(--k-padding) * 2);
         background-attachment: fixed;
         background-color: var(--k-color-body);
+    }
+
+    .refresh-button {
+        display: grid;
+        place-items: center;
     }
 
     .posts {

@@ -72,90 +72,91 @@ export interface Timeline
     postIds: Writable<BigNumber[]>,
     length: Writable<BigNumber>,
     loadMore(): Promise<boolean | void>,
+    newToLoad: Writable<BigNumber>,
     listen(): void
     unlisten(): void
     loading: Writable<boolean>
 }
 
 const timelineListeners: Record<string, { count: number, unlisten: () => void }> = {}
-export const getTimeline = cachedPromise<{ timelineId: TimelineId }, Timeline>(
-    (params) => `${params.timelineId.group}:${params.timelineId.id}`,
-    async ({ timelineId }) =>
+export async function getTimeline({ timelineId }: { timelineId: TimelineId }): Promise<Timeline>
+{
+    const postIds: Writable<BigNumber[]> = writable([])
+    let loading: Writable<boolean> = writable(false)
+    let newToLoad: Writable<BigNumber> = writable(BigNumber.from(0))
+
+    const length = writable(await appContract.timelineLength(timelineId.group, timelineId.id));
+    const firstLength = get(length)
+    let pivot = get(length)
+
+    const timelineKey = `${timelineId.group}:${timelineId.id}`
+
+    function listen()
     {
-        const postIds: Writable<BigNumber[]> = writable([])
-        let loading: Writable<boolean> = writable(false)
-
-        const length = writable(await appContract.timelineLength(timelineId.group, timelineId.id));
-        let pivot = get(length)
-
-        const timelineKey = `${timelineId.group}:${timelineId.id}`
-
-        function listen()
-        {
-            if (timelineListeners[timelineKey]) timelineListeners[timelineKey].count++
-            else timelineListeners[timelineKey] = {
-                count: 0, unlisten: listenContract(
-                    appContract, appContract.filters.TimelineAddPost(timelineId.group, timelineId.id),
-                    async (timelineGroup, timelineId, postId, timelineLength, timestamp) =>
-                    {
-                        length.set(timelineLength)
-                        if (get(postIds)[0] && postId.lte(get(postIds)[0])) return
-                        postIds.update((old) => [postId, ...old])
-                    })
-            }
-        }
-
-        function unlisten()
-        {
-            const listener = timelineListeners[timelineKey]
-            console.log('unlisten timeline', timelineKey, listener.count)
-            if (--listener.count <= 0) listener.unlisten()
-        }
-
-        async function loadMore(): Promise<boolean | void>
-        {
-            if (get(loading)) return
-            loading.set(true)
-            try
-            {
-                const count = 64
-                const promises: Promise<PostData>[] = []
-                for (let i = 0; i < count; i++)
+        if (timelineListeners[timelineKey]) timelineListeners[timelineKey].count++
+        else timelineListeners[timelineKey] = {
+            count: 0, unlisten: listenContract(
+                appContract, appContract.filters.TimelineAddPost(timelineId.group, timelineId.id),
+                async (timelineGroup: BigNumber, timelineId: BigNumber, postId: BigNumber, timelineLength: BigNumber, timestamp: BigNumber) =>
                 {
-                    pivot = pivot.sub(1)
-                    if (pivot.lt(0)) break
-                    postIds.update((old) => [...old, BigNumber.from(-i - 1)])
-                    promises.push((async () =>
-                    {
-                        const response = await appContract.getTimelinePostData(timelineId.group, timelineId.id, pivot, encodeMetadataKeys(['hidden']))
-                        const postData: PostData = { ...response, metadata: decodeMetadataResponse(response.metadata) }
-                        setPostData(postData)
-                        return postData
-                    })())
-                }
-                await Promise.all(promises)
-                postIds.update((old) => old.slice(0, old.length - promises.length))
-                for (const promise of promises)
-                {
-                    const postData = await promise
-                    postIds.update((old) => [...old, postData.id])
-                }
-                if (promises.length < count) return false
-                return true
-            }
-            finally
-            {
-                loading.set(false)
-            }
-        }
-
-        return {
-            postIds,
-            length,
-            loadMore,
-            listen,
-            unlisten,
-            loading
+                    if (timelineLength.lte(get(length))) return
+                    length.set(timelineLength)
+                    newToLoad.set(timelineLength.sub(firstLength))
+                })
         }
     }
-)
+
+    function unlisten()
+    {
+        const listener = timelineListeners[timelineKey]
+        console.log('unlisten timeline', timelineKey, listener?.count)
+        if (listener && --listener.count <= 0) listener.unlisten()
+    }
+
+    async function loadMore(): Promise<boolean | void>
+    {
+        if (get(loading)) return
+        loading.set(true)
+        try
+        {
+            const count = 64
+            const promises: Promise<PostData>[] = []
+            for (let i = 0; i < count; i++)
+            {
+                pivot = pivot.sub(1)
+                if (pivot.lt(0)) break
+                postIds.update((old) => [...old, BigNumber.from(-i - 1)])
+                promises.push((async () =>
+                {
+                    const response = await appContract.getTimelinePostData(timelineId.group, timelineId.id, pivot, encodeMetadataKeys(['hidden']))
+                    const postData: PostData = { ...response, metadata: decodeMetadataResponse(response.metadata) }
+                    setPostData(postData)
+                    return postData
+                })())
+            }
+            await Promise.all(promises)
+            postIds.update((old) => old.slice(0, old.length - promises.length))
+            for (const promise of promises)
+            {
+                const postData = await promise
+                postIds.update((old) => [...old, postData.id])
+            }
+            if (promises.length < count) return false
+            return true
+        }
+        finally
+        {
+            loading.set(false)
+        }
+    }
+
+    return {
+        postIds,
+        length,
+        loadMore,
+        newToLoad,
+        listen,
+        unlisten,
+        loading
+    }
+}

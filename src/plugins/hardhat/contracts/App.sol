@@ -65,13 +65,15 @@ contract App {
 
     uint256 public postCounter = 1;
 
+    event PostPublished(uint256 indexed blockNumber, uint256 postId);
+
     function publishPost(
         uint256 timelineGroup,
         uint256 timelineId,
         uint256 title,
         uint256[8] calldata content,
         address[8] calldata mentions
-    ) external returns (uint256) {
+    ) external {
         require(timelineGroup > LAST_INTERNAL_TIMELINE_GROUP, "Can't post on internal timeline group.");
 
         uint256 postId = postCounter++;
@@ -90,7 +92,7 @@ contract App {
             addPostToTimeline(TIMELINE_GROUP_PROFILE_MENTIONS, uint256(uint160(address(mentions[i]))), postId);
         }
 
-        return postId;
+        emit PostPublished(block.number, postId);
     }
 
     modifier onlyPostOwner(uint256 postId) {

@@ -58,7 +58,7 @@ async function main()
   }
 
   await deployContract('App')
-  await deployContract('Profile')
+  // await deployContract('Profile')
 }
 
 // We recommend this pattern to be able to use async/await everywhere
