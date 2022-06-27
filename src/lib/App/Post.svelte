@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { getPost, getTimeline, PostData, Timeline, TimelineId } from "$/plugins/api/timeline";
+    import { getPost, getTimeline, PostData, Timeline, TimelineGroup, TimelineId } from "$/plugins/api/app";
     import { second } from "$/plugins/common/second";
     import { decodeBigNumberArrayToString } from "$/plugins/common/stringToBigNumber";
     import { currentRoute } from "$/routes/_routing.svelte";
@@ -25,7 +25,7 @@
     let parentPostData: Writable<PostData> = null;
 
     let repliesTimelineId: TimelineId;
-    $: repliesTimelineId = { group: 3, id: postId };
+    $: repliesTimelineId = { group: TimelineGroup.Replies, id: postId };
 
     let repliesTimeline: Timeline = null;
     $: repliesLength = repliesTimeline?.length;

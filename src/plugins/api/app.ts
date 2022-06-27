@@ -7,6 +7,18 @@ import { decodeBigNumberArrayToString, stringToBigNumber } from "../common/strin
 import { appContract } from "../wallet"
 import { listenContract } from "../wallet/listen"
 
+export const enum TimelineGroup
+{
+    ProfilePosts = 0,
+    ProfileReplies = 1,
+    ProfileMentions = 2,
+    AllPostsInGroup = 3,
+    LastInternal = 3,
+    Replies = 4,
+    Topics = 5,
+    LastDefault = 5
+}
+
 function encodeMetadataKeys(keys: string[]): [BigNumber, BigNumber][]
 {
     return keys.map((key) => [stringToBigNumber(key), BigNumber.from(0)])

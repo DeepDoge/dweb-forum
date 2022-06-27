@@ -4,19 +4,6 @@ pragma solidity ^0.8.0;
 contract App {
     /* 
     ==========================
-    Profile
-    ==========================
-    */
-    mapping(address => mapping(uint256 => uint256)) public profiles;
-    event ProfileSet(address indexed owner, uint256 indexed key, uint256 value, uint256 timestamp);
-
-    function setProfile(uint256 key, uint256 value) external {
-        profiles[msg.sender][key] = value;
-        emit ProfileSet(msg.sender, key, value, block.timestamp);
-    }
-
-    /* 
-    ==========================
     Timeline
     ==========================
     */
@@ -69,9 +56,10 @@ contract App {
     uint256 public constant TIMELINE_GROUP_PROFILE_POSTS = 0;
     uint256 public constant TIMELINE_GROUP_PROFILE_REPLIES = 1;
     uint256 public constant TIMELINE_GROUP_PROFILE_MENTIONS = 2;
-    uint256 public constant LAST_INTERNAL_TIMELINE_GROUP = 2;
-    uint256 public constant TIMELINE_GROUP_REPLIES = 3;
-    uint256 public constant TIMELINE_GROUP_GROUPS = 4;
+    uint256 public constant TIMELINE_GROUP_ALL = 3;
+    uint256 public constant LAST_INTERNAL_TIMELINE_GROUP = 3;
+    /* DEFAULT TIMELINE GROUPS */
+    uint256 public constant TIMELINE_GROUP_REPLIES = 4;
     uint256 public constant TIMELINE_GROUP_TOPICS = 5;
     uint256 public constant LAST_DEFAULT_TIMELINE_GROUP = 5;
 
@@ -95,6 +83,7 @@ contract App {
             uint256(uint160(address(msg.sender))),
             postId
         );
+        addPostToTimeline(TIMELINE_GROUP_ALL, timelineGroup, postId);
 
         for (uint256 i = 0; i < mentions.length; i++) {
             if (mentions[i] == address(0)) break;

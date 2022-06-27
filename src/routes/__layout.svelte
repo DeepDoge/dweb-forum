@@ -16,7 +16,7 @@
     
     let searchInput: string;
     async function search() {
-        if (searchInput.startsWith("#")) location.hash = searchInput;
+        if (searchInput.startsWith("#")) location.hash = searchInput.toLowerCase();
         if (isValidAddress(searchInput)) location.hash = `#${searchInput}`;
     }
 </script>

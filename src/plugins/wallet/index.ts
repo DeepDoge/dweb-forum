@@ -1,6 +1,6 @@
 import deployed from '$/plugins/hardhat/scripts/deployed.json'
-import type { App } from '$/plugins/hardhat/typechain-types'
-import { App__factory } from "$/plugins/hardhat/typechain-types"
+import type { App, Profile } from '$/plugins/hardhat/typechain-types'
+import { App__factory, Profile__factory } from "$/plugins/hardhat/typechain-types"
 import { globalDialogManager } from '$/routes/__layout.svelte'
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers"
 import { ethers } from "ethers"
@@ -12,6 +12,7 @@ export const isContractsReady: Writable<boolean | 'wrongNetwork'> = writable(fal
 export const provider: Writable<Web3Provider | JsonRpcProvider> = writable(null)
 export const account: Writable<string> = writable(null)
 export let appContract: App = null
+export let profileContract: Profile = null
 
 const eth = (window as any).ethereum
 
@@ -70,6 +71,9 @@ const providerChange = asyncFunctionQueue(async (provider: Web3Provider | JsonRp
 
     appContract?.removeAllListeners()
     appContract = App__factory.connect(contractAddress, signer)
+
+    profileContract?.removeAllListeners()
+    profileContract = Profile__factory.connect(deployed[chainId]['Profile'], signer)
 
     isContractsReady.set(true)
 })

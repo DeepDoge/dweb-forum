@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { getPost, getPostRoot, getTimeline, PostData, Timeline, TimelineId } from "$/plugins/api/timeline";
+    import { getPost, getPostRoot, getTimeline, PostData, Timeline, TimelineGroup, TimelineId } from "$/plugins/api/app";
     import { decodeBigNumberArrayToString } from "$/plugins/common/stringToBigNumber";
     import Post from "$lib/App/Post.svelte";
     import Posts from "$lib/App/Posts.svelte";
@@ -12,7 +12,7 @@
     let topPostData: Writable<PostData> = null;
 
     let repliesTimelineId: TimelineId;
-    $: repliesTimelineId = postId ? { group: 3, id: postId } : null;
+    $: repliesTimelineId = postId ? { group: TimelineGroup.Replies, id: postId } : null;
 
     let repliesTimeline: Timeline = null;
     $: repliesTimelineLoading = repliesTimeline?.loading;

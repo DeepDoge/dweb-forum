@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { getTimeline } from "$/plugins/api/timeline";
+    import type { getTimeline } from "$/plugins/api/app";
     import KIntersectionObserver from "$lib/kicho-ui/components/KIntersectionObserver.svelte";
     import { onDestroy, onMount } from "svelte";
 

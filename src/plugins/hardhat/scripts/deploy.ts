@@ -46,12 +46,19 @@ async function main()
     return deployed[chainId][name]
   }
 
-  const App = await ethers.getContractFactory("App")
-  console.log('Deploying App')
-  const app = await App.deploy()
+  async function deployContract(name: string)
+  {
+    console.log(`Getting factory ${name}`)
+    const Contract = await ethers.getContractFactory(name)
+    console.log(`Deploying ${name}`)
+    const contract = await Contract.deploy()
 
-  await app.deployed()
-  setAsDeployed('App', app.address)
+    await contract.deployed()
+    setAsDeployed(name, contract.address)
+  }
+
+  await deployContract('App')
+  await deployContract('Profile')
 }
 
 // We recommend this pattern to be able to use async/await everywhere

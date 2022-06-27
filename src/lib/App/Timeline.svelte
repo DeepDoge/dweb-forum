@@ -1,11 +1,12 @@
 <script lang="ts">
-    import { getTimeline, TimelineId } from "$/plugins/api/timeline";
+    import { getTimeline, TimelineGroup, TimelineId } from "$/plugins/api/app";
     import { currentRoute } from "$/routes/_routing.svelte";
     import Post from "$lib/App/Post.svelte";
     import Posts from "$lib/App/Posts.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import { BigNumber } from "ethers";
     import PostReplyTimeline from "./PostReplyTimeline.svelte";
+    import PublishPost from "./PublishPost.svelte";
 
     export let timelineId: TimelineId;
 
@@ -13,10 +14,9 @@
     $: selectedPostId = $currentRoute.hash ? (/[0-9]/.test($currentRoute.hash) ? BigNumber.from($currentRoute.hash) : selectedPostId) : null;
     $: timelinePromise = getTimeline({ timelineId });
 
-    
     let fixed = false;
     async function updateFixed() {
-        fixed = selectedPostId && window.innerWidth <= 800
+        fixed = selectedPostId && window.innerWidth <= 800;
         document.body.style.overflow = fixed ? "hidden" : null;
     }
     $: updateFixed() && selectedPostId;
@@ -30,7 +30,9 @@
             <slot name="timeline-header" />
         </header>
         <div class="posts">
-            <slot />
+            {#if timelineId.group > TimelineGroup.LastInternal}
+                <PublishPost {timelineId} reply={timelineId.group === TimelineGroup.Replies} />
+            {/if}
             {#await timelinePromise}
                 <Post postId={BigNumber.from(-1)} />
             {:then timeline}

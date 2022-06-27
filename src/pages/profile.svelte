@@ -1,8 +1,8 @@
 <script context="module" lang="ts">
     export const profilePageTabs = Object.freeze({
-        "": { name: "Posts", mode: 0 },
-        replies: { name: "Replies", mode: 1 },
-        mentions: { name: "Mentions", mode: 2 },
+        "": { name: "Posts", mode: TimelineGroup.ProfilePosts },
+        replies: { name: "Replies", mode: TimelineGroup.ProfileReplies },
+        mentions: { name: "Mentions", mode: TimelineGroup.ProfileMentions },
     } as const);
     export type ProfilePageTabsKey = Extract<keyof typeof profilePageTabs, string>;
     export const profilePageTabsKeys: readonly ProfilePageTabsKey[] = Object.freeze(Object.keys(profilePageTabs)) as any
@@ -17,6 +17,7 @@
     import Timeline from "$lib/App/Timeline.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import { currentRoute } from "$/routes/_routing.svelte"
+import { TimelineGroup } from "$/plugins/api/app";
 
     export let address: string;
     export let modeKey: ProfilePageTabsKey

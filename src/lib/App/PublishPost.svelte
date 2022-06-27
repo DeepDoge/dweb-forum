@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { getPost, TimelineId } from "$/plugins/api/timeline";
+    import { getPost, TimelineId } from "$/plugins/api/app";
     import { isValidAddress } from "$/plugins/common/isValidAddress";
     import { isValidIpfsHash } from "$/plugins/common/isValidIpfsHash";
     import { encodeStringToBigNumberArray, stringToBigNumber } from "$/plugins/common/stringToBigNumber";
