@@ -3,6 +3,7 @@
     import { route } from "$/routes/_routing.svelte";
     import Post from "$lib/App/Post.svelte";
     import Posts from "$lib/App/Posts.svelte";
+    import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import { BigNumber } from "ethers";
     import PostReplyTimeline from "./PostReplyTimeline.svelte";
 
@@ -35,6 +36,11 @@
             <div class="sticky">
                 <header>
                     <slot name="post-header">
+                        {#if $route.route}
+                            <KButton size="smaller" color="mode-pop" href="#{$route.route}">
+                                {"← Back"}
+                            </KButton>
+                        {/if}
                         <h2 aria-label="post timeline">Post</h2>
                     </slot>
                 </header>
@@ -59,15 +65,10 @@
         display: grid;
         grid-auto-flow: column;
         align-items: center;
-        font-size: var(--k-font-larger);
         gap: calc(var(--k-padding) * 2);
         padding: calc(var(--k-padding) * 2);
         background-attachment: fixed;
         background-color: var(--k-color-body);
-    }
-
-    header > :global(*) {
-        font-size: 1em;
     }
 
     .posts {

@@ -1,11 +1,8 @@
 <script lang="ts">
-    import { getPostRoot, getTimeline, Timeline, TimelineId } from "$/plugins/api/timeline";
-    import { route } from "$/routes/_routing.svelte";
+    import { getPostRoot,getTimeline,Timeline,TimelineId } from "$/plugins/api/timeline";
     import Post from "$lib/App/Post.svelte";
     import Posts from "$lib/App/Posts.svelte";
-    import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import { BigNumber } from "ethers";
-    import AddressOf from "./AddressOf.svelte";
     import PublishPost from "./PublishPost.svelte";
 
     export let postId: BigNumber;
@@ -36,13 +33,6 @@
 </script>
 
 <div class:loading class="post-reply-timeline">
-    {#if $route.route}
-        <div class="back-button">
-            <KButton size="normal" color="mode-pop" href="#{$route.route}">
-                {"<- Back"}
-            </KButton>
-        </div>
-    {/if}
     <div class="posts">
         {#if loading && prefixPostIds.length === 0}
             <Post postId={BigNumber.from(-1)} />
@@ -63,11 +53,6 @@
 </div>
 
 <style>
-    .back-button {
-        display: grid;
-        justify-content: center;
-        align-items: center;
-    }
 
     .root-post + .root-post::before {
         content: "";
