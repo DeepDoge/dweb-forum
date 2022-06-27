@@ -54,6 +54,8 @@
         const state = (pageStates[route.page.name] = { ...pageStates[route.page.name], props: route.props });
         const scroll = routeScrolls[key];
 
+        console.log('route', route)
+
         // Scroll
         if (key !== keyCache) {
             if (routeCache) {
@@ -78,10 +80,13 @@
         const hash = separatorIndex >= 0 ? hashValue.substring(separatorIndex + 1) : "";
         const pathArr = path.split("/");
 
-        if (!path) setCurrentPage({ page: Index, path, pathArr, hash, props: {} });
-        else if (isValidAddress(pathArr[0]) && profilePageTabsKeys.includes((pathArr[1] ?? "") as any))
+        if (!path) {
+            setCurrentPage({ page: Index, path, pathArr, hash, props: {} });
+        } else if (isValidAddress(pathArr[0]) && profilePageTabsKeys.includes((pathArr[1] ?? "") as any)) {
             setCurrentPage({ page: Profile, path, pathArr, hash, props: { address: pathArr[0], modeKey: pathArr[1] ?? ("" as any) } });
-        else setCurrentPage({ page: Index, path, pathArr, hash, props: { topic: path } });
+        } else {
+            setCurrentPage({ page: Topic, path, pathArr, hash, props: { topic: path } });
+        }
         // else setCurrentPage(A4, {});
     }
 
