@@ -15,7 +15,7 @@
 <script lang="ts">
     import A4 from "$/pages/404.svelte";
     import Index from "$/pages/index.svelte";
-    import Profile, { profilePageTabs, profilePageTabsKeys } from "$/pages/profile.svelte";
+    import Profile, { profilePageTabsKeys } from "$/pages/profile.svelte";
     import Topic from "$/pages/topic.svelte";
     import { isValidAddress } from "$/plugins/common/isValidAddress";
     import { goto } from "$app/navigation";
@@ -73,7 +73,7 @@
 
         if (!currentRoute) setCurrentPage(Index, {});
         else if (isValidAddress(currentRoutePath[0]) && profilePageTabsKeys.includes((currentRoutePath[1] ?? "") as any))
-            setCurrentPage(Profile, { address: currentRoutePath[0], modeKey: currentRoutePath[1] as any });
+            setCurrentPage(Profile, { address: currentRoutePath[0], modeKey: currentRoutePath[1] ?? "" as any });
         else setCurrentPage(Topic, { topic: currentRoute });
         // else setCurrentPage(A4, {});
     }
