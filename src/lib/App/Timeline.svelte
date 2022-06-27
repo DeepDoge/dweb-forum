@@ -87,6 +87,7 @@
 
     .posts {
         padding: calc(var(--k-padding) * 2);
+        scroll-padding: calc(var(--k-padding) * 2);
     }
 
     .sticky {
@@ -120,5 +121,11 @@
     .post .posts {
         height: 100%;
         overflow-y: auto;
+    }
+
+    .post .posts::after {
+        content: "";
+        display: block;
+        height: 100%;
     }
 </style>

@@ -44,12 +44,21 @@
     $: date = $second && ((postData && format(new Date($postData.post.time.toNumber() * 1000))) ?? null);
     $: title = (postData && decodeBigNumberArrayToString([$postData.post.title])) ?? null;
     $: loading = postId && !postData;
-    $: isSelected = /[0-9]/.test($currentRoute.hash) && postId?.eq($currentRoute.hash);
+    $: selected = /[0-9]/.test($currentRoute.hash) && postId?.eq($currentRoute.hash);
+
+    function scrollIntoViewIfNeeded(target: HTMLElement) {
+        const rect = target.getBoundingClientRect();
+        if (rect.bottom > window.innerHeight) target.scrollIntoView(/* false */);
+        if (rect.top < 0) target.scrollIntoView();
+    }
+
+    $: selected && element && scrollIntoViewIfNeeded(element);
+    let element: HTMLElement;
 </script>
 
-<article>
+<article bind:this={element}>
     <a class="post" href={asLink && postId.gte(0) ? `#${$currentRoute.path}#${postId}` : null}>
-        <KBoxEffect color="mode" radius="rounded" background {loading} hideContent={loading} glow={isSelected ? "master" : false}>
+        <KBoxEffect color="mode" radius="rounded" background {loading} hideContent={loading} glow={selected ? "master" : false}>
             <div class="inner">
                 <div class="avatar">
                     <AvatarOf address={$postData?.post.owner} />
@@ -63,7 +72,10 @@
                 <div class="chip">
                     {#if parentPostData}
                         <a href="#{$currentRoute.path}#{$parentPostData.id}">
-                            <KChip color="slave">Reply to: <NicknameOf address={$parentPostData.post.owner} /> @{$postData.post.timelineId}</KChip>
+                            <KChip color="slave"
+                                ><div class="k-text-singleline">Reply to:</div>
+                                <NicknameOf address={$parentPostData.post.owner} /> @{$postData.post.timelineId}</KChip
+                            >
                             {#if !disableParentHoverPreview}
                                 <KHoverMenu direction="left">
                                     <svelte:self postId={$postData.post.timelineId} disableParentHoverPreview />

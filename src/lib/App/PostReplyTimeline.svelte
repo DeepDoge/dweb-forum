@@ -27,13 +27,13 @@
         loading = true;
 
         const [root, timeline] = await Promise.all([await getPostRoot({ postId }), await getTimeline({ timelineId: repliesTimelineId })]);
-        // await timeline.loadMore();
+        await timeline.loadMore();
 
         prefixPostIds = [...root, postId, BigNumber.from(0)];
         repliesTimeline = timeline;
 
         (async () => (topPostData = await getPost({ postId: prefixPostIds[0] })))();
-
+        
         loading = false;
     }
 </script>
