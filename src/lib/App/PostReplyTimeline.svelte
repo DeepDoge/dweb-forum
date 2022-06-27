@@ -1,11 +1,15 @@
 <script lang="ts">
-    import { getPostRoot,getTimeline,Timeline,TimelineId } from "$/plugins/api/timeline";
+    import { getPost,getPostRoot,getTimeline,PostData,Timeline,TimelineId } from "$/plugins/api/timeline";
+    import { decodeBigNumberArrayToString } from "$/plugins/common/stringToBigNumber";
     import Post from "$lib/App/Post.svelte";
     import Posts from "$lib/App/Posts.svelte";
+    import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import { BigNumber } from "ethers";
+    import type { Writable } from "svelte/store";
     import PublishPost from "./PublishPost.svelte";
 
     export let postId: BigNumber;
+    let topPostData: Writable<PostData> = null;
 
     let repliesTimelineId: TimelineId;
     $: repliesTimelineId = postId ? { group: 3, id: postId } : null;
@@ -22,17 +26,30 @@
         if (loading) return;
         loading = true;
 
-        const [root, timeline] = await Promise.all([await getPostRoot({ postId }), await getTimeline({ timelineId: repliesTimelineId })]);
+        const [root, timeline] = await Promise.all([
+            await getPostRoot({ postId }),
+            await getTimeline({ timelineId: repliesTimelineId })
+        ]);
         // await timeline.loadMore();
 
         prefixPostIds = [...root, postId, BigNumber.from(0)];
         repliesTimeline = timeline;
+
+        (async () => topPostData = await getPost({ postId: prefixPostIds[0] }))()
 
         loading = false;
     }
 </script>
 
 <div class:loading class="post-reply-timeline">
+    {#if topPostData && $topPostData.post.timelineGroup.eq(5)}
+        <div class="topic-button">
+            <KButton size="normal" color="master" href="#{decodeBigNumberArrayToString([$topPostData.post.timelineId])}">
+                #{decodeBigNumberArrayToString([$topPostData.post.timelineId])}
+            </KButton>
+            <div>⌄</div>
+        </div>
+    {/if}
     <div class="posts">
         {#if loading && prefixPostIds.length === 0}
             <Post postId={BigNumber.from(-1)} />
@@ -53,6 +70,10 @@
 </div>
 
 <style>
+    .topic-button {
+        display: grid;
+        place-items: center;
+    }
 
     .root-post + .root-post::before {
         content: "";
