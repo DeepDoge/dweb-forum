@@ -6,10 +6,8 @@
     
     const pushState = history.pushState;
     history.pushState = function (...params) {
-        try {
-            if (params[2].toString() === location.href) return;
-            pushState(...params);
-        } catch (error) {}
+        if (params[2].toString() === location.href) return;
+        pushState.call(history, ...params)
     };
 
     const pages = [A4, Index, Profile, Topic] as const;
