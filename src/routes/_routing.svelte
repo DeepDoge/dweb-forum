@@ -3,6 +3,12 @@
     const scrollCache = writable({ top: 0, left: 0 });
     const scrollingElement = document.scrollingElement ?? document.body;
     window.addEventListener("scroll", () => scrollCache.set({ top: scrollingElement.scrollTop, left: scrollingElement.scrollLeft }));
+    
+    const pushState = history.pushState;
+    history.pushState = function (...params) {
+        if (params[2].toString() === location.href) return;
+        pushState.call(history, ...params)
+    };
 
     const pages = [A4, Index, Profile, Topic] as const;
     type Page = ExtractGeneric<typeof pages>;
@@ -34,14 +40,6 @@
     import { page } from "$app/stores";
     import type { ExtractGeneric } from "$lib/kicho-ui/types/util";
     import { writable } from "svelte/store";
-
-    const pushState = history.pushState;
-    history.pushState = function (...params) {
-        try {
-            if (params[2].toString() === location.href) return;
-            pushState(...params);
-        } catch (error) {}
-    };
 
     const pageStates: Record<string, { props: Record<string, any> }> = {};
     const routeScrolls: Record<string, ScrollToOptions> = {};
