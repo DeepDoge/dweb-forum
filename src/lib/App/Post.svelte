@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { getPost, getTimeline, PostData, Timeline, TimelineGroup, TimelineId } from "$/plugins/api/app";
+    import { getPostData, getTimeline, PostData, Timeline, TimelineGroup, TimelineId } from "$/plugins/api/app";
     import { second } from "$/plugins/common/second";
     import { decodeBigNumberArrayToString } from "$/plugins/common/stringToBigNumber";
     import { currentRoute } from "$/routes/_routing.svelte";
@@ -14,10 +14,12 @@
     import NicknameOf from "./NicknameOf.svelte";
     import ProfileMiniCard from "./ProfileMiniCard.svelte";
 
-    export let postId: BigNumber;
-    export let asLink = false;
+    type BoxProps = KBoxEffect["$$prop_def"];
+    interface $$Props extends BoxProps {
+        postId: BigNumber;
+    }
 
-    export let disableParentHoverPreview = false;
+    export let postId: BigNumber;
 
     let postData: Writable<PostData> = null;
     $: postContent = $postData ? decodeBigNumberArrayToString($postData.post.content) : null;
@@ -36,8 +38,8 @@
         repliesTimeline = null;
         parentPostData = null;
         if (postId.lt(0)) return;
-        postData = await getPost({ postId });
-        if ($postData.post.timelineGroup.eq(TimelineGroup.Replies)) parentPostData = await getPost({ postId: $postData.post.timelineId });
+        postData = await getPostData({ postId });
+        if ($postData.post.timelineGroup.eq(TimelineGroup.Replies)) parentPostData = await getPostData({ postId: $postData.post.timelineId });
         repliesTimeline = await getTimeline({ timelineId: repliesTimelineId });
     }
 
@@ -45,13 +47,12 @@
     $: title = (postData && decodeBigNumberArrayToString([$postData.post.title])) ?? null;
     $: loading = postId && !postData;
     $: selected = /[0-9]/.test($currentRoute.hash) && postId?.eq($currentRoute.hash);
-
-    let element: HTMLElement;
 </script>
 
-<article bind:this={element}>
-    <a class="post" href={asLink && postId.gte(0) ? `#${$currentRoute.path}#${postId}` : null}>
-        <KBoxEffect color="mode" radius="rounded" background {loading} hideContent={loading} glow={selected ? "master" : false}>
+<slot name="before" postData={$postData}></slot>
+<article>
+    <div class="post">
+        <KBoxEffect color="mode" radius="rounded" background {loading} hideContent={loading} glow={selected ? "master" : false} {...$$props}>
             <div class="inner">
                 <div class="avatar">
                     <AvatarOf address={$postData?.post.owner} />
@@ -69,11 +70,6 @@
                                 ><div class="k-text-singleline">Reply to:</div>
                                 <NicknameOf address={$parentPostData.post.owner} /> @{$postData.post.timelineId}</KChip
                             >
-                            {#if !disableParentHoverPreview}
-                                <KHoverMenu direction="left">
-                                    <svelte:self postId={$postData.post.timelineId} disableParentHoverPreview />
-                                </KHoverMenu>
-                            {/if}
                         </a>
                     {:else if $postData?.post.timelineGroup.eq(TimelineGroup.Topics)}
                         <a href="#{decodeBigNumberArrayToString([$postData.post.timelineId])}#{$postData.id}">
@@ -112,8 +108,9 @@
                 </div>
             </div>
         </KBoxEffect>
-    </a>
+    </div>
 </article>
+<slot name="after" postData={$postData}></slot>
 
 <style>
     article {

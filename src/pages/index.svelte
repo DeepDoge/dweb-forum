@@ -1,11 +1,11 @@
 <script lang="ts">
 import { TimelineGroup } from "$/plugins/api/app";
-import Timeline from "$lib/App/Timeline.svelte";
+import TimelinePage from "$lib/App/TimelinePage.svelte";
 
 </script>
 
-<Timeline timelineId={{ group: TimelineGroup.AllPostsInGroup, id: TimelineGroup.Topics }}>
+<TimelinePage timelineId={{ group: TimelineGroup.AllPostsInGroup, id: TimelineGroup.Topics }}>
     <svelte:fragment slot="timeline-header">
         <h2>All</h2>
     </svelte:fragment>
-</Timeline>
+</TimelinePage>

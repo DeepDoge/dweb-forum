@@ -1,11 +1,10 @@
 <script lang="ts">
-import { TimelineGroup } from "$/plugins/api/app";
+    import { TimelineGroup } from "$/plugins/api/app";
 
     import { stringToBigNumber } from "$/plugins/common/stringToBigNumber";
-    import PublishPost from "./PublishPost.svelte";
-    import Timeline from "./Timeline.svelte";
+    import TimelinePage from "./TimelinePage.svelte";
 
-    type TimelineProps = Timeline["$$prop_def"];
+    type TimelineProps = TimelinePage["$$prop_def"];
     interface $$Props extends Omit<TimelineProps, "timelineId"> {
         topic: string;
     }
@@ -15,8 +14,8 @@ import { TimelineGroup } from "$/plugins/api/app";
     $: timelineId = { group: TimelineGroup.Topics, id: topicId };
 </script>
 
-<Timeline {timelineId}>
+<TimelinePage {timelineId}>
     <svelte:fragment slot="timeline-header">
         <h2>Topic: #{topic}</h2>
     </svelte:fragment>
-</Timeline>
+</TimelinePage>

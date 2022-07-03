@@ -1,4 +1,4 @@
-import "@nomiclabs/hardhat-waffle"
+import "@nomiclabs/hardhat-ethers"
 import "@typechain/hardhat"
 import { HardhatUserConfig, task } from "hardhat/config"
 const secrets = require('./chain-secrets.json')

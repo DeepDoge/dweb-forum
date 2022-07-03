@@ -1,19 +1,16 @@
-<script context="module" lang="ts">
-    export const globalDialogManager = createDialogManager();
-</script>
-
 <script lang="ts">
-    import "$/lib/kicho-ui/root.css";
     import { isValidAddress } from "$/plugins/common/isValidAddress";
-    import { changeNetwork,isContractsReady,provider } from "$/plugins/wallet";
+    import { changeNetwork, currentProviderInfo, isContractsReady, jsonProviders, provider } from "$/plugins/wallet";
     import ClaimName from "$lib/App/ClaimName.svelte";
+    import KApp from "$lib/kicho-ui/components/KApp.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
-    import KDialog,{ createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
+    import KDialog, { createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
     import KModalHashRoute from "$lib/kicho-ui/components/KModalHashRoute.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
+    import { globalDialogManager } from "$lib/kicho-ui/dialog";
     import Header from "./_header.svelte";
-    import Routing,{ currentRoute } from "./_routing.svelte";
-    
+    import Routing, { currentRoute } from "./_routing.svelte";
+
     let searchInput: string;
     async function search() {
         if (searchInput.startsWith("#")) location.hash = searchInput.toLowerCase();
@@ -21,42 +18,46 @@
     }
 </script>
 
-<layout>
-    {#if $provider}
-        {#await $provider.ready}
-            Connecting...
-        {:then}
-            {#if $isContractsReady === true}
-                {#key $provider.network.chainId}
-                    <Header />
-                    <main>
-                        <form class="search-form" on:submit|preventDefault={search}>
-                            <KTextField background bind:value={searchInput} placeholder="#Topic, 0xAddress, ENS name" />
-                            <KButton color="master">Search</KButton>
-                        </form>
+<KApp>
+    <layout>
+        {#if $provider}
+            {#await $provider.ready}
+                Connecting...
+            {:then}
+                {#if $isContractsReady === true}
+                    {#key $provider.network.chainId}
+                        <Header />
+                        <main>
+                            <form class="search-form" on:submit|preventDefault={search}>
+                                <KTextField background bind:value={searchInput} placeholder="#Topic, 0xAddress, ENS name" />
+                                <KButton color="master">Search</KButton>
+                            </form>
 
-                        <Routing />
+                            <Routing />
 
-                        <KModalHashRoute hash="claim-name" hashOverride={$currentRoute.hash}>
-                            <ClaimName on:done={() => history.back()} />
-                        </KModalHashRoute>
+                            <KModalHashRoute hash="claim-name" hashOverride={$currentRoute.hash}>
+                                <ClaimName on:done={() => history.back()} />
+                            </KModalHashRoute>
 
-                        <KDialog dialogManager={globalDialogManager} />
-                    </main>
-                {/key}
-            {:else if $isContractsReady === "wrongNetwork"}
-                Wrong Network
-                <span>
-                    <KButton color="master" on:click={() => changeNetwork(137)}>Switch to Polygon(MATIC) Network</KButton>
-                </span>
-            {:else}
-                Getting Contracts
-            {/if}
-        {/await}
-    {:else}
-        Waiting Provider...
-    {/if}
-</layout>
+                            <KDialog dialogManager={globalDialogManager} />
+                        </main>
+                    {/key}
+                {:else if $isContractsReady === "wrongNetwork"}
+                    Wrong Network
+                    <span>
+                        <KButton color="master" on:click={() => changeNetwork($currentProviderInfo)}
+                            >Switch to {$currentProviderInfo.chainName} Network</KButton
+                        >
+                    </span>
+                {:else}
+                    Getting Contracts
+                {/if}
+            {/await}
+        {:else}
+            Waiting Provider...
+        {/if}
+    </layout>
+</KApp>
 
 <style>
     :global(:root) {

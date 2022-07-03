@@ -6,10 +6,10 @@
     import AvatarOf from "$lib/App/AvatarOf.svelte";
     import NicknameOf from "$lib/App/NicknameOf.svelte";
     import Post from "$lib/App/Post.svelte";
-    import Posts from "$lib/App/Posts.svelte";
+    import Timeline from "$lib/App/Timeline.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
-import { get } from "svelte/store";
+    import { get } from "svelte/store";
     import { currentRoute } from "./_routing.svelte";
 
     let height: number = 0;
@@ -44,11 +44,13 @@ import { get } from "svelte/store";
                     N: {get(timeline.length)}
                     <KHoverMenu background direction="left">
                         <b>Notifications</b>
-                        <Posts {timeline} let:postIds>
+                        <Timeline {timeline} let:postIds>
                             {#each postIds as postId (postId.toString())}
-                                <Post {postId} asLink />
+                                <a href="#{$currentRoute.path}#{postId}">
+                                    <Post {postId} />
+                                </a>
                             {/each}
-                        </Posts>
+                        </Timeline>
                     </KHoverMenu>
                 {/await}
             </KButton>

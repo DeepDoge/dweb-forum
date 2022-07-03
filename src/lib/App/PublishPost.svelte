@@ -1,18 +1,16 @@
 <script lang="ts">
-    import { getPost, TimelineGroup, TimelineId } from "$/plugins/api/app";
+    import { getPostData,TimelineGroup,TimelineId } from "$/plugins/api/app";
     import { isValidAddress } from "$/plugins/common/isValidAddress";
     import { isValidIpfsHash } from "$/plugins/common/isValidIpfsHash";
-    import { encodeStringToBigNumberArray, stringToBigNumber } from "$/plugins/common/stringToBigNumber";
-    import { account, appContract, provider } from "$/plugins/wallet";
+    import { encodeStringToBigNumberArray,stringToBigNumber } from "$/plugins/common/stringToBigNumber";
+    import { account,appContract } from "$/plugins/wallet";
     import { waitContractUntil } from "$/plugins/wallet/listen";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
-    import KDialog, { createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
+    import KDialog,{ createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import CID from "cids";
-    import { group } from "console";
     import { BigNumber } from "ethers";
-    import { id } from "ethers/lib/utils";
     import { createEventDispatcher } from "svelte";
     import { get } from "svelte/store";
     import AvatarOf from "./AvatarOf.svelte";
@@ -33,7 +31,7 @@
             const mentions: string[] = [];
 
             if (BigNumber.from(timelineId.group).eq(TimelineGroup.Replies))
-                mentions.push(get(await getPost({ postId: BigNumber.from(timelineId.id) })).post.owner);
+                mentions.push(get(await getPostData({ postId: BigNumber.from(timelineId.id) })).post.owner);
 
             for (const part of parts) {
                 if (isValidIpfsHash(part) && part.startsWith("bafy")) content += new CID(part).toV0().toString();

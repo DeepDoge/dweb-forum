@@ -5,22 +5,22 @@
         mentions: { name: "Mentions", mode: TimelineGroup.ProfileMentions },
     } as const);
     export type ProfilePageTabsKey = Extract<keyof typeof profilePageTabs, string>;
-    export const profilePageTabsKeys: readonly ProfilePageTabsKey[] = Object.freeze(Object.keys(profilePageTabs)) as any
+    export const profilePageTabsKeys: readonly ProfilePageTabsKey[] = Object.freeze(Object.keys(profilePageTabs)) as any;
 
-    const tabsEntries = Object.entries(profilePageTabs)
+    const tabsEntries = Object.entries(profilePageTabs);
 </script>
 
 <script lang="ts">
+    import { TimelineGroup } from "$/plugins/api/app";
+    import { currentRoute } from "$/routes/_routing.svelte";
     import AddressOf from "$lib/App/AddressOf.svelte";
     import AvatarOf from "$lib/App/AvatarOf.svelte";
     import NicknameOf from "$lib/App/NicknameOf.svelte";
-    import Timeline from "$lib/App/Timeline.svelte";
+    import TimelinePage from "$lib/App/TimelinePage.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
-    import { currentRoute } from "$/routes/_routing.svelte"
-import { TimelineGroup } from "$/plugins/api/app";
 
     export let address: string;
-    export let modeKey: ProfilePageTabsKey
+    export let modeKey: ProfilePageTabsKey;
 
     $: mode = profilePageTabs[modeKey].mode;
 </script>
@@ -40,7 +40,7 @@ import { TimelineGroup } from "$/plugins/api/app";
 
     <div class="content">
         <div class="posts">
-            <Timeline timelineId={{ group: mode, id: address }}>
+            <TimelinePage timelineId={{ group: mode, id: address }}>
                 <svelte:fragment slot="timeline-header">
                     <div class="tabs">
                         {#each tabsEntries as [path, tab] (path)}
@@ -48,7 +48,7 @@ import { TimelineGroup } from "$/plugins/api/app";
                         {/each}
                     </div>
                 </svelte:fragment>
-            </Timeline>
+            </TimelinePage>
         </div>
     </div>
 </div>

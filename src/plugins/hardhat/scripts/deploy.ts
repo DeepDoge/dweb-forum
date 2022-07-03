@@ -3,6 +3,7 @@
 //
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
+import { profile } from 'console'
 import fs from 'fs'
 import { ethers } from "hardhat"
 import path from 'path'
@@ -58,7 +59,7 @@ async function main()
   }
 
   await deployContract('App')
-  // await deployContract('Profile')
+  if (!deployed[chainId]['Profile']) await deployContract('Profile')
 }
 
 // We recommend this pattern to be able to use async/await everywhere

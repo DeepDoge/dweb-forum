@@ -1,4 +1,4 @@
-import { globalDialogManager } from "$/routes/__layout.svelte"
+import { globalDialogManager } from "$lib/kicho-ui/dialog"
 
 export function catchContract(err: Error & Record<string, any>)
 {

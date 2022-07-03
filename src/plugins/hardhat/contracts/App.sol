@@ -11,11 +11,11 @@ contract App {
     mapping(uint256 => mapping(uint256 => uint256[])) timelines;
     mapping(uint256 => mapping(uint256 => mapping(uint256 => uint256[2]))) postIdToPostIndexOnTimelineMap;
 
-    function timelineLength(uint256 group, uint256 id) external view returns (uint256) {
+    function getTimelineLength(uint256 group, uint256 id) external view returns (uint256) {
         return timelines[group][id].length;
     }
 
-    event TimelineAddPost(uint256 indexed timelineGroup, uint256 indexed timelineId, uint256 postId, uint256 timelineLength, uint256 timestamp);
+    event TimelineAddPost(uint256 indexed timelineGroup, uint256 indexed timelineId, uint256 postId, address owner, uint256 timelineLength, uint256 timestamp);
 
     function addPostToTimeline(
         uint256 timelineGroup,
@@ -32,7 +32,7 @@ contract App {
 
         // Add post to timeline
         timeline.push() = postId;
-        emit TimelineAddPost(timelineGroup, timelineId, postId, timeline.length, block.timestamp);
+        emit TimelineAddPost(timelineGroup, timelineId, postId, msg.sender, timeline.length, block.timestamp);
     }
 
     /* 
@@ -46,6 +46,7 @@ contract App {
         address owner;
         uint256 timelineGroup;
         uint256 timelineId;
+        uint256 timelinePostIndex;
         uint256 time;
         uint256 title;
         uint256[8] content;
@@ -65,7 +66,7 @@ contract App {
 
     uint256 public postCounter = 1;
 
-    event PostPublished(uint256 indexed blockNumber, uint256 postId);
+    event PostPublished(uint256 indexed blockNumber, address indexed owner, uint256 postId);
 
     function publishPost(
         uint256 timelineGroup,
@@ -77,7 +78,8 @@ contract App {
         require(timelineGroup > LAST_INTERNAL_TIMELINE_GROUP, "Can't post on internal timeline group.");
 
         uint256 postId = postCounter++;
-        posts[postId] = Post(msg.sender, timelineGroup, timelineId, block.timestamp, title, content, mentions);
+        uint256 timelineLength = timelines[timelineGroup][timelineId].length;
+        posts[postId] = Post(msg.sender, timelineGroup, timelineId, timelineLength, block.timestamp, title, content, mentions);
 
         addPostToTimeline(timelineGroup, timelineId, postId);
         addPostToTimeline(
@@ -92,7 +94,7 @@ contract App {
             addPostToTimeline(TIMELINE_GROUP_PROFILE_MENTIONS, uint256(uint160(address(mentions[i]))), postId);
         }
 
-        emit PostPublished(block.number, postId);
+        emit PostPublished(block.number, msg.sender, postId);
     }
 
     modifier onlyPostOwner(uint256 postId) {

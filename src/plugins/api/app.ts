@@ -4,7 +4,7 @@ import type { Writable } from "svelte/store"
 import { get, writable } from "svelte/store"
 import { cachedPromise } from "../../../modules/cachedPromise"
 import { decodeBigNumberArrayToString, stringToBigNumber } from "../common/stringToBigNumber"
-import { appContract } from "../wallet"
+import { account, appContract } from "../wallet"
 import { listenContract } from "../wallet/listen"
 
 export const enum TimelineGroup
@@ -19,6 +19,12 @@ export const enum TimelineGroup
     LastDefault = 5
 }
 
+export type PostData = Omit<Awaited<ReturnType<typeof appContract.getPostData>>, 'metadata'> & { metadata: Record<string, string | BigNumber> }
+
+export type TimelineId = { group: BigNumberish, id: BigNumberish }
+
+export type Timeline = Awaited<ReturnType<typeof getTimeline>>
+
 function encodeMetadataKeys(keys: string[]): [BigNumber, BigNumber][]
 {
     return keys.map((key) => [stringToBigNumber(key), BigNumber.from(0)])
@@ -32,9 +38,7 @@ function decodeMetadataResponse(reponseMetadata: ReturnType<typeof encodeMetadat
     return metadata
 }
 
-export type PostData = Omit<Awaited<ReturnType<typeof appContract.getPostData>>, 'metadata'> & { metadata: Record<string, string | BigNumber> }
-
-export const getPost = cachedPromise<{ postId: BigNumber }, Writable<PostData>>(
+export const getPostData = cachedPromise<{ postId: BigNumber }, Writable<PostData>>(
     (params) => params.postId.toString(),
     async (params) =>
     {
@@ -43,120 +47,116 @@ export const getPost = cachedPromise<{ postId: BigNumber }, Writable<PostData>>(
     }
 )
 
-async function setPostData(postData: PostData)
+function setPostData({ postData }: { postData: PostData })
 {
     const key = postData.id.toString()
-    getPost._getCache(key) ? getPost._getCache(key).set(postData) : getPost._setCache(key, writable(postData))
+    getPostData._getCache(key) ? getPostData._getCache(key).set(postData) : getPostData._setCache(key, writable(postData))
 }
 
-export const getPostRoot = cachedPromise<{ postId: BigNumber }, BigNumber[]>(
-    (params) => params.postId.toString(),
-    async (params) =>
-    {
-        const result: BigNumber[] = []
-        let postData = get(await getPost(params));
-        while (postData?.post.timelineGroup.eq(TimelineGroup.Replies))
-        {
-            postData = get(await getPost({ postId: postData.post.timelineId }));
-            result.unshift(postData.id);
-        }
-
-        return result
-    }
-)
-
-export type TimelineId = { group: BigNumberish, id: BigNumberish }
-
-export interface Timeline
+export async function getTimeline(params: { timelineId: TimelineId })
 {
-    postIds: Writable<BigNumber[]>,
-    length: Writable<BigNumber>,
-    loadMore(): Promise<boolean | void>,
-    newToLoad: Writable<BigNumber>,
-    listen(): void
-    unlisten(): void
-    loading: Writable<boolean>
-}
+    const length = writable(await appContract.getTimelineLength(params.timelineId.group, params.timelineId.id))
+    const newPostCount = writable(BigNumber.from(0))
 
-const timelineListeners: Record<string, { count: number, unlisten: () => void }> = {}
-export async function getTimeline({ timelineId }: { timelineId: TimelineId }): Promise<Timeline>
-{
-    const postIds: Writable<BigNumber[]> = writable([])
-    let loading: Writable<boolean> = writable(false)
-    let newToLoad: Writable<BigNumber> = writable(BigNumber.from(0))
+    const pivotIndex = get(length).sub(1)
+    const postIds = writable<BigNumber[]>([])
 
-    const length = writable(await appContract.timelineLength(timelineId.group, timelineId.id));
-    const firstLength = get(length)
-    let pivot = get(length)
+    const loading = writable(false)
 
-    const timelineKey = `${timelineId.group}:${timelineId.id}`
+    const postIdsPublishedByCurrentSession: BigNumber[] = []
+    const loadedPostIds: BigNumber[] = []
 
-    function listen()
+    length.subscribe((length) => newPostCount.set(length.sub(pivotIndex).sub(1).sub(postIdsPublishedByCurrentSession.length)))
+
+    let done = false
+    let loadOlderPivot = pivotIndex
+    async function loadOlder()
     {
-        if (timelineListeners[timelineKey]) timelineListeners[timelineKey].count++
-        else timelineListeners[timelineKey] = {
-            count: 0, unlisten: listenContract(
-                appContract, appContract.filters.TimelineAddPost(timelineId.group, timelineId.id),
-                async (timelineGroup: BigNumber, timelineId: BigNumber, postId: BigNumber, timelineLength: BigNumber, timestamp: BigNumber) =>
-                {
-                    if (timelineLength.lte(get(length))) return
-                    length.set(timelineLength)
-                    newToLoad.set(timelineLength.sub(firstLength))
-                })
-        }
-    }
-
-    function unlisten()
-    {
-        const listener = timelineListeners[timelineKey]
-        console.log('unlisten timeline', timelineKey, listener?.count)
-        if (listener && --listener.count <= 0) listener.unlisten()
-    }
-
-    async function loadMore(): Promise<boolean | void>
-    {
-        if (get(loading)) return
         loading.set(true)
-        try
+
+        const promises: Promise<BigNumber>[] = []
+        const placeHolderPostIds: BigNumber[] = []
+        for (let i = 0; i < 64; i++)
         {
-            const count = 64
-            const promises: Promise<PostData>[] = []
-            for (let i = 0; i < count; i++)
+            if (loadOlderPivot.lt(0)) break
+
+            placeHolderPostIds.push(BigNumber.from((i + 1) * -1))
+            promises.push((async () =>
             {
-                pivot = pivot.sub(1)
-                if (pivot.lt(0)) break
-                postIds.update((old) => [...old, BigNumber.from(-i - 1)])
-                promises.push((async () =>
+                const postData = await appContract.getTimelinePostData(
+                    params.timelineId.group,
+                    params.timelineId.id,
+                    loadOlderPivot,
+                    [[stringToBigNumber('hidden'), 0]]
+                )
+                setPostData({ postData: { ...postData, metadata: decodeMetadataResponse(postData.metadata) } })
+                return postData.id
+            })())
+
+            loadOlderPivot = loadOlderPivot.sub(1)
+        }
+
+        postIds.set([...postIdsPublishedByCurrentSession, ...loadedPostIds, ...placeHolderPostIds])
+        const newPostIds = await Promise.all(promises)
+        loadedPostIds.push(...newPostIds)
+        postIds.set([...postIdsPublishedByCurrentSession, ...loadedPostIds])
+
+        loading.set(false)
+        if (done = (newPostIds.length === 0)) return false
+        return true
+    }
+
+    let unlisten: () => void = null
+    async function listen()
+    {
+        unlisten?.call(null)
+        unlisten = listenContract(
+            appContract,
+            appContract.filters.TimelineAddPost(params.timelineId.group, params.timelineId.id),
+            (timelineGroup, timelineId, postId, owner, timelineLength) =>
+            {
+                if (timelineLength.lte(get(length))) return
+                if (owner.toLowerCase() === get(account)) 
                 {
-                    const response = await appContract.getTimelinePostData(timelineId.group, timelineId.id, pivot, encodeMetadataKeys(['hidden']))
-                    const postData: PostData = { ...response, metadata: decodeMetadataResponse(response.metadata) }
-                    setPostData(postData)
-                    return postData
-                })())
+                    postIdsPublishedByCurrentSession.unshift(postId)
+                    if (done) postIds.set([...postIdsPublishedByCurrentSession, ...loadedPostIds])
+                }
+                length.set(timelineLength)
             }
-            await Promise.all(promises)
-            postIds.update((old) => old.slice(0, old.length - promises.length))
-            for (const promise of promises)
-            {
-                const postData = await promise
-                postIds.update((old) => [...old, postData.id])
-            }
-            if (promises.length < count) return false
-            return true
-        }
-        finally
-        {
-            loading.set(false)
-        }
+        )
     }
 
     return {
-        postIds,
+        timelineId: params.timelineId,
         length,
-        loadMore,
-        newToLoad,
         listen,
         unlisten,
+        newPostCount,
+        postIds,
+        loadOlder,
         loading
     }
+}
+
+// Not caching this because postData is already cached
+export async function getPostRoot({ postId }: { postId: BigNumber })
+{
+    const next = async (postId: BigNumber) =>
+    {
+        const postData = get(await getPostData({ postId }))
+        if (postData.post.timelineGroup.eq(TimelineGroup.Replies))
+            return postData.post.timelineId
+        return null
+    }
+    const result: BigNumber[] = [] 
+
+    let current = await next(postId)
+    for (let i = 0; i < 16; i++)
+    {
+        if (!current) break
+        result.unshift(current)
+        current = await next(current)
+    }
+
+    return result
 }

@@ -1,30 +1,84 @@
 import deployed from '$/plugins/hardhat/scripts/deployed.json'
 import type { App, Profile } from '$/plugins/hardhat/typechain-types'
 import { App__factory, Profile__factory } from "$/plugins/hardhat/typechain-types"
-import { globalDialogManager } from '$/routes/__layout.svelte'
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers"
 import { ethers } from "ethers"
+import { get, readable, writable } from 'svelte/store'
 import type { Writable } from 'svelte/store'
-import { get, writable } from 'svelte/store'
 import { asyncFunctionQueue } from '../common/asyncFunctionQueue'
-
-export const isContractsReady: Writable<boolean | 'wrongNetwork'> = writable(false)
-export const provider: Writable<Web3Provider | JsonRpcProvider> = writable(null)
-export const account: Writable<string> = writable(null)
-export let appContract: App = null
-export let profileContract: Profile = null
+import { globalDialogManager } from '$lib/kicho-ui/dialog'
 
 const eth = (window as any).ethereum
 
-export async function changeNetwork(targetChainId: number)
+export const isContractsReady: Writable<boolean | 'wrongNetwork'> = writable(false)
+export const provider: Writable<Web3Provider | JsonRpcProvider> = writable(null)
+export const account: Writable<string> = writable('loading')
+export let appContract: App = null
+export let profileContract: Profile = null
+
+export interface JsonRpcProviderInfo
 {
-    if (eth.networkVersion !== targetChainId)
+    chainName: string,
+    chainId: string,
+    nativeCurrency: { name: string, decimals: number, symbol: string },
+    rpcUrls: string[],
+    blockExplorerUrls: string[]
+}
+
+function createJsonRpcProviderInfo(value: JsonRpcProviderInfo)
+{
+    return value
+}
+
+export const jsonProviders =
+    Object.freeze({
+        Polygon: createJsonRpcProviderInfo({
+            chainName: 'Polygon(MATIC)',
+            chainId: ethers.utils.hexlify(137),
+            nativeCurrency: { name: 'MATIC', decimals: 18, symbol: 'MATIC' },
+            rpcUrls: ['https://polygon-rpc.com'],
+            blockExplorerUrls: ['https://polygonscan.com']
+        }),
+        LocalHost: createJsonRpcProviderInfo({
+            chainName: 'Localhost',
+            chainId: ethers.utils.hexlify(1337),
+            nativeCurrency: { name: 'Fake ETH', decimals: 18, symbol: 'Fake ETH' },
+            rpcUrls: ['http://localhost:8545'],
+            blockExplorerUrls: []
+        }),
+        Ethereum: createJsonRpcProviderInfo({
+            chainName: 'Ethereum Mainnet',
+            chainId: ethers.utils.hexlify(1),
+            nativeCurrency: { name: 'ETH', decimals: 18, symbol: 'ETH' },
+            rpcUrls: ['https://cloudflare-eth.com'],
+            blockExplorerUrls: ['https://etherscan.io']
+        })
+    } as const)
+
+export const currentProviderInfo = writable(jsonProviders.LocalHost)
+export const ethereumProviderInfo = writable(jsonProviders.Ethereum)
+export const ethereumJsonRpcProvider = readable<JsonRpcProvider>(
+    null,
+    (set) => ethereumProviderInfo.subscribe((value) => set(
+        new ethers.providers.JsonRpcProvider(value.rpcUrls[0],
+            {
+                chainId: parseInt(value.chainId, 16),
+                name: value.chainName
+            }
+        )
+    ))
+)
+
+export async function changeNetwork(target: JsonRpcProviderInfo)
+{
+    if (ethers.utils.hexlify(parseInt(eth.networkVersion)) !== target.chainId)
     {
+        console.log(target)
         try
         {
             await eth.request({
                 method: 'wallet_switchEthereumChain',
-                params: [{ chainId: ethers.utils.hexlify(targetChainId) }]
+                params: [{ chainId: target.chainId }]
             });
         }
         catch (err)
@@ -34,15 +88,7 @@ export async function changeNetwork(targetChainId: number)
             {
                 await eth.request({
                     method: 'wallet_addEthereumChain',
-                    params: [
-                        {
-                            chainName: 'Polygon Mainnet',
-                            chainId: ethers.utils.hexlify(targetChainId),
-                            nativeCurrency: { name: 'MATIC', decimals: 18, symbol: 'MATIC' },
-                            rpcUrls: ['https://polygon-rpc.com/'],
-                            blockExplorerUrls: ['https://polygonscan.com/']
-                        }
-                    ]
+                    params: [target]
                 });
             }
         }
@@ -60,6 +106,7 @@ const providerChange = asyncFunctionQueue(async (provider: Web3Provider | JsonRp
 
     console.log(chainId, provider)
 
+    /* console.log(':)', await get(ethereumJsonRpcProvider).lookupAddress('0xE272C9a263701DAFFe940FB4ecEACFa9b2c1217D')) */
 
     if (!(contractAddress = deployed[chainId]?.['App'] ?? null))
     {
@@ -81,10 +128,17 @@ provider.subscribe((value) => providerChange.call(value))
 
 account.subscribe((account) =>
 {
+    if (account === 'loading') return
+    const providerInfo = get(currentProviderInfo)
     provider.set(
         account ?
             new ethers.providers.Web3Provider(eth) :
-            new ethers.providers.JsonRpcProvider('https://polygon-rpc.com', { chainId: 137, name: 'polygon' })
+            new ethers.providers.JsonRpcProvider(providerInfo.rpcUrls[0],
+                {
+                    chainId: parseInt(providerInfo.chainId, 16),
+                    name: providerInfo.chainName
+                }
+            )
     )
 })
 
