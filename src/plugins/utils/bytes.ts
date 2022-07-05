@@ -15,7 +15,7 @@ export function bytesToUtf8(bytes: Uint8Array): string
 {
     if (bytes[0] === 0) return null
     const decoder = new TextDecoder('utf-8', { fatal: true })
-    return decoder.decode(bytes)
+    return decoder.decode(bytes).replace(/\0/g, '')
 }
 
 export function bytesToBytes32(bytes: Uint8Array = new Uint8Array()): Uint8Array
