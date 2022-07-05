@@ -73,6 +73,7 @@
         justify-items: stretch;
         background-color: var(--k-color-mode-body);
         padding: calc(var(--k-padding) * 2);
+        gap: calc(var(--k-padding) * 2);
     }
 
     header {
