@@ -1,7 +1,7 @@
 <script lang="ts">
     import { getPostData, TimelineGroup, TimelineId } from "$/plugins/api/app";
+    import { bytesToBytes32Array, utf8AsBytes32 } from "$/plugins/utils/bytes";
     import { encodeContent, parseContent } from "$/plugins/utils/content";
-    import { bytesAsUint256Array, stringAsUint256Array, stringAsUint256, bytesAsString } from "$/plugins/utils/bytes";
     import { account, appContract } from "$/plugins/wallet";
     import { waitContractUntil } from "$/plugins/wallet/listen";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
@@ -24,7 +24,7 @@
     $: content = contentText?.length > 0 ? parseContent(contentText) : null;
     $: encodedContent = content ? encodeContent(content) : null;
 
-    const maxLength = 31 * 8
+    const maxLength = 32 * 8;
     $: length = encodedContent?.itemsData.length ?? 0;
 
     let publishing = false;
@@ -35,6 +35,7 @@
                 content.mentions.push(get(await getPostData({ postId: BigNumber.from(timelineId.id) })).post.owner);
             while (content.mentions.length < 8) content.mentions.push(`0x${"0".repeat(40)}`);
             publishing = true;
+
             await waitContractUntil(
                 appContract,
                 appContract.filters.PostPublished(
@@ -42,8 +43,8 @@
                         await appContract.publishPost(
                             timelineId.group,
                             timelineId.id,
-                            stringAsUint256(params.title?.trim()),
-                            bytesAsUint256Array(content.itemsData),
+                            utf8AsBytes32(params.title?.trim()),
+                            bytesToBytes32Array(content.itemsData, 8),
                             content.mentions
                         )
                     ).blockNumber

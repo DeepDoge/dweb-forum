@@ -1,12 +1,11 @@
 <script lang="ts">
-    import { stringAsUint256 } from "$/plugins/utils/bytes";
-    import { profileContract } from "$/plugins/wallet";
+    import { utf8AsBytes32 } from "$/plugins/utils/bytes";
+    import { account, profileContract } from "$/plugins/wallet";
     import { catchContract } from "$/plugins/wallet/catch";
     import { waitContractUntil } from "$/plugins/wallet/listen";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import { createEventDispatcher } from "svelte";
-    import { account } from "$/plugins/wallet";
 
     const dispatcher = createEventDispatcher();
 
@@ -15,8 +14,8 @@
     async function setName() {
         claming = true;
         try {
-            await profileContract.setProfile(stringAsUint256("nickname"), stringAsUint256(nickname));
-            await waitContractUntil(profileContract, profileContract.filters.ProfileSet($account, stringAsUint256("nickname")), () => true);
+            await profileContract.setProfile(utf8AsBytes32("nickname"), utf8AsBytes32(nickname));
+            await waitContractUntil(profileContract, profileContract.filters.ProfileSet($account, utf8AsBytes32("nickname")), () => true);
             dispatcher("done");
         } catch (error) {
             catchContract(error);

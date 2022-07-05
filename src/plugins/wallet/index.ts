@@ -1,12 +1,12 @@
 import deployed from '$/plugins/hardhat/scripts/deployed.json'
 import type { App, Profile } from '$/plugins/hardhat/typechain-types'
 import { App__factory, Profile__factory } from "$/plugins/hardhat/typechain-types"
+import { globalDialogManager } from '$lib/kicho-ui/dialog'
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers"
 import { ethers } from "ethers"
-import { get, readable, writable } from 'svelte/store'
 import type { Writable } from 'svelte/store'
+import { get, readable, writable } from 'svelte/store'
 import { asyncFunctionQueue } from '../utils/asyncFunctionQueue'
-import { globalDialogManager } from '$lib/kicho-ui/dialog'
 
 const eth = (window as any).ethereum
 

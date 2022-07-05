@@ -15,7 +15,14 @@ contract App {
         return timelines[group][id].length;
     }
 
-    event TimelineAddPost(uint256 indexed timelineGroup, uint256 indexed timelineId, uint256 postId, address owner, uint256 timelineLength, uint256 timestamp);
+    event TimelineAddPost(
+        uint256 indexed timelineGroup,
+        uint256 indexed timelineId,
+        uint256 postId,
+        address owner,
+        uint256 timelineLength,
+        uint256 timestamp
+    );
 
     function addPostToTimeline(
         uint256 timelineGroup,
@@ -48,8 +55,8 @@ contract App {
         uint256 timelineId;
         uint256 timelinePostIndex;
         uint256 time;
-        uint256 title;
-        uint256[8] content;
+        bytes32 title;
+        bytes32[8] content;
         address[8] mentions;
     }
 
@@ -71,8 +78,8 @@ contract App {
     function publishPost(
         uint256 timelineGroup,
         uint256 timelineId,
-        uint256 title,
-        uint256[8] calldata content,
+        bytes32 title,
+        bytes32[8] calldata content,
         address[8] calldata mentions
     ) external {
         require(timelineGroup > LAST_INTERNAL_TIMELINE_GROUP, "Can't post on internal timeline group.");
@@ -111,17 +118,17 @@ contract App {
     mapping(uint256 => PostHistory[]) public postHistory;
     struct PostHistory {
         uint256 time;
-        uint256 title;
-        uint256[8] content;
+        bytes32 title;
+        bytes32[8] content;
         address[8] mentions;
     }
 
-    event PostEdit(uint256 indexed postId, uint256 title, uint256[8] content, address[8] mentions, uint256 time);
+    event PostEdit(uint256 indexed postId, bytes32 title, bytes32[8] content, address[8] mentions, uint256 time);
 
     function editPost(
         uint256 postId,
-        uint256 title,
-        uint256[8] calldata content,
+        bytes32 title,
+        bytes32[8] calldata content,
         address[8] calldata mentions
     ) external onlyPostOwner(postId) {
         {
@@ -146,13 +153,13 @@ contract App {
     ==========================
     */
 
-    mapping(uint256 => mapping(uint256 => uint256)) public postMetadatas;
-    event PostMetadataSet(uint256 indexed postIndex, uint256 indexed key, uint256 value, uint256 timestamp);
+    mapping(uint256 => mapping(bytes32 => bytes32)) public postMetadatas;
+    event PostMetadataSet(uint256 indexed postIndex, bytes32 indexed key, bytes32 value, uint256 timestamp);
 
     function setPostMetadata(
         uint256 postIndex,
-        uint256 key,
-        uint256 value
+        bytes32 key,
+        bytes32 value
     ) public onlyPostOwner(postIndex) {
         postMetadatas[postIndex][key] = value;
         emit PostMetadataSet(postIndex, key, value, block.timestamp);
@@ -167,21 +174,21 @@ contract App {
     struct PostData {
         uint256 id;
         Post post;
-        uint256[2][] metadata;
+        bytes32[2][] metadata;
     }
 
     function getTimelinePostData(
         uint256 timelineGroup,
         uint256 timelineId,
         uint256 postIndex,
-        uint256[2][] memory metadata
+        bytes32[2][] memory metadata
     ) external view returns (PostData memory) {
         uint256 postId = timelines[timelineGroup][timelineId][postIndex];
         for (uint256 i = 0; i < metadata.length; i++) metadata[i][1] = postMetadatas[postId][metadata[i][0]];
         return PostData(postId, posts[postId], metadata);
     }
 
-    function getPostData(uint256 postId, uint256[2][] memory metadata) external view returns (PostData memory) {
+    function getPostData(uint256 postId, bytes32[2][] memory metadata) external view returns (PostData memory) {
         for (uint256 i = 0; i < metadata.length; i++) metadata[i][1] = postMetadatas[postId][metadata[i][0]];
         return PostData(postId, posts[postId], metadata);
     }

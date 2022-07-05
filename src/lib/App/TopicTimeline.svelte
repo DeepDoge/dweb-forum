@@ -1,7 +1,7 @@
 <script lang="ts">
     import { TimelineGroup } from "$/plugins/api/app";
 
-    import { stringAsUint256 } from "$/plugins/utils/bytes";
+    import { utf8AsBigNumber256 } from "$/plugins/utils/bytes";
     import TimelinePage from "./TimelinePage.svelte";
 
     type TimelineProps = TimelinePage["$$prop_def"];
@@ -10,7 +10,7 @@
     }
 
     export let topic: $$Props["topic"];
-    $: topicId = stringAsUint256(topic);
+    $: topicId = utf8AsBigNumber256(topic);
     $: timelineId = { group: TimelineGroup.Topics, id: topicId };
 </script>
 

@@ -3,7 +3,7 @@ import { BigNumber } from "ethers"
 import type { Writable } from "svelte/store"
 import { get, writable } from "svelte/store"
 import { cachedPromise } from "../../../modules/cachedPromise"
-import { bigNumberArrayAsString, stringAsUint256 } from "../utils/bytes"
+import { bytesToBytes32, hexToUtf8, utf8AsBytes32 } from "../utils/bytes"
 import { account, appContract } from "../wallet"
 import { listenContract } from "../wallet/listen"
 
@@ -25,16 +25,16 @@ export type TimelineId = { group: BigNumberish, id: BigNumberish }
 
 export type Timeline = Awaited<ReturnType<typeof getTimeline>>
 
-function encodeMetadataKeys(keys: string[]): [BigNumber, BigNumber][]
+function encodeMetadataKeys(keys: string[]): [Uint8Array, Uint8Array][]
 {
-    return keys.map((key) => [stringAsUint256(key), BigNumber.from(0)])
+    return keys.map((key) => [utf8AsBytes32(key), bytesToBytes32(new Uint8Array())])
 }
 
-function decodeMetadataResponse(reponseMetadata: ReturnType<typeof encodeMetadataKeys>): PostData['metadata']
+function decodeMetadataResponse(reponseMetadata: [string, string][]): PostData['metadata']
 {
     const metadata: PostData['metadata'] = {}
     for (const item of reponseMetadata)
-        metadata[bigNumberArrayAsString([item[0]]), bigNumberArrayAsString([item[1]])]
+        metadata[hexToUtf8(item[0]), hexToUtf8(item[1])]
     return metadata
 }
 
@@ -87,7 +87,7 @@ export async function getTimeline(params: { timelineId: TimelineId })
                     params.timelineId.group,
                     params.timelineId.id,
                     loadOlderPivot,
-                    [[stringAsUint256('hidden'), 0]]
+                    [[utf8AsBytes32('hidden'), bytesToBytes32()]]
                 )
                 setPostData({ postData: { ...postData, metadata: decodeMetadataResponse(postData.metadata) } })
                 return postData.id
@@ -148,7 +148,7 @@ export async function getPostRoot({ postId }: { postId: BigNumber })
             return postData.post.timelineId
         return null
     }
-    const result: BigNumber[] = [] 
+    const result: BigNumber[] = []
 
     let current = await next(postId)
     for (let i = 0; i < 16; i++)

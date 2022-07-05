@@ -7,7 +7,7 @@
     import { onDestroy } from "svelte";
     import PublishPost from "./PublishPost.svelte";
 
-    export let publish = false
+    export let publish = false;
     export let timeline: Timeline;
     $: postIds = timeline?.postIds;
 
@@ -30,7 +30,7 @@
         timelineCache?.unlisten?.call(null);
         timeline?.listen?.call(null);
         timelineCache = timeline;
-        setTimeout(() => done = isNull) // so fucking weird that i have to do this
+        setTimeout(() => (done = isNull)); // so fucking weird that i have to do this
     }
     onDestroy(() => timelineCache?.unlisten?.call(null));
 
@@ -41,6 +41,7 @@
         setTimeout(() => (timeline = cache));
     }
 </script>
+
 <div class="timeline">
     <div class="posts">
         {#if publish && timeline?.timelineId.group > TimelineGroup.LastInternal}

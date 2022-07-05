@@ -1,12 +1,11 @@
 <script lang="ts">
     import { getPostRoot, getTimeline, Timeline as TimelineType, TimelineGroup, TimelineId } from "$/plugins/api/app";
-    import { bigNumberAsString, stringAsUint256Array } from "$/plugins/utils/bytes";
+    import { bigNumberAsUtf8 } from "$/plugins/utils/bytes";
     import { currentRoute } from "$/routes/_routing.svelte";
     import Post from "$lib/App/Post.svelte";
     import Timeline from "$lib/App/Timeline.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import { BigNumber } from "ethers";
-    import PublishPost from "./PublishPost.svelte";
 
     export let postId: BigNumber;
 
@@ -59,8 +58,8 @@
                         <svelte:fragment slot="before" let:postData>
                             {#if postData?.post.timelineGroup.eq(TimelineGroup.Topics)}
                                 <div class="topic-button">
-                                    <KButton size="normal" color="master" href="#{bigNumberAsString(postData.post.timelineId)}">
-                                        #{bigNumberAsString(postData.post.timelineId)}
+                                    <KButton size="normal" color="master" href="#{bigNumberAsUtf8(postData.post.timelineId)}">
+                                        #{bigNumberAsUtf8(postData.post.timelineId)}
                                     </KButton>
                                     <div>⌄</div>
                                 </div>

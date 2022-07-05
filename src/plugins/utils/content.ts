@@ -1,8 +1,8 @@
 import CID from "cids"
 import { BigNumber } from "ethers"
+import { bigNumberAsBytes, bytesToUtf8, utf8AsBytes } from "./bytes"
 import { isValidAddress } from "./isValidAddress"
 import { isValidIpfsHash } from "./isValidIpfsHash"
-import { bigNumberAsBytes, bytesAsString, stringAsBytes } from "./bytes"
 
 export const enum ContentType
 {
@@ -39,7 +39,7 @@ function encodeItem(item: ContentItem, bytes: Uint8Array): Uint8Array
 
 export function encodeContent(content: Content): ContentEncoded
 {
-    const itemsData: number[] = [] 
+    const itemsData: number[] = []
     for (const item of content.items)
     {
         switch (item.type)
@@ -52,7 +52,7 @@ export function encodeContent(content: Content): ContentEncoded
                 itemsData.push(...encodeItem(item, new Uint8Array([parseInt(item.data)])))
                 break
             case ContentType.Text:
-                itemsData.push(...encodeItem(item, stringAsBytes(item.data)))
+                itemsData.push(...encodeItem(item, utf8AsBytes(item.data)))
                 break
         }
     }
@@ -111,7 +111,7 @@ export function decodeContent(contentEncoded: ContentEncoded): Content
                             item.data = dataBytes[0].toString()
                             break
                         case ContentType.Text:
-                            item.data = bytesAsString(dataBytes)
+                            item.data = bytesToUtf8(dataBytes)
                             break
                     }
                     content.items.push(item)

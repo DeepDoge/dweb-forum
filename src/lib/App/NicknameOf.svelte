@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { getProfileData,ProfileInfo } from "$/plugins/api/profile";
+    import { getProfileData, ProfileInfo } from "$/plugins/api/profile";
     import { onDestroy } from "svelte";
 
     export let address: string = null;
     let nameInfo: ProfileInfo = null;
     $: name = nameInfo?.value;
-    let ensName: string = null
+    let ensName: string = null;
     // $: address && $ethereumJsonRpcProvider.lookupAddress(address).then((value) => ensName = value) || (ensName = null)
 
     $: address, onAddressChange();
@@ -21,7 +21,6 @@
 
     onDestroy(() => nameInfo?.unlisten?.call(null));
 </script>
-
 
 <span class="k-text-singleline" title={(name && $name?.trim()) || (ensName ?? "Nameless")}>
     {(name && $name?.trim()) || (ensName ?? "Nameless")}

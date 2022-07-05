@@ -1,7 +1,6 @@
 <script lang="ts">
-import { TimelineGroup } from "$/plugins/api/app";
-import TimelinePage from "$lib/App/TimelinePage.svelte";
-
+    import { TimelineGroup } from "$/plugins/api/app";
+    import TimelinePage from "$lib/App/TimelinePage.svelte";
 </script>
 
 <TimelinePage timelineId={{ group: TimelineGroup.AllPostsInGroup, id: TimelineGroup.Topics }}>

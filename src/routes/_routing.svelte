@@ -3,11 +3,11 @@
     const scrollCache = writable({ top: 0, left: 0 });
     const scrollingElement = document.scrollingElement ?? document.body;
     window.addEventListener("scroll", () => scrollCache.set({ top: scrollingElement.scrollTop, left: scrollingElement.scrollLeft }));
-    
+
     const pushState = history.pushState;
     history.pushState = function (...params) {
         if (params[2].toString() === location.href) return;
-        pushState.call(history, ...params)
+        pushState.call(history, ...params);
     };
 
     const pages = [A4, Index, Profile, Topic] as const;

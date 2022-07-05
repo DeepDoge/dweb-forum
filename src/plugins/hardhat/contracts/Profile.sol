@@ -2,10 +2,10 @@
 pragma solidity ^0.8.0;
 
 contract Profile {
-    mapping(address => mapping(uint256 => uint256)) public profiles;
-    event ProfileSet(address indexed owner, uint256 indexed key, uint256 value, uint256 timestamp);
+    mapping(address => mapping(bytes32 => bytes32)) public profiles;
+    event ProfileSet(address indexed owner, bytes32 indexed key, bytes32 value, uint256 timestamp);
 
-    function setProfile(uint256 key, uint256 value) external {
+    function setProfile(bytes32 key, bytes32 value) external {
         profiles[msg.sender][key] = value;
         emit ProfileSet(msg.sender, key, value, block.timestamp);
     }

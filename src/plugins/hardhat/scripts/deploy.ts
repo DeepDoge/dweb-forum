@@ -3,7 +3,6 @@
 //
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
-import { profile } from 'console'
 import fs from 'fs'
 import { ethers } from "hardhat"
 import path from 'path'
