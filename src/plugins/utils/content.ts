@@ -1,6 +1,5 @@
 import CID from "cids"
-import { BigNumber } from "ethers"
-import { bigNumberAsBytes, bytesToUtf8, utf8AsBytes } from "./bytes"
+import { bytesToUtf8, utf8AsBytes } from "./bytes"
 import { isValidAddress } from "./isValidAddress"
 import { isValidIpfsHash } from "./isValidIpfsHash"
 

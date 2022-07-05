@@ -24,7 +24,7 @@
     $: content = contentText?.length > 0 ? parseContent(contentText) : null;
     $: encodedContent = content ? encodeContent(content) : null;
 
-    const maxLength = 32 * 8;
+    const maxLength = 32 * 32;
     $: length = encodedContent?.itemsData.length ?? 0;
 
     let publishing = false;
@@ -50,7 +50,7 @@
                             timelineId.group,
                             timelineId.id,
                             utf8AsBytes32(params.title?.trim()),
-                            bytesToBytes32Array(content.itemsData, 8),
+                            bytesToBytes32Array(content.itemsData, 32),
                             content.mentions
                         )
                     ).blockNumber
