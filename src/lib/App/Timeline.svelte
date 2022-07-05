@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Timeline, TimelineGroup } from "$/plugins/api/app";
+    import { getTimeline, Timeline, TimelineGroup } from "$/plugins/api/app";
     import Post from "$lib/App/Post.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KIntersectionObserver from "$lib/kicho-ui/components/KIntersectionObserver.svelte";
@@ -35,10 +35,8 @@
     onDestroy(() => timelineCache?.unlisten?.call(null));
 
     $: newPostCount = timeline?.newPostCount;
-    function refresh() {
-        const cache = timeline;
-        timeline = null;
-        setTimeout(() => (timeline = cache));
+    async function refresh() {
+        timeline = await getTimeline({ timelineId: timeline.timelineId });
     }
 </script>
 
