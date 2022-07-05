@@ -5,7 +5,7 @@ import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers"
 import { ethers } from "ethers"
 import { get, readable, writable } from 'svelte/store'
 import type { Writable } from 'svelte/store'
-import { asyncFunctionQueue } from '../common/asyncFunctionQueue'
+import { asyncFunctionQueue } from '../utils/asyncFunctionQueue'
 import { globalDialogManager } from '$lib/kicho-ui/dialog'
 
 const eth = (window as any).ethereum

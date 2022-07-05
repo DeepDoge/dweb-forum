@@ -35,7 +35,7 @@
     import Index from "$/pages/index.svelte";
     import Profile, { profilePageTabsKeys } from "$/pages/profile.svelte";
     import Topic from "$/pages/topic.svelte";
-    import { isValidAddress } from "$/plugins/common/isValidAddress";
+    import { isValidAddress } from "$/plugins/utils/isValidAddress";
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
     import type { ExtractGeneric } from "$lib/kicho-ui/types/util";

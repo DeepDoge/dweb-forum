@@ -3,7 +3,7 @@ import { BigNumber } from "ethers"
 import type { Writable } from "svelte/store"
 import { get, writable } from "svelte/store"
 import { cachedPromise } from "../../../modules/cachedPromise"
-import { decodeBigNumberArrayToString, stringToBigNumber } from "../common/stringToBigNumber"
+import { decodeBigNumberArrayToString, stringToBigNumber } from "../utils/stringToBigNumber"
 import { account, appContract } from "../wallet"
 import { listenContract } from "../wallet/listen"
 

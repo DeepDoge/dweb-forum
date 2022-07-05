@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { isValidAddress } from "$/plugins/common/isValidAddress";
-    import { isValidIpfsHash } from "$/plugins/common/isValidIpfsHash";
+    import { isValidAddress } from "$/plugins/utils/isValidAddress";
+    import { isValidIpfsHash } from "$/plugins/utils/isValidIpfsHash";
     import { getIpfsUrl } from "$/plugins/ipfs/url";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
     import AvatarOf from "./AvatarOf.svelte";

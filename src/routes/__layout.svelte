@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { isValidAddress } from "$/plugins/common/isValidAddress";
+    import { isValidAddress } from "$/plugins/utils/isValidAddress";
     import { changeNetwork, currentProviderInfo, isContractsReady, jsonProviders, provider } from "$/plugins/wallet";
     import ClaimName from "$lib/App/ClaimName.svelte";
     import KApp from "$lib/kicho-ui/components/KApp.svelte";

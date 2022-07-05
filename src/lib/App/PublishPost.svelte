@@ -1,8 +1,8 @@
 <script lang="ts">
     import { getPostData,TimelineGroup,TimelineId } from "$/plugins/api/app";
-    import { isValidAddress } from "$/plugins/common/isValidAddress";
-    import { isValidIpfsHash } from "$/plugins/common/isValidIpfsHash";
-    import { encodeStringToBigNumberArray,stringToBigNumber } from "$/plugins/common/stringToBigNumber";
+    import { isValidAddress } from "$/plugins/utils/isValidAddress";
+    import { isValidIpfsHash } from "$/plugins/utils/isValidIpfsHash";
+    import { bytesToString, encodeStringToBigNumberArray,stringToBigNumber, stringToBytes } from "$/plugins/utils/stringToBigNumber";
     import { account,appContract } from "$/plugins/wallet";
     import { waitContractUntil } from "$/plugins/wallet/listen";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
@@ -10,6 +10,7 @@
     import KDialog,{ createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import CID from "cids";
+import { error } from "console";
     import { BigNumber } from "ethers";
     import { createEventDispatcher } from "svelte";
     import { get } from "svelte/store";
@@ -34,7 +35,9 @@
                 mentions.push(get(await getPostData({ postId: BigNumber.from(timelineId.id) })).post.owner);
 
             for (const part of parts) {
-                if (isValidIpfsHash(part) && part.startsWith("bafy")) content += new CID(part).toV0().toString();
+                console.log(bytesToString(new CID(part).bytes))
+                throw new Error(":)")
+                if (isValidIpfsHash(part)) content += bytesToString(new CID(part).bytes);
                 if (isValidAddress(part)) {
                     content += `0x${mentions.length}`;
                     mentions.push(part);

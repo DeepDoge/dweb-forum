@@ -1,7 +1,7 @@
 <script lang="ts">
     import { TimelineGroup } from "$/plugins/api/app";
 
-    import { stringToBigNumber } from "$/plugins/common/stringToBigNumber";
+    import { stringToBigNumber } from "$/plugins/utils/stringToBigNumber";
     import TimelinePage from "./TimelinePage.svelte";
 
     type TimelineProps = TimelinePage["$$prop_def"];

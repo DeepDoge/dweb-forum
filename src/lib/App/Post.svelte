@@ -1,7 +1,7 @@
 <script lang="ts">
     import { getPostData, getTimeline, PostData, Timeline, TimelineGroup, TimelineId } from "$/plugins/api/app";
-    import { second } from "$/plugins/common/second";
-    import { decodeBigNumberArrayToString } from "$/plugins/common/stringToBigNumber";
+    import { second } from "$/plugins/utils/second";
+    import { decodeBigNumberArrayToString } from "$/plugins/utils/stringToBigNumber";
     import { currentRoute } from "$/routes/_routing.svelte";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KChip from "$lib/kicho-ui/components/KChip.svelte";

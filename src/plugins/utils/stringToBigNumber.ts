@@ -1,12 +1,12 @@
 import { BigNumber } from "ethers";
 
-function BytesToString(bytes: Uint8Array)
+export function bytesToString(bytes: Uint8Array)
 {
     const utf8Decoder = new TextDecoder()
     return utf8Decoder.decode(bytes);
 }
 
-function stringToBytes(value: string)
+export function stringToBytes(value: string)
 {
     const utf8Encode = new TextEncoder();
     return utf8Encode.encode(value)
@@ -57,5 +57,5 @@ export function decodeBigNumberArrayToString(arr: BigNumber[])
 {
     const byteNumbers: number[] = []
     arr.filter((number) => number.gt(0)).forEach((bytes) => bigNumberToBytes(bytes).forEach((byte) => byteNumbers.push(byte)))
-    return BytesToString(Uint8Array.from(byteNumbers))
+    return bytesToString(Uint8Array.from(byteNumbers))
 }

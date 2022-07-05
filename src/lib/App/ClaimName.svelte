@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { stringToBigNumber } from "$/plugins/common/stringToBigNumber";
+    import { stringToBigNumber } from "$/plugins/utils/stringToBigNumber";
     import { profileContract } from "$/plugins/wallet";
     import { catchContract } from "$/plugins/wallet/catch";
     import { waitContractUntil } from "$/plugins/wallet/listen";
