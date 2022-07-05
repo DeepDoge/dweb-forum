@@ -7,6 +7,7 @@ import { ethers } from "ethers"
 import type { Writable } from 'svelte/store'
 import { get, readable, writable } from 'svelte/store'
 import { asyncFunctionQueue } from '../utils/asyncFunctionQueue'
+import { hexToUtf8 } from '../utils/bytes'
 
 const eth = (window as any).ethereum
 
@@ -55,7 +56,7 @@ export const jsonProviders =
         })
     } as const)
 
-export const currentProviderInfo = writable(jsonProviders.LocalHost)
+export const currentProviderInfo = writable(jsonProviders.Polygon)
 export const ethereumProviderInfo = writable(jsonProviders.Ethereum)
 export const ethereumJsonRpcProvider = readable<JsonRpcProvider>(
     null,
@@ -106,7 +107,8 @@ const providerChange = asyncFunctionQueue(async (provider: Web3Provider | JsonRp
 
     console.log(chainId, provider)
 
-    /* console.log(':)', await get(ethereumJsonRpcProvider).lookupAddress('0xE272C9a263701DAFFe940FB4ecEACFa9b2c1217D')) */
+/*     if (provider instanceof Web3Provider)
+        console.log(':)', await provider.lookupAddress('0xE272C9a263701DAFFe940FB4ecEACFa9b2c1217D')) */
 
     if (!(contractAddress = deployed[chainId]?.['App'] ?? null))
     {
