@@ -69,7 +69,7 @@
         }
     }
 
-    $: $page && onHashChange();
+    $: $page, onHashChange();
     async function onHashChange() {
         const hashValue = decodeURIComponent($page.url.hash.substring(1));
         const separatorIndex = hashValue.indexOf("#");

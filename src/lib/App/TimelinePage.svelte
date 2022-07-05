@@ -10,7 +10,7 @@
     export let timelineId: TimelineId;
     let timeline: TimelineType = null;
 
-    $: onTimelineIdChange() && timelineId;
+    $: timelineId, onTimelineIdChange();
     async function onTimelineIdChange() {
         timeline = null;
         if (!timelineId) return;

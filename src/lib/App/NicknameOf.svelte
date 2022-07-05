@@ -8,7 +8,7 @@
     let ensName: string = null
     // $: address && $ethereumJsonRpcProvider.lookupAddress(address).then((value) => ensName = value) || (ensName = null)
 
-    $: onAddressChange() && address;
+    $: address, onAddressChange();
     async function onAddressChange() {
         nameInfo = null;
 

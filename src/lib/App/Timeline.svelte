@@ -23,14 +23,14 @@
         }
         active = false;
     }
-    $: onTimelineChange() && timeline;
+    $: timeline, onTimelineChange();
     let timelineCache: typeof timeline;
-    async function onTimelineChange() {
+    function onTimelineChange() {
         const isNull = !timeline;
-        done = isNull;
         timelineCache?.unlisten?.call(null);
         timeline?.listen?.call(null);
         timelineCache = timeline;
+        setTimeout(() => done = isNull) // so fucking weird that i have to do this
     }
     onDestroy(() => timelineCache?.unlisten?.call(null));
 
@@ -41,7 +41,6 @@
         setTimeout(() => (timeline = cache));
     }
 </script>
-
 <div class="timeline">
     <div class="posts">
         {#if publish && timeline?.timelineId.group > TimelineGroup.LastInternal}
