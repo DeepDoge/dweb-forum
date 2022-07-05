@@ -37,7 +37,6 @@ export const getProfileData = cachedPromise<
             function unlisten()
             {
                 const listener = listeners[listenerKey]
-                console.log('unlisten profile info', listenerKey, listener.count)
                 if (--listener.count <= 0) listener.unlisten()
             }
 

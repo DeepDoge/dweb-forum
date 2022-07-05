@@ -52,8 +52,6 @@
         const state = (pageStates[route.page.name] = { ...pageStates[route.page.name], props: route.props });
         const scroll = routeScrolls[key];
 
-        console.log('route', route)
-
         // Scroll
         if (key !== keyCache) {
             if (routeCache) {

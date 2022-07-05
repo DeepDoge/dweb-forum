@@ -98,7 +98,6 @@ export function decodeContent(contentEncoded: ContentEncoded): Content
                 data.push(byte)
                 if (data.length === length)
                 {
-                    console.log(type, length, data)
                     state = State.Type
                     const dataBytes = new Uint8Array(data)
                     const item: ContentItem = { type, data: null }

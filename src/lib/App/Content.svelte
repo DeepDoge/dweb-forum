@@ -8,7 +8,6 @@
     import ProfileMiniCard from "./ProfileMiniCard.svelte";
 
     export let content: Content;
-    $: console.log(content);
 </script>
 
 {#each content?.items ?? [] as item, i (i)}
