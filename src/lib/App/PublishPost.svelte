@@ -1,7 +1,7 @@
 <script lang="ts">
     import { getPostData, TimelineGroup, TimelineId } from "$/plugins/api/app";
     import { encodeContent, parseContent } from "$/plugins/utils/content";
-    import { bytesAsUint256Array, stringAsUint256Array, stringAsUint256, bytesAsString } from "$/plugins/utils/string";
+    import { bytesAsUint256Array, stringAsUint256Array, stringAsUint256, bytesAsString } from "$/plugins/utils/bytes";
     import { account, appContract } from "$/plugins/wallet";
     import { waitContractUntil } from "$/plugins/wallet/listen";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";

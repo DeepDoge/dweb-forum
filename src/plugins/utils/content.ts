@@ -2,7 +2,7 @@ import CID from "cids"
 import { BigNumber } from "ethers"
 import { isValidAddress } from "./isValidAddress"
 import { isValidIpfsHash } from "./isValidIpfsHash"
-import { bigNumberAsBytes, bytesAsString, stringAsBytes } from "./string"
+import { bigNumberAsBytes, bytesAsString, stringAsBytes } from "./bytes"
 
 export const enum ContentType
 {

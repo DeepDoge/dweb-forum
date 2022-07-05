@@ -1,6 +1,6 @@
 <script lang="ts">
     import { getPostRoot, getTimeline, Timeline as TimelineType, TimelineGroup, TimelineId } from "$/plugins/api/app";
-    import { bigNumberAsString, stringAsUint256Array } from "$/plugins/utils/string";
+    import { bigNumberAsString, stringAsUint256Array } from "$/plugins/utils/bytes";
     import { currentRoute } from "$/routes/_routing.svelte";
     import Post from "$lib/App/Post.svelte";
     import Timeline from "$lib/App/Timeline.svelte";

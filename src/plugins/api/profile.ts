@@ -1,7 +1,7 @@
 import { cachedPromise } from "$modules/cachedPromise";
 import type { Writable } from "svelte/store";
 import { writable } from "svelte/store";
-import { bigNumberArrayAsString, stringAsUint256 } from "../utils/string";
+import { bigNumberArrayAsString, stringAsUint256 } from "../utils/bytes";
 import { profileContract } from "../wallet";
 import { listenContract } from "../wallet/listen";
 

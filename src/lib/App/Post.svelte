@@ -2,7 +2,7 @@
     import { getPostData, getTimeline, PostData, Timeline, TimelineGroup, TimelineId } from "$/plugins/api/app";
     import { decodeContent } from "$/plugins/utils/content";
     import { second } from "$/plugins/utils/second";
-    import { bigNumberArrayAsBytes, bigNumberArrayAsString, bigNumberAsString, stringAsUint256Array, stringAsUint256 } from "$/plugins/utils/string";
+    import { bigNumberArrayAsBytes, bigNumberArrayAsString, bigNumberAsString, stringAsUint256Array, stringAsUint256 } from "$/plugins/utils/bytes";
     import { currentRoute } from "$/routes/_routing.svelte";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KChip from "$lib/kicho-ui/components/KChip.svelte";

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { stringAsUint256 } from "$/plugins/utils/string";
+    import { stringAsUint256 } from "$/plugins/utils/bytes";
     import { profileContract } from "$/plugins/wallet";
     import { catchContract } from "$/plugins/wallet/catch";
     import { waitContractUntil } from "$/plugins/wallet/listen";
