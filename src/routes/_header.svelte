@@ -5,6 +5,7 @@
     import AddressOf from "$lib/App/AddressOf.svelte";
     import AvatarOf from "$lib/App/AvatarOf.svelte";
     import NicknameOf from "$lib/App/NicknameOf.svelte";
+    import Notifications from "$lib/App/Notifications.svelte";
     import Post from "$lib/App/Post.svelte";
     import Timeline from "$lib/App/Timeline.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
@@ -13,8 +14,6 @@
     import { currentRoute } from "./_routing.svelte";
 
     let height: number = 0;
-
-    const metionsTimelinePromise = getTimeline({ timelineId: { group: TimelineGroup.ProfileMentions, id: $account } });
 </script>
 
 <header style:--height={height} bind:clientHeight={height}>
@@ -37,23 +36,7 @@
             <KButton color="gradient" glow="gradient" glowMultiplier={0.5} on:click={() => connectWallet()}>Connect Wallet</KButton>
         {/if}
         {#if $account}
-            <KButton color="slave" radius="fab">
-                {#await metionsTimelinePromise}
-                    N...
-                {:then timeline}
-                    N: {get(timeline.length)}
-                    <KHoverMenu background direction="left">
-                        <b>Notifications</b>
-                        <Timeline {timeline} let:postIds>
-                            {#each postIds as postId (postId.toString())}
-                                <a href="#{$currentRoute.path}#{postId}">
-                                    <Post {postId} />
-                                </a>
-                            {/each}
-                        </Timeline>
-                    </KHoverMenu>
-                {/await}
-            </KButton>
+            <Notifications account={$account} />
         {/if}
         <KButton radius="fab" color={$currentRoute.path || $currentRoute.hash ? "mode-pop" : "master"} href="#">Home</KButton>
         <!-- <div class="account-balance k-text-singleline">Balance: <b><Balance /></b></div> -->
