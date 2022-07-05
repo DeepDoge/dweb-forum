@@ -7,13 +7,12 @@ import { ethers } from "ethers"
 import type { Writable } from 'svelte/store'
 import { get, readable, writable } from 'svelte/store'
 import { asyncFunctionQueue } from '../utils/asyncFunctionQueue'
-import { hexToUtf8 } from '../utils/bytes'
 
 const eth = (window as any).ethereum
 
 export const isContractsReady: Writable<boolean | 'wrongNetwork'> = writable(false)
 export const provider: Writable<Web3Provider | JsonRpcProvider> = writable(null)
-export const account: Writable<string> = writable('loading')
+export const account: Writable<string> = writable(null)
 export let appContract: App = null
 export let profileContract: Profile = null
 
@@ -130,7 +129,6 @@ provider.subscribe((value) => providerChange.call(value))
 
 account.subscribe((account) =>
 {
-    if (account === 'loading') return
     const providerInfo = get(currentProviderInfo)
     provider.set(
         account ?
