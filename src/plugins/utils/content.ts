@@ -2,11 +2,10 @@ import CID from "cids"
 import { BigNumber } from "ethers"
 import { isValidAddress } from "./isValidAddress"
 import { isValidIpfsHash } from "./isValidIpfsHash"
-import { bytesToString, bigNumberArrayToString, stringToBytes, bigNumberToString, stringToBigNumber, bigNumberToBytes } from "./string"
+import { bigNumberAsBytes, bytesAsString, stringAsBytes } from "./string"
 
 export const enum ContentType
 {
-    Null,
     Text,
     Mention,
     IpfsLink,
@@ -22,7 +21,7 @@ export interface Content
 export interface ContentEncoded
 {
     mentions: string[]
-    itemsData: string
+    itemsData: Uint8Array
 }
 
 export interface ContentItem
@@ -31,30 +30,34 @@ export interface ContentItem
     data: string
 }
 
-function encodeItem(item: ContentItem, bytes: Uint8Array): string
+function encodeItem(item: ContentItem, bytes: Uint8Array): Uint8Array
 {
-    let lengthString = bigNumberToString(BigNumber.from(bytes.length))
-    while (lengthString.length < 2) lengthString = `\0${lengthString}`
-    return `${bytesToString(new Uint8Array([item.type]))}${lengthString}${bytesToString(bytes)}`
+    let lengthBytes = bigNumberAsBytes(BigNumber.from(bytes.length))
+    while (lengthBytes.length < 2) lengthBytes = new Uint8Array([0, ...lengthBytes])
+    return new Uint8Array([...new Uint8Array([item.type]), ...lengthBytes, ...bytes])
 }
 
 export function encodeContent(content: Content): ContentEncoded
 {
-    const itemsData = content.items.map((item) =>
+    const itemsData: number[] = [] 
+    for (const item of content.items)
     {
         switch (item.type)
         {
             case ContentType.IpfsLink:
             case ContentType.IpfsImage:
-                return encodeItem(item, new CID(item.data).bytes)
+                itemsData.push(...encodeItem(item, new CID(item.data).toV0().multihash))
+                break
             case ContentType.Mention:
-                return encodeItem(item, new Uint8Array([parseInt(item.data)]))
+                itemsData.push(...encodeItem(item, new Uint8Array([parseInt(item.data)])))
+                break
             case ContentType.Text:
-                return encodeItem(item, stringToBytes(item.data))
+                itemsData.push(...encodeItem(item, stringAsBytes(item.data)))
+                break
         }
-    }).join('')
+    }
 
-    return { mentions: content.mentions, itemsData }
+    return { mentions: content.mentions, itemsData: new Uint8Array(itemsData) }
 }
 
 export function decodeContent(contentEncoded: ContentEncoded): Content
@@ -69,50 +72,51 @@ export function decodeContent(contentEncoded: ContentEncoded): Content
     }
 
     let type: ContentType
-    let lengthData: string = ''
+    let lengthData: number[] = []
     let length: number
-    let data: string = ''
+    let data: number[] = []
     let state: State = State.Type
 
-    for (const char of contentEncoded.itemsData)
+    for (const byte of contentEncoded.itemsData)
     {
         switch (state)
         {
             case State.Type:
                 state = State.Length
-                type = stringToBytes(char)[0]
+                type = byte
                 break
             case State.Length:
-                lengthData += char
+                lengthData.push(byte)
                 if (lengthData.length === 2)
                 {
                     state = State.Data
-                    length = stringToBigNumber(lengthData).toNumber()
-                    lengthData = ''
+                    length = BigNumber.from(new Uint8Array(lengthData)).toNumber()
+                    lengthData = []
                 }
                 break
             case State.Data:
-                data += char
+                data.push(byte)
                 if (data.length === length)
                 {
+                    console.log(type, length, data)
                     state = State.Type
+                    const dataBytes = new Uint8Array(data)
                     const item: ContentItem = { type, data: null }
                     switch (item.type)
                     {
                         case ContentType.IpfsLink:
                         case ContentType.IpfsImage:
-                            item.data = new CID(stringToBytes(data)).toV0().toString()
+                            item.data = new CID(0, 'dag-pb', dataBytes).toV0().toString()
                             break
                         case ContentType.Mention:
-                            item.data = stringToBytes(data)[0].toString()
+                            item.data = dataBytes[0].toString()
                             break
                         case ContentType.Text:
-                            item.data = data
+                            item.data = bytesAsString(dataBytes)
                             break
                     }
-                    console.log(item)
                     content.items.push(item)
-                    data = ''
+                    data = []
                 }
                 break
         }
@@ -123,6 +127,7 @@ export function decodeContent(contentEncoded: ContentEncoded): Content
 
 export function parseContent(contentText: string): Content
 {
+    contentText = contentText.trim()
     const mentions: string[] = []
     const parts = contentText.split(' ')
     const items: ContentItem[] = []

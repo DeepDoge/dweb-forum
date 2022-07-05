@@ -12,6 +12,7 @@
 </script>
 
 {#each content?.items ?? [] as item, i (i)}
+    {" "}
     {#if item.type === ContentType.Mention}
         <a data-address={content.mentions[item.data]} class="profile-inline" href="#{content.mentions[item.data]}">
             <AvatarOf address={content.mentions[item.data]} />
@@ -31,8 +32,15 @@
             </a>
         </div>
     {:else if item.type === ContentType.Text}
-        <pre>{item.data}</pre>
+        {#each item.data.split("\n") as part}
+            {#if part === "\n"}
+                <br />
+            {:else}
+                {part}
+            {/if}
+        {/each}
     {/if}
+    {" "}
 {/each}
 
 <style>

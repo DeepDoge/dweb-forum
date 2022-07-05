@@ -1,7 +1,7 @@
 <script lang="ts">
     import { decodeContent, encodeContent, parseContent } from "$/plugins/utils/content";
     import { isValidAddress } from "$/plugins/utils/isValidAddress";
-    import { bytesToString, stringToBigNumber, stringToBytes } from "$/plugins/utils/string";
+    import { bytesAsString, stringAsUint256, stringAsBytes } from "$/plugins/utils/string";
     import { changeNetwork, currentProviderInfo, isContractsReady, provider } from "$/plugins/wallet";
     import ClaimName from "$lib/App/ClaimName.svelte";
     import KApp from "$lib/kicho-ui/components/KApp.svelte";

@@ -1,17 +1,13 @@
 <script lang="ts">
-    import { getPostData,TimelineGroup,TimelineId } from "$/plugins/api/app";
-import { encodeContent, parseContent } from "$/plugins/utils/content";
-    import { isValidAddress } from "$/plugins/utils/isValidAddress";
-    import { isValidIpfsHash } from "$/plugins/utils/isValidIpfsHash";
-    import { bytesToString,stringTo256bitBigNumberArray,stringToBigNumber, stringToBytes } from "$/plugins/utils/string";
-    import { account,appContract } from "$/plugins/wallet";
+    import { getPostData, TimelineGroup, TimelineId } from "$/plugins/api/app";
+    import { encodeContent, parseContent } from "$/plugins/utils/content";
+    import { bytesAsUint256Array, stringAsUint256Array, stringAsUint256, bytesAsString } from "$/plugins/utils/string";
+    import { account, appContract } from "$/plugins/wallet";
     import { waitContractUntil } from "$/plugins/wallet/listen";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
-    import KDialog,{ createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
+    import KDialog, { createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
-    import CID from "cids";
-import { error } from "console";
     import { BigNumber } from "ethers";
     import { createEventDispatcher } from "svelte";
     import { get } from "svelte/store";
@@ -24,11 +20,17 @@ import { error } from "console";
     export let timelineId: TimelineId;
     export let reply = false;
 
+    let contentText: string;
+    $: content = contentText?.length > 0 ? parseContent(contentText) : null;
+    $: encodedContent = content ? encodeContent(content) : null;
+
+    const maxLength = 31 * 8
+    $: length = encodedContent?.itemsData.length ?? 0;
+
     let publishing = false;
     async function publish(params: { title: string; content: string }) {
         try {
-
-            const content = encodeContent(parseContent(params.content))
+            const content = encodeContent(parseContent(params.content));
             if (BigNumber.from(timelineId.group).eq(TimelineGroup.Replies))
                 content.mentions.push(get(await getPostData({ postId: BigNumber.from(timelineId.id) })).post.owner);
             while (content.mentions.length < 8) content.mentions.push(`0x${"0".repeat(40)}`);
@@ -40,8 +42,8 @@ import { error } from "console";
                         await appContract.publishPost(
                             timelineId.group,
                             timelineId.id,
-                            stringToBigNumber(params.title?.trim()),
-                            stringTo256bitBigNumberArray(content.itemsData),
+                            stringAsUint256(params.title?.trim()),
+                            bytesAsUint256Array(content.itemsData),
                             content.mentions
                         )
                     ).blockNumber
@@ -95,9 +97,12 @@ import { error } from "console";
                             background={false}
                             type="textarea"
                             name="content"
+                            bind:value={contentText}
                             placeholder={reply ? "Reply..." : "Say something..."}
                         />
                     </div>
+                    {length}/{maxLength}
+                    {((length / maxLength) * 100).toFixed(1)}%
                 </div>
             </div>
             <hr />

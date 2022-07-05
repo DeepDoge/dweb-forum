@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { stringToBigNumber } from "$/plugins/utils/string";
+    import { stringAsUint256 } from "$/plugins/utils/string";
     import { profileContract } from "$/plugins/wallet";
     import { catchContract } from "$/plugins/wallet/catch";
     import { waitContractUntil } from "$/plugins/wallet/listen";
@@ -15,8 +15,8 @@
     async function setName() {
         claming = true;
         try {
-            await profileContract.setProfile(stringToBigNumber("nickname"), stringToBigNumber(nickname));
-            await waitContractUntil(profileContract, profileContract.filters.ProfileSet($account, stringToBigNumber("nickname")), () => true);
+            await profileContract.setProfile(stringAsUint256("nickname"), stringAsUint256(nickname));
+            await waitContractUntil(profileContract, profileContract.filters.ProfileSet($account, stringAsUint256("nickname")), () => true);
             dispatcher("done");
         } catch (error) {
             catchContract(error);

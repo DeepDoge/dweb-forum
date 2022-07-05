@@ -3,7 +3,7 @@ import { BigNumber } from "ethers"
 import type { Writable } from "svelte/store"
 import { get, writable } from "svelte/store"
 import { cachedPromise } from "../../../modules/cachedPromise"
-import { bigNumberArrayToString, stringToBigNumber } from "../utils/string"
+import { bigNumberArrayAsString, stringAsUint256 } from "../utils/string"
 import { account, appContract } from "../wallet"
 import { listenContract } from "../wallet/listen"
 
@@ -27,14 +27,14 @@ export type Timeline = Awaited<ReturnType<typeof getTimeline>>
 
 function encodeMetadataKeys(keys: string[]): [BigNumber, BigNumber][]
 {
-    return keys.map((key) => [stringToBigNumber(key), BigNumber.from(0)])
+    return keys.map((key) => [stringAsUint256(key), BigNumber.from(0)])
 }
 
 function decodeMetadataResponse(reponseMetadata: ReturnType<typeof encodeMetadataKeys>): PostData['metadata']
 {
     const metadata: PostData['metadata'] = {}
     for (const item of reponseMetadata)
-        metadata[bigNumberArrayToString([item[0]]), bigNumberArrayToString([item[1]])]
+        metadata[bigNumberArrayAsString([item[0]]), bigNumberArrayAsString([item[1]])]
     return metadata
 }
 
@@ -87,7 +87,7 @@ export async function getTimeline(params: { timelineId: TimelineId })
                     params.timelineId.group,
                     params.timelineId.id,
                     loadOlderPivot,
-                    [[stringToBigNumber('hidden'), 0]]
+                    [[stringAsUint256('hidden'), 0]]
                 )
                 setPostData({ postData: { ...postData, metadata: decodeMetadataResponse(postData.metadata) } })
                 return postData.id

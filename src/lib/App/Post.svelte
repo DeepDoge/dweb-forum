@@ -2,7 +2,7 @@
     import { getPostData, getTimeline, PostData, Timeline, TimelineGroup, TimelineId } from "$/plugins/api/app";
     import { decodeContent } from "$/plugins/utils/content";
     import { second } from "$/plugins/utils/second";
-    import { bigNumberArrayToString, bigNumberToString, stringTo256bitBigNumberArray, stringToBigNumber } from "$/plugins/utils/string";
+    import { bigNumberArrayAsBytes, bigNumberArrayAsString, bigNumberAsString, stringAsUint256Array, stringAsUint256 } from "$/plugins/utils/string";
     import { currentRoute } from "$/routes/_routing.svelte";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KChip from "$lib/kicho-ui/components/KChip.svelte";
@@ -24,7 +24,7 @@
 
     let postData: Writable<PostData> = null;
     $: postContent = $postData
-        ? decodeContent({ itemsData: bigNumberArrayToString($postData.post.content), mentions: $postData.post.mentions })
+        ? decodeContent({ itemsData: bigNumberArrayAsBytes($postData.post.content), mentions: $postData.post.mentions })
         : null;
 
     let parentPostData: Writable<PostData> = null;
@@ -47,7 +47,7 @@
     }
 
     $: date = $second && ((postData && format(new Date($postData.post.time.toNumber() * 1000))) ?? null);
-    $: title = (postData && bigNumberToString($postData.post.title)) ?? null;
+    $: title = (postData && bigNumberAsString($postData.post.title)) ?? null;
     $: loading = postId && !postData;
     $: selected = /[0-9]/.test($currentRoute.hash) && postId?.eq($currentRoute.hash);
 </script>
@@ -75,8 +75,8 @@
                             >
                         </a>
                     {:else if $postData?.post.timelineGroup.eq(TimelineGroup.Topics)}
-                        <a href="#{bigNumberToString($postData.post.timelineId)}#{$postData.id}">
-                            <KChip>#{bigNumberToString($postData.post.timelineId)}</KChip>
+                        <a href="#{bigNumberAsString($postData.post.timelineId)}#{$postData.id}">
+                            <KChip>#{bigNumberAsString($postData.post.timelineId)}</KChip>
                         </a>
                     {/if}
                     <div>

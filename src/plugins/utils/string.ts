@@ -1,28 +1,18 @@
 import { BigNumber } from "ethers";
 
-export function bytesToString(bytes: Uint8Array)
+export function stringAsBytes(value: string): Uint8Array
 {
-    const utf8Decoder = new TextDecoder()
-    return utf8Decoder.decode(bytes);
+    return new Uint8Array(value.split('').map((char) => char.codePointAt(0)))
 }
 
-export function stringToBytes(value: string)
+export function bytesAsString(bytes: Uint8Array): string
 {
-    const utf8Encode = new TextEncoder();
-    return utf8Encode.encode(value)
+    return String.fromCodePoint(...bytes)
 }
 
-export function stringToBigNumber(value: string)
+export function bigNumberAsBytes(value: BigNumber): Uint8Array
 {
-    if (!value) return BigNumber.from(0)
-    const bytes = stringToBytes(value)
-    if (bytes.length > 32) throw new Error(`Max byte size is 32. Size of "${value}" is ${bytes.length}`) // 8 bit * 32 = 256 bits. so its same as uint256 in solidity
-    return BigNumber.from(bytes);
-}
-
-export function bigNumberToBytes(value: BigNumber)
-{
-    if (value.eq(0)) return null;
+    if (value.eq(0)) return new Uint8Array();
     let hex = value.toBigInt().toString(16);
     if (hex.length % 2) hex = "0" + hex;
 
@@ -33,18 +23,60 @@ export function bigNumberToBytes(value: BigNumber)
     return bytes
 }
 
-export function stringTo256bitBigNumberArray(value: string)
+export function bytesAsBigNumber(bytes: Uint8Array): BigNumber
 {
-    const bytes = stringToBytes(value)
+    return BigNumber.from(bytes)
+}
+
+export function decodeBytesFromBigNumber(value: BigNumber): Uint8Array
+{
+    return bigNumberAsBytes(value).slice(1)
+}
+
+export function encodeBytesToBigNumber(bytes: Uint8Array): BigNumber 
+{
+    if (bytes.length === 0) return BigNumber.from(0)
+    return BigNumber.from(new Uint8Array([1, ...bytes]))
+}
+
+export function stringAsBigNumber(value: string)
+{
+    if (!value) return BigNumber.from(0)
+    return encodeBytesToBigNumber(stringAsBytes(value));
+}
+
+export function stringAsUint256(value: string)
+{
+    if (!value) return BigNumber.from(0)
+    const bytes = stringAsBytes(value)
+    if (bytes.length > 32) throw new Error(`Max byte size is 32. Size of "${value}" is ${bytes.length}`) // 8 bit * 32 = 256 bits. so its same as uint256 in solidity
+    return encodeBytesToBigNumber(bytes);
+}
+
+export function bigNumberAsString(number: BigNumber): string
+{
+    if (number.eq(0)) return null
+    return bytesAsString(decodeBytesFromBigNumber(number))
+}
+
+export function stringAsUint256Array(value: string)
+{
+    const bytes = stringAsBytes(value)
+    return bytesAsUint256Array(bytes)
+}
+
+export function bytesAsUint256Array(bytes: Uint8Array): BigNumber[]
+{
     const result: BigNumber[] = []
-    const byteSize = 32; // 8 bit * 32 = 256 bits. so its same as uint256 in solidity
+    const byteSize = 31; // 8 bit * (31 + 1(bigNumberPrefix)) = 256 bits. so its same as uint256 in solidity
     for (let i = 0; true; i++)
     {
         const start = i * byteSize
         const desiredEnd = start + byteSize;
         const end = Math.min(bytes.length, desiredEnd)
-        result.push(BigNumber.from(bytes.slice(start, end)))
-        if (end !== desiredEnd) break
+        const slice = bytes.slice(start, end)
+        result.push(encodeBytesToBigNumber(slice))
+        if (end === bytes.length) break
     }
 
     while (result.length < 8) // in the contract length of uint256 array is 8. so its uint256[8]. we fill the slots left in the array with 0s 
@@ -53,15 +85,14 @@ export function stringTo256bitBigNumberArray(value: string)
     return result
 }
 
-export function bigNumberToString(number: BigNumber)
-{
-    if (number.eq(0)) return null
-    return bytesToString(bigNumberToBytes(number))
-}
-
-export function bigNumberArrayToString(arr: BigNumber[])
+export function bigNumberArrayAsBytes(arr: BigNumber[]): Uint8Array
 {
     const byteNumbers: number[] = []
-    arr.filter((number) => number.gt(0)).forEach((bytes) => bigNumberToBytes(bytes).forEach((byte) => byteNumbers.push(byte)))
-    return bytesToString(Uint8Array.from(byteNumbers))
+    arr.forEach((bytes) => decodeBytesFromBigNumber(bytes).forEach((byte) => byteNumbers.push(byte)))
+    return Uint8Array.from(byteNumbers)
+}
+
+export function bigNumberArrayAsString(arr: BigNumber[]): string
+{
+   return bytesAsString(bigNumberArrayAsBytes(arr))
 }
