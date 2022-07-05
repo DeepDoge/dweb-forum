@@ -30,9 +30,15 @@
     let publishing = false;
     async function publish(params: { title: string; content: string }) {
         try {
-            const content = encodeContent(parseContent(params.content));
-            if (BigNumber.from(timelineId.group).eq(TimelineGroup.Replies))
-                content.mentions.push(get(await getPostData({ postId: BigNumber.from(timelineId.id) })).post.owner);
+            const content = encodeContent(
+                parseContent(
+                    params.content,
+                    BigNumber.from(timelineId.group).eq(TimelineGroup.Replies)
+                        ? [get(await getPostData({ postId: BigNumber.from(timelineId.id) })).post.owner]
+                        : []
+                )
+            );
+
             while (content.mentions.length < 8) content.mentions.push(`0x${"0".repeat(40)}`);
             publishing = true;
 

@@ -32,9 +32,7 @@ export interface ContentItem
 
 function encodeItem(item: ContentItem, bytes: Uint8Array): Uint8Array
 {
-    let lengthBytes = bigNumberAsBytes(BigNumber.from(bytes.length))
-    while (lengthBytes.length < 2) lengthBytes = new Uint8Array([0, ...lengthBytes])
-    return new Uint8Array([...new Uint8Array([item.type]), ...lengthBytes, ...bytes])
+    return new Uint8Array([...new Uint8Array([item.type]), ...new Uint8Array([bytes.length]), ...bytes])
 }
 
 export function encodeContent(content: Content): ContentEncoded
@@ -72,7 +70,6 @@ export function decodeContent(contentEncoded: ContentEncoded): Content
     }
 
     let type: ContentType
-    let lengthData: number[] = []
     let length: number
     let data: number[] = []
     let state: State = State.Type
@@ -86,13 +83,8 @@ export function decodeContent(contentEncoded: ContentEncoded): Content
                 type = byte
                 break
             case State.Length:
-                lengthData.push(byte)
-                if (lengthData.length === 2)
-                {
-                    state = State.Data
-                    length = BigNumber.from(new Uint8Array(lengthData)).toNumber()
-                    lengthData = []
-                }
+                state = State.Data
+                length = byte
                 break
             case State.Data:
                 data.push(byte)
@@ -124,13 +116,12 @@ export function decodeContent(contentEncoded: ContentEncoded): Content
     return content
 }
 
-export function parseContent(contentText: string): Content
+export function parseContent(contentText: string, mentions: string[] = []): Content
 {
     contentText = contentText.trim()
-    const mentions: string[] = []
     const parts = contentText.split(' ')
     const items: ContentItem[] = []
-    for (const part of parts)
+    parts.forEach((part) =>
     {
         const index = part.indexOf(',')
         if (index >= 0 && index < part.length - 1 && index === part.lastIndexOf(','))
@@ -141,13 +132,13 @@ export function parseContent(contentText: string): Content
             {
                 case 'image':
                     if (isValidIpfsHash(data))
-                        items.push({ type: ContentType.IpfsImage, data })
-                    else throw new Error(`Invalid image ${data}`)
+                        return items.push({ type: ContentType.IpfsImage, data })
             }
         }
-        else if (isValidIpfsHash(part))
+
+        if (isValidIpfsHash(part))
             items.push({ type: ContentType.IpfsLink, data: part })
-        else if (isValidAddress(part))
+        else if (mentions.length < 8 && isValidAddress(part))
         {
             const index = mentions.length
             mentions.push(part)
@@ -156,7 +147,7 @@ export function parseContent(contentText: string): Content
         else if (items.length > 0 && items[items.length - 1].type === ContentType.Text)
             items[items.length - 1].data += ` ${part}`
         else items.push({ type: ContentType.Text, data: part })
-    }
+    })
 
     return { mentions, items }
 }
