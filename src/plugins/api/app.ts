@@ -3,7 +3,7 @@ import { BigNumber } from "ethers"
 import type { Writable } from "svelte/store"
 import { get, writable } from "svelte/store"
 import { cachedPromise } from "../../../modules/cachedPromise"
-import { decodeBigNumberArrayToString, stringToBigNumber } from "../utils/stringToBigNumber"
+import { bigNumberArrayToString, stringToBigNumber } from "../utils/string"
 import { account, appContract } from "../wallet"
 import { listenContract } from "../wallet/listen"
 
@@ -34,7 +34,7 @@ function decodeMetadataResponse(reponseMetadata: ReturnType<typeof encodeMetadat
 {
     const metadata: PostData['metadata'] = {}
     for (const item of reponseMetadata)
-        metadata[decodeBigNumberArrayToString([item[0]]), decodeBigNumberArrayToString([item[1]])]
+        metadata[bigNumberArrayToString([item[0]]), bigNumberArrayToString([item[1]])]
     return metadata
 }
 

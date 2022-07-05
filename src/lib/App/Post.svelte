@@ -1,7 +1,8 @@
 <script lang="ts">
     import { getPostData, getTimeline, PostData, Timeline, TimelineGroup, TimelineId } from "$/plugins/api/app";
+    import { decodeContent } from "$/plugins/utils/content";
     import { second } from "$/plugins/utils/second";
-    import { decodeBigNumberArrayToString } from "$/plugins/utils/stringToBigNumber";
+    import { bigNumberArrayToString, bigNumberToString, stringTo256bitBigNumberArray, stringToBigNumber } from "$/plugins/utils/string";
     import { currentRoute } from "$/routes/_routing.svelte";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KChip from "$lib/kicho-ui/components/KChip.svelte";
@@ -22,7 +23,9 @@
     export let postId: BigNumber;
 
     let postData: Writable<PostData> = null;
-    $: postContent = $postData ? decodeBigNumberArrayToString($postData.post.content) : null;
+    $: postContent = $postData
+        ? decodeContent({ itemsData: bigNumberArrayToString($postData.post.content), mentions: $postData.post.mentions })
+        : null;
 
     let parentPostData: Writable<PostData> = null;
 
@@ -44,12 +47,12 @@
     }
 
     $: date = $second && ((postData && format(new Date($postData.post.time.toNumber() * 1000))) ?? null);
-    $: title = (postData && decodeBigNumberArrayToString([$postData.post.title])) ?? null;
+    $: title = (postData && bigNumberToString($postData.post.title)) ?? null;
     $: loading = postId && !postData;
     $: selected = /[0-9]/.test($currentRoute.hash) && postId?.eq($currentRoute.hash);
 </script>
 
-<slot name="before" postData={$postData}></slot>
+<slot name="before" postData={$postData} />
 <article>
     <div class="post">
         <KBoxEffect color="mode" radius="rounded" background {loading} hideContent={loading} glow={selected ? "master" : false} {...$$props}>
@@ -72,8 +75,8 @@
                             >
                         </a>
                     {:else if $postData?.post.timelineGroup.eq(TimelineGroup.Topics)}
-                        <a href="#{decodeBigNumberArrayToString([$postData.post.timelineId])}#{$postData.id}">
-                            <KChip>#{decodeBigNumberArrayToString([$postData.post.timelineId])}</KChip>
+                        <a href="#{bigNumberToString($postData.post.timelineId)}#{$postData.id}">
+                            <KChip>#{bigNumberToString($postData.post.timelineId)}</KChip>
                         </a>
                     {/if}
                     <div>
@@ -88,7 +91,7 @@
                 {/if}
                 <div class="content k-text-multiline">
                     {#if $postData}
-                        <Content mentions={$postData.post.mentions} content={postContent} />
+                        <Content content={postContent} />
                     {:else}
                         ...
                     {/if}
@@ -110,7 +113,7 @@
         </KBoxEffect>
     </div>
 </article>
-<slot name="after" postData={$postData}></slot>
+<slot name="after" postData={$postData} />
 
 <style>
     article {

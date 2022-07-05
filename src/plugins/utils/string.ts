@@ -33,7 +33,7 @@ export function bigNumberToBytes(value: BigNumber)
     return bytes
 }
 
-export function encodeStringToBigNumberArray(value: string)
+export function stringTo256bitBigNumberArray(value: string)
 {
     const bytes = stringToBytes(value)
     const result: BigNumber[] = []
@@ -53,7 +53,13 @@ export function encodeStringToBigNumberArray(value: string)
     return result
 }
 
-export function decodeBigNumberArrayToString(arr: BigNumber[])
+export function bigNumberToString(number: BigNumber)
+{
+    if (number.eq(0)) return null
+    return bytesToString(bigNumberToBytes(number))
+}
+
+export function bigNumberArrayToString(arr: BigNumber[])
 {
     const byteNumbers: number[] = []
     arr.filter((number) => number.gt(0)).forEach((bytes) => bigNumberToBytes(bytes).forEach((byte) => byteNumbers.push(byte)))

@@ -1,8 +1,9 @@
 <script lang="ts">
     import { getPostData,TimelineGroup,TimelineId } from "$/plugins/api/app";
+import { encodeContent, parseContent } from "$/plugins/utils/content";
     import { isValidAddress } from "$/plugins/utils/isValidAddress";
     import { isValidIpfsHash } from "$/plugins/utils/isValidIpfsHash";
-    import { bytesToString, encodeStringToBigNumberArray,stringToBigNumber, stringToBytes } from "$/plugins/utils/stringToBigNumber";
+    import { bytesToString,stringTo256bitBigNumberArray,stringToBigNumber, stringToBytes } from "$/plugins/utils/string";
     import { account,appContract } from "$/plugins/wallet";
     import { waitContractUntil } from "$/plugins/wallet/listen";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
@@ -26,28 +27,12 @@ import { error } from "console";
     let publishing = false;
     async function publish(params: { title: string; content: string }) {
         try {
-            let content = "";
-            const parts = params.content?.split(/([\s,]+)/) ?? [];
 
-            const mentions: string[] = [];
-
+            const content = encodeContent(parseContent(params.content))
             if (BigNumber.from(timelineId.group).eq(TimelineGroup.Replies))
-                mentions.push(get(await getPostData({ postId: BigNumber.from(timelineId.id) })).post.owner);
-
-            for (const part of parts) {
-                console.log(bytesToString(new CID(part).bytes))
-                throw new Error(":)")
-                if (isValidIpfsHash(part)) content += bytesToString(new CID(part).bytes);
-                if (isValidAddress(part)) {
-                    content += `0x${mentions.length}`;
-                    mentions.push(part);
-                } else content += part;
-            }
-
-            while (mentions.length < 8) mentions.push(`0x${"0".repeat(40)}`);
-
+                content.mentions.push(get(await getPostData({ postId: BigNumber.from(timelineId.id) })).post.owner);
+            while (content.mentions.length < 8) content.mentions.push(`0x${"0".repeat(40)}`);
             publishing = true;
-
             await waitContractUntil(
                 appContract,
                 appContract.filters.PostPublished(
@@ -56,8 +41,8 @@ import { error } from "console";
                             timelineId.group,
                             timelineId.id,
                             stringToBigNumber(params.title?.trim()),
-                            encodeStringToBigNumberArray(content),
-                            mentions
+                            stringTo256bitBigNumberArray(content.itemsData),
+                            content.mentions
                         )
                     ).blockNumber
                 ),

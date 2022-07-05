@@ -1,7 +1,7 @@
 import { cachedPromise } from "$modules/cachedPromise";
 import type { Writable } from "svelte/store";
 import { writable } from "svelte/store";
-import { decodeBigNumberArrayToString, stringToBigNumber } from "../utils/stringToBigNumber";
+import { bigNumberArrayToString, stringToBigNumber } from "../utils/string";
 import { profileContract } from "../wallet";
 import { listenContract } from "../wallet/listen";
 
@@ -18,7 +18,7 @@ export const getProfileData = cachedPromise<
         ({ address, key }) => `${address}:${key}`,
         async ({ address, key }) =>
         {
-            const result = writable(decodeBigNumberArrayToString([await profileContract.profiles(address, stringToBigNumber(key))]))
+            const result = writable(bigNumberArrayToString([await profileContract.profiles(address, stringToBigNumber(key))]))
             const listenerKey = `${address}:${key}`
 
             function listen()
@@ -29,7 +29,7 @@ export const getProfileData = cachedPromise<
                         profileContract, profileContract.filters.ProfileSet(address, stringToBigNumber(key)),
                         async (owner, key, value, timestamp) =>
                         {
-                            result.set(decodeBigNumberArrayToString([value]))
+                            result.set(bigNumberArrayToString([value]))
                         })
                 }
             }

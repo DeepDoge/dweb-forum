@@ -1,54 +1,37 @@
 <script lang="ts">
-    import { isValidAddress } from "$/plugins/utils/isValidAddress";
-    import { isValidIpfsHash } from "$/plugins/utils/isValidIpfsHash";
     import { getIpfsUrl } from "$/plugins/ipfs/url";
+    import type { Content } from "$/plugins/utils/content";
+    import { ContentType } from "$/plugins/utils/content";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
     import AvatarOf from "./AvatarOf.svelte";
     import NicknameOf from "./NicknameOf.svelte";
     import ProfileMiniCard from "./ProfileMiniCard.svelte";
 
-    export let mentions: string[];
-    export let content: string;
-    $: array = content?.split(/(\s+)/) ?? [];
+    export let content: Content;
+    $: console.log(content);
 </script>
 
-{#each array as part, i (i)}
-    {#if isValidAddress(part)}
-        <a data-address={part} class="profile-inline" href="#{part}">
-            <AvatarOf address={part} />
+{#each content?.items ?? [] as item, i (i)}
+    {#if item.type === ContentType.Mention}
+        <a data-address={content.mentions[item.data]} class="profile-inline" href="#{content.mentions[item.data]}">
+            <AvatarOf address={content.mentions[item.data]} />
             <div class="no-select">
-                <NicknameOf address={part} />
-                <KHoverMenu>
-                    <ProfileMiniCard address={part} />
-                </KHoverMenu>
-            </div>
-        </a>
-    {:else if part.startsWith("0x") && /[0-9]/.test(part.substring("0x".length)) && mentions[parseInt(part.substring("0x".length))]}
-        <a
-            data-address={mentions[parseInt(part.substring("0x".length))]}
-            class="profile-inline"
-            href="#{mentions[parseInt(part.substring('0x'.length))]}"
-        >
-            <AvatarOf address={mentions[parseInt(part.substring("0x".length))]} />
-            <div class="no-select">
-                <NicknameOf address={mentions[parseInt(part.substring("0x".length))]} />
+                <NicknameOf address={content.mentions[item.data]} />
                 <KHoverMenu background>
-                    <ProfileMiniCard address={mentions[parseInt(part.substring("0x".length))]} />
+                    <ProfileMiniCard address={content.mentions[item.data]} />
                 </KHoverMenu>
             </div>
         </a>
-    {:else if isValidIpfsHash(part)}
-        <a target="_blank" href={getIpfsUrl(part)}>{part}</a>
-    {:else if part.startsWith("img,") && isValidIpfsHash(part.substring("img,".length))}
+    {:else if item.type === ContentType.IpfsLink}
+        <a target="_blank" href={getIpfsUrl(item.data)}>{item.data}</a>
+    {:else if item.type === ContentType.IpfsImage}
         <div class="image">
-            <a target="_blank" href={getIpfsUrl(part.substring("img,".length))}>
-                <img alt={part} src={getIpfsUrl(part.substring("img,".length))} />
+            <a target="_blank" href={getIpfsUrl(item.data)}>
+                <img alt={item.data} src={getIpfsUrl(item.data)} />
             </a>
         </div>
-    {:else if part === "\n"}
-        {part}<br />
-    {:else}
-        {part}
+    {:else if item.type === ContentType.Text}
+        <pre>{item.data}</pre>
     {/if}
 {/each}
 

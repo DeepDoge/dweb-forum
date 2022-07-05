@@ -1,10 +1,12 @@
 <script lang="ts">
+    import { decodeContent, encodeContent, parseContent } from "$/plugins/utils/content";
     import { isValidAddress } from "$/plugins/utils/isValidAddress";
-    import { changeNetwork, currentProviderInfo, isContractsReady, jsonProviders, provider } from "$/plugins/wallet";
+    import { bytesToString, stringToBigNumber, stringToBytes } from "$/plugins/utils/string";
+    import { changeNetwork, currentProviderInfo, isContractsReady, provider } from "$/plugins/wallet";
     import ClaimName from "$lib/App/ClaimName.svelte";
     import KApp from "$lib/kicho-ui/components/KApp.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
-    import KDialog, { createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
+    import KDialog from "$lib/kicho-ui/components/KDialog.svelte";
     import KModalHashRoute from "$lib/kicho-ui/components/KModalHashRoute.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import { globalDialogManager } from "$lib/kicho-ui/dialog";
