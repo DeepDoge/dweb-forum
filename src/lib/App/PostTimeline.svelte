@@ -86,6 +86,11 @@
         place-items: center;
     }
 
+    .root-post {
+        display: grid;
+        gap: calc(var(--k-padding) * 5)
+    }
+
     .root-post + .root-post::before {
         content: "";
         position: absolute;
