@@ -12,3 +12,7 @@ the [5658ff7](https://github.com/DeepDoge/web3-forum/commit/5658ff7d1aca824376bc
 - ipfs://bafybeias5sk4n5vs2isjqsoj5prqkclu6h75drxim5ydilza2rk2a6ygey
 - https://bafybeias5sk4n5vs2isjqsoj5prqkclu6h75drxim5ydilza2rk2a6ygey.ipfs.dweb.link
 - https://bafybeias5sk4n5vs2isjqsoj5prqkclu6h75drxim5ydilza2rk2a6ygey.ipfs.cf-ipfs.com
+
+# TODO
+To anyone looking at this I'm having trouble getting ENS names from Ethereum provider using `ethers` -> `JsonRpcProvider` -> `lookupAddress`.
+It only works with `Web3Provider` aka the web3 wallet like metamask. I need to get ENS name directly from JsonRpcProvider maybe via making the raw request myself but not sure how atm. It would be cool if anyone can help :)
