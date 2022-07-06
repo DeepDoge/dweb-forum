@@ -123,6 +123,7 @@ export async function getTimeline(params: { timelineId: TimelineId })
     const postIdsPublishedByCurrentSession: BigNumber[] = []
     const loadedPostIds: BigNumber[] = []
     const loading = writable(false)
+    let done = false
 
     const lengthData = await getTimelineLength({ timelineId: params.timelineId })
     const newPostCount = writable(BigNumber.from(0))
@@ -138,7 +139,6 @@ export async function getTimeline(params: { timelineId: TimelineId })
         newPostCount.set(params.timelineLength.sub(pivotIndex).sub(1).sub(postIdsPublishedByCurrentSession.length))
     })
 
-    let done = false
     let loadOlderPivot = pivotIndex
     async function loadOlder()
     {
