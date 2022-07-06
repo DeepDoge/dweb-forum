@@ -41,7 +41,7 @@ export const jsonProviders =
         }),
         LocalHost: createJsonRpcProviderInfo({
             chainName: 'Localhost',
-            chainId: ethers.utils.hexlify(1337),
+            chainId: ethers.utils.hexlify(5777),
             nativeCurrency: { name: 'Fake ETH', decimals: 18, symbol: 'Fake ETH' },
             rpcUrls: ['http://localhost:8545'],
             blockExplorerUrls: []

@@ -24,7 +24,7 @@
 
     let postData: Writable<PostData> = null;
     $: postContent = $postData
-        ? decodeContent({ itemsData: combineBytes($postData.post.content.map((s) => hexToBytes(s))), mentions: $postData.post.mentions })
+        ? decodeContent({ itemsData: hexToBytes($postData.content), mentions: $postData.post.mentions })
         : null;
 
     let parentPostData: Writable<PostData> = null;

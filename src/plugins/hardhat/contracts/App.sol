@@ -1,6 +1,8 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
+import "./SSTORE.sol";
+
 contract App {
     /* 
     ==========================
@@ -56,7 +58,7 @@ contract App {
         uint256 timelinePostIndex;
         uint256 time;
         bytes32 title;
-        bytes32[] content;
+        address contentPointer;
         address[8] mentions;
     }
 
@@ -79,14 +81,14 @@ contract App {
         uint256 timelineGroup,
         uint256 timelineId,
         bytes32 title,
-        bytes32[] calldata content,
+        bytes calldata content,
         address[8] calldata mentions
     ) external {
         require(timelineGroup > LAST_INTERNAL_TIMELINE_GROUP, "Can't post on internal timeline group.");
 
         uint256 postId = postCounter++;
         uint256 timelineLength = timelines[timelineGroup][timelineId].length;
-        posts[postId] = Post(msg.sender, timelineGroup, timelineId, timelineLength, block.timestamp, title, content, mentions);
+        posts[postId] = Post(msg.sender, timelineGroup, timelineId, timelineLength, block.timestamp, title, SSTORE2.write(content), mentions);
 
         addPostToTimeline(timelineGroup, timelineId, postId);
         addPostToTimeline(
@@ -119,28 +121,28 @@ contract App {
     struct PostHistory {
         uint256 time;
         bytes32 title;
-        bytes32[] content;
+        address contentPointer;
         address[8] mentions;
     }
 
-    event PostEdit(uint256 indexed postId, bytes32 title, bytes32[] content, address[8] mentions, uint256 time);
+    event PostEdit(uint256 indexed postId, bytes32 title, bytes content, address[8] mentions, uint256 time);
 
     function editPost(
         uint256 postId,
         bytes32 title,
-        bytes32[] calldata content,
+        bytes calldata content,
         address[8] calldata mentions
     ) external onlyPostOwner(postId) {
         {
             Post memory post = posts[postId];
-            postHistory[postId].push() = PostHistory(post.time, post.title, post.content, post.mentions);
+            postHistory[postId].push() = PostHistory(post.time, post.title, post.contentPointer, post.mentions);
         }
 
         {
             Post storage post = posts[postId];
             post.time = block.timestamp;
             post.title = title;
-            post.content = content;
+            post.contentPointer = SSTORE2.write(content);
             post.mentions = mentions;
         }
 
@@ -174,6 +176,7 @@ contract App {
     struct PostData {
         uint256 id;
         Post post;
+        bytes content;
         bytes32[2][] metadata;
     }
 
@@ -185,11 +188,11 @@ contract App {
     ) external view returns (PostData memory) {
         uint256 postId = timelines[timelineGroup][timelineId][postIndex];
         for (uint256 i = 0; i < metadata.length; i++) metadata[i][1] = postMetadatas[postId][metadata[i][0]];
-        return PostData(postId, posts[postId], metadata);
+        return PostData(postId, posts[postId], SSTORE2.read(posts[postId].contentPointer), metadata);
     }
 
     function getPostData(uint256 postId, bytes32[2][] memory metadata) external view returns (PostData memory) {
         for (uint256 i = 0; i < metadata.length; i++) metadata[i][1] = postMetadatas[postId][metadata[i][0]];
-        return PostData(postId, posts[postId], metadata);
+        return PostData(postId, posts[postId], SSTORE2.read(posts[postId].contentPointer), metadata);
     }
 }

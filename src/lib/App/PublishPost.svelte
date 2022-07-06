@@ -21,7 +21,7 @@
     export let reply = false;
 
     let contentText: string;
-    $: content = contentText?.length > 0 ? parseContent(contentText) : null;
+    $: content = contentText?.length > 0 ? parseContent($account, contentText) : null;
     $: encodedContent = content ? encodeContent(content) : null;
     $: length = encodedContent?.itemsData.length ?? 0;
 
@@ -30,6 +30,7 @@
         try {
             const content = encodeContent(
                 parseContent(
+                    $account,
                     params.content,
                     BigNumber.from(timelineId.group).eq(TimelineGroup.Replies)
                         ? [get(await getPostData({ postId: BigNumber.from(timelineId.id) })).post.owner]
@@ -48,7 +49,7 @@
                             timelineId.group,
                             timelineId.id,
                             utf8AsBytes32(params.title?.trim()),
-                            bytesToBytes32Array(content.itemsData, 0),
+                            content.itemsData,
                             content.mentions
                         )
                     ).blockNumber
