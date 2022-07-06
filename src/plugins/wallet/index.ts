@@ -55,7 +55,7 @@ export const jsonProviders =
         })
     } as const)
 
-export const currentProviderInfo = writable(jsonProviders.LocalHost)
+export const currentProviderInfo = writable(jsonProviders.Polygon)
 export const ethereumProviderInfo = writable(jsonProviders.Ethereum)
 export const ethereumJsonRpcProvider = readable<JsonRpcProvider>(
     null,

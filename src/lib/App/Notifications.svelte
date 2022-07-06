@@ -22,7 +22,7 @@
         N...
     {:else}
         N: {$timelineLength}
-        <KHoverMenu radius="rounded" color="master" background direction="left">
+        <KHoverMenu radius="rounded" color="master" size="normal" background direction="left">
             <div class="notifications">
                 <b>Notifications</b>
                 <Timeline timeline={mentionsTimeline} let:postIds>
@@ -44,6 +44,6 @@
     }
 
     .notifications > b {
-        font-size: var(--k-font-x-larger);
+        font-size: var(--k-font-larger);
     }
 </style>

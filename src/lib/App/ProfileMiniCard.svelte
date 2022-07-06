@@ -30,6 +30,7 @@
             "avatar address";
         grid-template-columns: 2em 1fr;
         gap: var(--k-padding);
+        padding: calc(var(--k-padding) * 2);
     }
 
     .avatar {

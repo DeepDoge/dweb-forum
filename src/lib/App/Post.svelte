@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { getPostData, getTimeline, PostData, Timeline, TimelineGroup, TimelineId } from "$/plugins/api/app";
+    import { getPostData, getTimelineLength, PostData, TimelineGroup, TimelineId } from "$/plugins/api/app";
     import { bigNumberAsUtf8, combineBytes, hexToBytes, hexToUtf8 } from "$/plugins/utils/bytes";
     import { decodeContent } from "$/plugins/utils/content";
     import { second } from "$/plugins/utils/second";
@@ -32,18 +32,18 @@
     let repliesTimelineId: TimelineId;
     $: repliesTimelineId = { group: TimelineGroup.Replies, id: postId };
 
-    let repliesTimeline: Timeline = null;
-    $: repliesLength = repliesTimeline?.length;
+    let repliesTimelineLengthData: Awaited<ReturnType<typeof getTimelineLength>> = null;
+    $: repliesLength = repliesTimelineLengthData?.length;
 
     $: postId?.toString() != $postData?.id.toString() && updatePost();
     async function updatePost() {
         postData = null;
-        repliesTimeline = null;
+        repliesTimelineLengthData = null;
         parentPostData = null;
         if (postId.lt(0)) return;
         postData = await getPostData({ postId });
         if ($postData.post.timelineGroup.eq(TimelineGroup.Replies)) parentPostData = await getPostData({ postId: $postData.post.timelineId });
-        repliesTimeline = await getTimeline({ timelineId: repliesTimelineId });
+        repliesTimelineLengthData = await getTimelineLength({ timelineId: repliesTimelineId });
     }
 
     $: date = $second && ((postData && format(new Date($postData.post.time.toNumber() * 1000))) ?? null);
