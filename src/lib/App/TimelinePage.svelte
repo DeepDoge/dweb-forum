@@ -72,7 +72,6 @@
         align-items: stretch;
         justify-items: stretch;
         background-color: var(--k-color-mode-body);
-        padding: calc(var(--k-padding) * 2);
         gap: calc(var(--k-padding) * 2);
     }
 
@@ -86,9 +85,9 @@
         background-color: var(--k-color-mode-body);
     }
 
-    .posts {
+    .timeline, 
+    .post .posts {
         padding: calc(var(--k-padding) * 2);
-        scroll-padding: calc(var(--k-padding) * 2);
     }
 
     .sticky {
@@ -100,6 +99,7 @@
     .post .sticky {
         display: grid;
         grid-template-rows: auto 1fr;
+        height: 100vh;
     }
 
     .post.fixed {
@@ -116,6 +116,7 @@
     .post .posts {
         height: 100%;
         overflow-y: auto;
+        scroll-padding: calc(var(--k-padding) * 2);
     }
 
     .post .posts::after {

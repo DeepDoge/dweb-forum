@@ -56,7 +56,7 @@ contract App {
         uint256 timelinePostIndex;
         uint256 time;
         bytes32 title;
-        bytes32[32] content;
+        bytes32[] content;
         address[8] mentions;
     }
 
@@ -79,7 +79,7 @@ contract App {
         uint256 timelineGroup,
         uint256 timelineId,
         bytes32 title,
-        bytes32[32] calldata content,
+        bytes32[] calldata content,
         address[8] calldata mentions
     ) external {
         require(timelineGroup > LAST_INTERNAL_TIMELINE_GROUP, "Can't post on internal timeline group.");
@@ -119,16 +119,16 @@ contract App {
     struct PostHistory {
         uint256 time;
         bytes32 title;
-        bytes32[32] content;
+        bytes32[] content;
         address[8] mentions;
     }
 
-    event PostEdit(uint256 indexed postId, bytes32 title, bytes32[32] content, address[8] mentions, uint256 time);
+    event PostEdit(uint256 indexed postId, bytes32 title, bytes32[] content, address[8] mentions, uint256 time);
 
     function editPost(
         uint256 postId,
         bytes32 title,
-        bytes32[32] calldata content,
+        bytes32[] calldata content,
         address[8] calldata mentions
     ) external onlyPostOwner(postId) {
         {

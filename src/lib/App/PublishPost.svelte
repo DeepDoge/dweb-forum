@@ -23,8 +23,6 @@
     let contentText: string;
     $: content = contentText?.length > 0 ? parseContent(contentText) : null;
     $: encodedContent = content ? encodeContent(content) : null;
-
-    const maxLength = 32 * 32;
     $: length = encodedContent?.itemsData.length ?? 0;
 
     let publishing = false;
@@ -50,7 +48,7 @@
                             timelineId.group,
                             timelineId.id,
                             utf8AsBytes32(params.title?.trim()),
-                            bytesToBytes32Array(content.itemsData, 32),
+                            bytesToBytes32Array(content.itemsData, 0),
                             content.mentions
                         )
                     ).blockNumber
@@ -84,6 +82,7 @@
         class="publish-post"
         class:publishing
         class:reply
+        class:empty={!contentText}
     >
         <KBoxEffect color="mode" background radius="rounded">
             <div class="fields">
@@ -107,9 +106,10 @@
                             bind:value={contentText}
                             placeholder={reply ? "Reply..." : "Say something..."}
                         />
+                        <div class="byte-size">
+                            {length} bytes
+                        </div>
                     </div>
-                    {length}/{maxLength}
-                    {((length / maxLength) * 100).toFixed(1)}%
                 </div>
             </div>
             <hr />
@@ -162,11 +162,15 @@
         gap: calc(var(--k-padding) * 2);
     }
 
-    .reply:not(:focus-within):not(.publishing) .actions,
-    .reply:not(:focus-within):not(.publishing) hr {
+    .byte-size {
+        font-size: var(--k-font-smaller);
+    }
+
+    .reply:not(:focus-within):not(.publishing).empty .actions,
+    .reply:not(:focus-within):not(.publishing).empty hr {
         display: none;
     }
-    .reply:not(:focus-within):not(.publishing) .field {
+    .reply:not(:focus-within):not(.publishing).empty .field {
         max-height: 1.5em;
         overflow: hidden;
     }

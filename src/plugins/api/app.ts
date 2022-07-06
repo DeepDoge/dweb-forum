@@ -3,6 +3,7 @@ import { BigNumber } from "ethers"
 import type { Writable } from "svelte/store"
 import { get, writable } from "svelte/store"
 import { cachedPromise } from "../../../modules/cachedPromise"
+import type { TimelineAddPostEvent, TimelineAddPostEventFilter, TimelineAddPostEventObject } from "../hardhat/typechain-types/App"
 import { bytesToBytes32, hexToUtf8, utf8AsBytes32 } from "../utils/bytes"
 import { account, appContract } from "../wallet"
 import { listenContract } from "../wallet/listen"
@@ -53,20 +54,89 @@ function setPostData({ postData }: { postData: PostData })
     getPostData._getCache(key) ? getPostData._getCache(key).set(postData) : getPostData._setCache(key, writable(postData))
 }
 
+export const getTimelinePostData = cachedPromise<{ timelineId: TimelineId, postIndex: BigNumber }, Writable<PostData>>(
+    (params) => `${params.timelineId.group}:${params.timelineId.id}:${params.postIndex}`,
+    async (params) =>
+    {
+        const postData = await appContract.getTimelinePostData(
+            params.timelineId.group,
+            params.timelineId.id,
+            params.postIndex,
+            [[utf8AsBytes32('hidden'), bytesToBytes32()]]
+        )
+        setPostData({ postData: { ...postData, metadata: decodeMetadataResponse(postData.metadata) } })
+
+        return getPostData({ postId: postData.id })
+    }
+)
+
+export const getTimelineLength = cachedPromise<{ timelineId: TimelineId }, { length: Writable<BigNumber>, listen(): void, unlisten(): void, lastEvent: Writable<TimelineAddPostEventObject> }>(
+    (params) => `${params.timelineId.group}:${params.timelineId.id}`,
+    async (params) =>
+    {
+        const length = writable(await appContract.getTimelineLength(params.timelineId.group, params.timelineId.id))
+        const lastEvent: Writable<TimelineAddPostEventObject> = writable(null)
+
+        let unlisten: () => void = null
+        let listenerCount = 0
+        async function listen()
+        {
+            if (listenerCount > 0) return
+
+            unlisten = listenContract(
+                appContract,
+                appContract.filters.TimelineAddPost(params.timelineId.group, params.timelineId.id),
+                (timelineGroup, timelineId, postId, owner, timelineLength, timestamp) =>
+                {
+                    if (timelineLength.lte(get(length))) return
+                    lastEvent.set({
+                        timelineGroup,
+                        timelineId,
+                        timelineLength,
+                        owner,
+                        postId,
+                        timestamp
+                    })
+                    length.set(timelineLength)
+                }
+            )
+            listenerCount++
+        }
+
+        return {
+            length,
+            listen,
+            unlisten()
+            {
+                if (listenerCount === 0) return
+                if (--listenerCount === 0)
+                    unlisten()
+            },
+            lastEvent
+        }
+    }
+)
+
 export async function getTimeline(params: { timelineId: TimelineId })
 {
-    const length = writable(await appContract.getTimelineLength(params.timelineId.group, params.timelineId.id))
-    const newPostCount = writable(BigNumber.from(0))
-
-    const pivotIndex = get(length).sub(1)
     const postIds = writable<BigNumber[]>([])
-
-    const loading = writable(false)
-
     const postIdsPublishedByCurrentSession: BigNumber[] = []
     const loadedPostIds: BigNumber[] = []
+    const loading = writable(false)
 
-    length.subscribe((length) => newPostCount.set(length.sub(pivotIndex).sub(1).sub(postIdsPublishedByCurrentSession.length)))
+    const lengthData = await getTimelineLength({ timelineId: params.timelineId })
+    const newPostCount = writable(BigNumber.from(0))
+    const pivotIndex = get(lengthData.length).sub(1)
+    lengthData.lastEvent.subscribe((params) => 
+    {
+        if (!params) return
+        if (params.owner.toLowerCase() === get(account)?.toLowerCase()) 
+        {
+            postIdsPublishedByCurrentSession.unshift(params.postId)
+            if (done) postIds.set([...postIdsPublishedByCurrentSession, ...loadedPostIds])
+        }
+        newPostCount.set(params.timelineLength.sub(pivotIndex).sub(1).sub(postIdsPublishedByCurrentSession.length))
+    })
 
     let done = false
     let loadOlderPivot = pivotIndex
@@ -83,13 +153,7 @@ export async function getTimeline(params: { timelineId: TimelineId })
             placeHolderPostIds.push(BigNumber.from((i + 1) * -1))
             promises.push((async () =>
             {
-                const postData = await appContract.getTimelinePostData(
-                    params.timelineId.group,
-                    params.timelineId.id,
-                    loadOlderPivot,
-                    [[utf8AsBytes32('hidden'), bytesToBytes32()]]
-                )
-                setPostData({ postData: { ...postData, metadata: decodeMetadataResponse(postData.metadata) } })
+                const postData = get(await getTimelinePostData({ timelineId: params.timelineId, postIndex: loadOlderPivot }))
                 return postData.id
             })())
 
@@ -106,31 +170,11 @@ export async function getTimeline(params: { timelineId: TimelineId })
         return true
     }
 
-    let unlisten: () => void = null
-    async function listen()
-    {
-        unlisten?.call(null)
-        unlisten = listenContract(
-            appContract,
-            appContract.filters.TimelineAddPost(params.timelineId.group, params.timelineId.id),
-            (timelineGroup, timelineId, postId, owner, timelineLength) =>
-            {
-                if (timelineLength.lte(get(length))) return
-                if (owner.toLowerCase() === get(account)) 
-                {
-                    postIdsPublishedByCurrentSession.unshift(postId)
-                    if (done) postIds.set([...postIdsPublishedByCurrentSession, ...loadedPostIds])
-                }
-                length.set(timelineLength)
-            }
-        )
-    }
-
     return {
         timelineId: params.timelineId,
-        length,
-        listen,
-        unlisten,
+        length: lengthData.length,
+        listen: lengthData.listen,
+        unlisten: lengthData.unlisten,
         newPostCount,
         postIds,
         loadOlder,
