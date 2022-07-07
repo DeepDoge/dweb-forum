@@ -1,6 +1,6 @@
 import CID from "cids"
 import { ethers } from "ethers"
-import { bytesToUtf8, utf8AsBytes } from "./bytes"
+import { bytesToUtf8, utf8AsBytes } from "./common/bytes"
 import { isValidIpfsHash } from "./isValidIpfsHash"
 
 export const enum ContentType

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { utf8AsBytes32 } from "$/tools/utils/bytes";
+    import { utf8AsBytes32 } from "$/tools/utils/common/bytes";
     import { account, profileContract } from "$/tools/wallet";
     import { catchContract } from "$/tools/wallet/catch";
     import { waitContractUntil } from "$/tools/wallet/listen";

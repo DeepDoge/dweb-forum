@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { blankImageData } from "$/tools/utils/blankImage";
+    import { blankImageData } from "$/tools/utils/common/blankImage";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KChip from "$lib/kicho-ui/components/KChip.svelte";
     import jazzicon from "@metamask/jazzicon";

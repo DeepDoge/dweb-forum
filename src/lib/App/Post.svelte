@@ -1,6 +1,6 @@
 <script lang="ts">
     import { getPostData, getTimelineLength, PostData, TimelineGroup, TimelineId } from "$/tools/api/app";
-    import { bigNumberAsUtf8, combineBytes, hexToBytes, hexToUtf8 } from "$/tools/utils/bytes";
+    import { bigNumberAsUtf8, combineBytes, hexToBytes, hexToUtf8 } from "$/tools/utils/common/bytes";
     import { decodeContent } from "$/tools/utils/content";
     import { second } from "$/tools/utils/second";
     import { currentRoute } from "$/routes/_routing.svelte";
