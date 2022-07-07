@@ -35,10 +35,10 @@
     import Index from "$/pages/index.svelte";
     import Profile, { profilePageTabsKeys } from "$/pages/profile.svelte";
     import Topic from "$/pages/topic.svelte";
-    import { isValidAddress } from "$/plugins/utils/isValidAddress";
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
     import type { ExtractGeneric } from "$lib/kicho-ui/types/util";
+import { ethers } from "ethers";
     import { writable } from "svelte/store";
 
     const pageStates: Record<string, { props: Record<string, any> }> = {};
@@ -78,7 +78,7 @@
 
         if (!path) {
             setCurrentPage({ page: Index, path, pathArr, hash, props: {} });
-        } else if (isValidAddress(pathArr[0]) && profilePageTabsKeys.includes((pathArr[1] ?? "") as any)) {
+        } else if (ethers.utils.isAddress(pathArr[0]) && profilePageTabsKeys.includes((pathArr[1] ?? "") as any)) {
             setCurrentPage({ page: Profile, path, pathArr, hash, props: { address: pathArr[0], modeKey: pathArr[1] ?? ("" as any) } });
         } else {
             setCurrentPage({ page: Topic, path, pathArr, hash, props: { topic: path } });

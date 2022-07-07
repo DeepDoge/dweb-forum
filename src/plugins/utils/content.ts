@@ -1,5 +1,5 @@
 import CID from "cids"
-import { ethers } from "hardhat"
+import { ethers } from "ethers"
 import { bytesToUtf8, utf8AsBytes } from "./bytes"
 import { isValidIpfsHash } from "./isValidIpfsHash"
 

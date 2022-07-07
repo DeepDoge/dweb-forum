@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { isValidAddress } from "$/plugins/utils/isValidAddress";
     import { changeNetwork, currentProviderInfo, isContractsReady, provider } from "$/plugins/wallet";
     import ClaimName from "$lib/App/ClaimName.svelte";
     import KApp from "$lib/kicho-ui/components/KApp.svelte";
@@ -8,13 +7,14 @@
     import KModalHashRoute from "$lib/kicho-ui/components/KModalHashRoute.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import { globalDialogManager } from "$lib/kicho-ui/dialog";
+import { ethers } from "ethers";
     import Header from "./_header.svelte";
     import Routing, { currentRoute } from "./_routing.svelte";
 
     let searchInput: string;
     async function search() {
         if (searchInput.startsWith("#")) location.hash = searchInput.toLowerCase();
-        if (isValidAddress(searchInput)) location.hash = `#${searchInput}`;
+        if (ethers.utils.isAddress(searchInput)) location.hash = `#${searchInput}`;
     }
 </script>
 
