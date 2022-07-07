@@ -11,14 +11,14 @@ export function cachedPromise<P extends Record<string, any>, R extends object>(k
     })
     function setCache(key: string, value: R)
     {
-        if (caches[key]) 
+        const cache = getCache(key)
+        if (cache) 
         {
-            const cache = getCache(key)
             if (cache === value) return
             finalizer.unregister(cache)
         }
         caches[key] = new WeakSet([value])
-        finalizer.register(value)
+        finalizer.register(value, key)
     }
     function getCache(key: string)
     {
