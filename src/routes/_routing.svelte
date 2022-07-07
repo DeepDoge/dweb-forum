@@ -38,7 +38,7 @@
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
     import type { ExtractGeneric } from "$lib/kicho-ui/types/util";
-import { ethers } from "ethers";
+    import { ethers } from "ethers";
     import { writable } from "svelte/store";
 
     const pageStates: Record<string, { props: Record<string, any> }> = {};

@@ -1,9 +1,9 @@
-import { cachedPromise } from "$modules/cachedPromise";
-import type { Writable } from "svelte/store";
-import { writable } from "svelte/store";
-import { hexToUtf8, utf8AsBytes32 } from "../utils/bytes";
-import { profileContract } from "../wallet";
-import { listenContract } from "../wallet/listen";
+import { cachedPromise } from "$modules/cachedPromise"
+import type { Writable } from "svelte/store"
+import { writable } from "svelte/store"
+import { hexToUtf8, utf8AsBytes32 } from "../utils/bytes"
+import { profileContract } from "../wallet"
+import { listenContract } from "../wallet/listen"
 
 export interface ProfileInfo
 {

@@ -79,7 +79,7 @@ export async function changeNetwork(target: JsonRpcProviderInfo)
             await eth.request({
                 method: 'wallet_switchEthereumChain',
                 params: [{ chainId: target.chainId }]
-            });
+            })
         }
         catch (err)
         {
@@ -89,7 +89,7 @@ export async function changeNetwork(target: JsonRpcProviderInfo)
                 await eth.request({
                     method: 'wallet_addEthereumChain',
                     params: [target]
-                });
+                })
             }
         }
     }
@@ -106,8 +106,8 @@ const providerChange = asyncFunctionQueue(async (provider: Web3Provider | JsonRp
 
     console.log(chainId, provider)
 
-/*     if (provider instanceof Web3Provider)
-        console.log(':)', await provider.lookupAddress('0xE272C9a263701DAFFe940FB4ecEACFa9b2c1217D')) */
+    /*     if (provider instanceof Web3Provider)
+            console.log(':)', await provider.lookupAddress('0xE272C9a263701DAFFe940FB4ecEACFa9b2c1217D')) */
 
     if (!(contractAddress = deployed[chainId]?.['App'] ?? null))
     {

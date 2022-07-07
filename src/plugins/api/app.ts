@@ -43,7 +43,7 @@ export const getPostData = cachedPromise<{ postId: BigNumber }, Writable<PostDat
     (params) => params.postId.toString(),
     async (params) =>
     {
-        const response = await appContract.getPostData(params.postId, encodeMetadataKeys(['hidden']));
+        const response = await appContract.getPostData(params.postId, encodeMetadataKeys(['hidden']))
         return writable<PostData>({ ...response, metadata: decodeMetadataResponse(response.metadata) })
     }
 )

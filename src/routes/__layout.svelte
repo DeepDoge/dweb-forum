@@ -7,7 +7,7 @@
     import KModalHashRoute from "$lib/kicho-ui/components/KModalHashRoute.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import { globalDialogManager } from "$lib/kicho-ui/dialog";
-import { ethers } from "ethers";
+    import { ethers } from "ethers";
     import Header from "./_header.svelte";
     import Routing, { currentRoute } from "./_routing.svelte";
 

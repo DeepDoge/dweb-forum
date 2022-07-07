@@ -23,9 +23,7 @@
     export let postId: BigNumber;
 
     let postData: Writable<PostData> = null;
-    $: postContent = $postData
-        ? decodeContent({ itemsData: hexToBytes($postData.content), mentions: $postData.post.mentions })
-        : null;
+    $: postContent = $postData ? decodeContent({ itemsData: hexToBytes($postData.content), mentions: $postData.post.mentions }) : null;
 
     let parentPostData: Writable<PostData> = null;
 

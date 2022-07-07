@@ -88,7 +88,7 @@
 
     .root-post {
         display: grid;
-        gap: calc(var(--k-padding) * 5)
+        gap: calc(var(--k-padding) * 5);
     }
 
     .root-post + .root-post::before {

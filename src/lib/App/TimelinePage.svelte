@@ -85,7 +85,7 @@
         background-color: var(--k-color-mode-body);
     }
 
-    .timeline, 
+    .timeline,
     .post .posts {
         padding: calc(var(--k-padding) * 2);
     }

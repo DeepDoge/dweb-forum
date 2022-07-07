@@ -1,4 +1,4 @@
-import { BigNumber } from "ethers";
+import { BigNumber } from "ethers"
 
 export function utf8AsBytes(value: string): Uint8Array
 {
@@ -39,10 +39,10 @@ export function bytesToBytes32Array(bytes: Uint8Array, minLength: number): Uint8
 export function hexToBytes(hex: string): Uint8Array 
 {
     hex = hex.substring('0x'.length)
-    const byteArray: number[] = [];
+    const byteArray: number[] = []
     for (var i = 0; i < hex.length; i += 2)
-        byteArray.push(parseInt(hex.substring(i, i + 2), 16));
-    return new Uint8Array(byteArray);
+        byteArray.push(parseInt(hex.substring(i, i + 2), 16))
+    return new Uint8Array(byteArray)
 }
 
 export function hexToUtf8(hex: string): string 
@@ -68,7 +68,7 @@ export function utf8AsBigNumber256(value: string)
     if (!value) return BigNumber.from(0)
     const bytes = utf8AsBytes(value)
     if (bytes.length > 32) throw new Error(`Max byte size is 32. Size of "${value}" is ${bytes.length}`) // 8 bit * 32 = 256 bits. so its same as uint256 in solidity
-    return BigNumber.from(bytes);
+    return BigNumber.from(bytes)
 }
 
 export function bigNumberAsUtf8(number: BigNumber): string
