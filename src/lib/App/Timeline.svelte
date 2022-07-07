@@ -27,12 +27,12 @@
     let timelineCache: typeof timeline;
     function onTimelineChange() {
         const isNull = !timeline;
-        timelineCache?.unlisten?.call(null);
-        timeline?.listen?.call(null);
+        timelineCache?.lengthData.unlisten();
+        timeline?.lengthData.listen();
         timelineCache = timeline;
         setTimeout(() => (done = isNull)); // so fucking weird that i have to do this
     }
-    onDestroy(() => timelineCache?.unlisten?.call(null));
+    onDestroy(() => timelineCache?.lengthData.unlisten());
 
     $: newPostCount = timeline?.newPostCount;
     async function refresh() {

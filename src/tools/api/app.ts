@@ -172,9 +172,7 @@ export async function getTimeline(params: { timelineId: TimelineId })
 
     return {
         timelineId: params.timelineId,
-        length: lengthData.length,
-        listen: lengthData.listen,
-        unlisten: lengthData.unlisten,
+        lengthData,
         newPostCount,
         postIds,
         loadOlder,

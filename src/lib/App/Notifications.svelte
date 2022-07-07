@@ -8,7 +8,7 @@
 
     export let account: string;
     let mentionsTimeline: TImelineType = null;
-    $: timelineLength = mentionsTimeline?.length;
+    $: timelineLength = mentionsTimeline?.lengthData.length;
 
     $: account, onAccountChange();
     async function onAccountChange() {
