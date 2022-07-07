@@ -51,7 +51,7 @@ export const getPostData = cachedPromise<{ postId: BigNumber }, Writable<PostDat
 function setPostData({ postData }: { postData: PostData })
 {
     const key = postData.id.toString()
-    getPostData._getCache(key) ? getPostData._getCache(key).set(postData) : getPostData._setCache(key, writable(postData))
+    getPostData._cacheRecord.get(key) ? getPostData._cacheRecord.get(key).set(postData) : getPostData._cacheRecord.set(key, writable(postData))
 }
 
 export const getTimelinePostData = cachedPromise<{ timelineId: TimelineId, postIndex: BigNumber }, Writable<PostData>>(
