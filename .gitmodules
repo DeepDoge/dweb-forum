@@ -1,3 +1,6 @@
 [submodule "src/lib/kicho-ui"]
 	path = src/lib/kicho-ui
 	url = https://github.com/DeepDoge/kicho-ui.git
+[submodule "src/utils/common"]
+	path = src/utils/common
+	url = https://github.com/DeepDoge/typescript-util-tools.git

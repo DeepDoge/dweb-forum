@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { getIpfsUrl } from "$/tools/ipfs/url";
-    import type { Content } from "$/tools/utils/content";
-    import { ContentType } from "$/tools/utils/content";
+    import { getIpfsUrl } from "$/utils/ipfsUrl";
+    import type { Content } from "$/utils/content";
+    import { ContentType } from "$/utils/content";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
     import AvatarOf from "./AvatarOf.svelte";
     import NicknameOf from "./NicknameOf.svelte";
