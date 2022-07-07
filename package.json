@@ -11,13 +11,13 @@
     "postinstall": "npm run git:submodules:update ; npm run hardhat:compile",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
-    "hardhat:clean": "rm -rf src/plugins/hardhat/typechain && hardhat clean --config src/plugins/hardhat/hardhat.config.ts --tsconfig src/plugins/hardhat/tsconfig.json",
-    "hardhat:compile": "npm run hardhat:clean && hardhat compile --config src/plugins/hardhat/hardhat.config.ts --tsconfig src/plugins/hardhat/tsconfig.json",
-    "hardhat:node": "hardhat node --config src/plugins/hardhat/hardhat.config.ts --tsconfig src/plugins/hardhat/tsconfig.json --port 8546",
-    "hardhat:deploy:dev": "npm run hardhat:compile && hardhat run src/plugins/hardhat/scripts/deploy.ts --network hardhat --config src/plugins/hardhat/hardhat.config.ts --tsconfig src/plugins/hardhat/tsconfig.json",
-    "hardhat:deploy:local": "npm run hardhat:compile && hardhat run src/plugins/hardhat/scripts/deploy.ts --network localhost --config src/plugins/hardhat/hardhat.config.ts --tsconfig src/plugins/hardhat/tsconfig.json",
-    "hardhat:deploy:rinkeby": "npm run hardhat:compile && hardhat run src/plugins/hardhat/scripts/deploy.ts --network rinkeby --config src/plugins/hardhat/hardhat.config.ts --tsconfig src/plugins/hardhat/tsconfig.json",
-    "hardhat:deploy:polygon": "npm run hardhat:compile && hardhat run src/plugins/hardhat/scripts/deploy.ts --network polygon --config src/plugins/hardhat/hardhat.config.ts --tsconfig src/plugins/hardhat/tsconfig.json"
+    "hardhat:clean": "rm -rf src/tools/hardhat/typechain && hardhat clean --config src/tools/hardhat/hardhat.config.ts --tsconfig src/tools/hardhat/tsconfig.json",
+    "hardhat:compile": "npm run hardhat:clean && hardhat compile --config src/tools/hardhat/hardhat.config.ts --tsconfig src/tools/hardhat/tsconfig.json",
+    "hardhat:node": "hardhat node --config src/tools/hardhat/hardhat.config.ts --tsconfig src/tools/hardhat/tsconfig.json --port 8546",
+    "hardhat:deploy:dev": "npm run hardhat:compile && hardhat run src/tools/hardhat/scripts/deploy.ts --network hardhat --config src/tools/hardhat/hardhat.config.ts --tsconfig src/tools/hardhat/tsconfig.json",
+    "hardhat:deploy:local": "npm run hardhat:compile && hardhat run src/tools/hardhat/scripts/deploy.ts --network localhost --config src/tools/hardhat/hardhat.config.ts --tsconfig src/tools/hardhat/tsconfig.json",
+    "hardhat:deploy:rinkeby": "npm run hardhat:compile && hardhat run src/tools/hardhat/scripts/deploy.ts --network rinkeby --config src/tools/hardhat/hardhat.config.ts --tsconfig src/tools/hardhat/tsconfig.json",
+    "hardhat:deploy:polygon": "npm run hardhat:compile && hardhat run src/tools/hardhat/scripts/deploy.ts --network polygon --config src/tools/hardhat/hardhat.config.ts --tsconfig src/tools/hardhat/tsconfig.json"
   },
   "devDependencies": {
     "@fontsource/fira-mono": "^4.5.0",

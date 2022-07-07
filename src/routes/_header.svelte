@@ -1,7 +1,7 @@
 <script lang="ts">
     import KBoxEffect from "$/lib/kicho-ui/components/effects/KBoxEffect.svelte";
-    import { getTimeline, TimelineGroup } from "$/plugins/api/app";
-    import { account, connectWallet } from "$/plugins/wallet";
+    import { getTimeline, TimelineGroup } from "$/tools/api/app";
+    import { account, connectWallet } from "$/tools/wallet";
     import AddressOf from "$lib/App/AddressOf.svelte";
     import AvatarOf from "$lib/App/AvatarOf.svelte";
     import NicknameOf from "$lib/App/NicknameOf.svelte";

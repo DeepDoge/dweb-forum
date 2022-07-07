@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { changeNetwork, currentProviderInfo, isContractsReady, provider } from "$/plugins/wallet";
+    import { changeNetwork, currentProviderInfo, isContractsReady, provider } from "$/tools/wallet";
     import ClaimName from "$lib/App/ClaimName.svelte";
     import KApp from "$lib/kicho-ui/components/KApp.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";

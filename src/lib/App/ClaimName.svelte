@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { utf8AsBytes32 } from "$/plugins/utils/bytes";
-    import { account, profileContract } from "$/plugins/wallet";
-    import { catchContract } from "$/plugins/wallet/catch";
-    import { waitContractUntil } from "$/plugins/wallet/listen";
+    import { utf8AsBytes32 } from "$/tools/utils/bytes";
+    import { account, profileContract } from "$/tools/wallet";
+    import { catchContract } from "$/tools/wallet/catch";
+    import { waitContractUntil } from "$/tools/wallet/listen";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import { createEventDispatcher } from "svelte";

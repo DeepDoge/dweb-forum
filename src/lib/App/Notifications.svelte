@@ -3,7 +3,7 @@
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
     import Post from "./Post.svelte";
     import Timeline from "./Timeline.svelte";
-    import { getTimeline, Timeline as TImelineType, TimelineGroup } from "$/plugins/api/app";
+    import { getTimeline, Timeline as TImelineType, TimelineGroup } from "$/tools/api/app";
     import { currentRoute } from "$/routes/_routing.svelte";
 
     export let account: string;

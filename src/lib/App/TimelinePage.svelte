@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { getTimeline, Timeline as TimelineType, TimelineId } from "$/plugins/api/app";
+    import { getTimeline, Timeline as TimelineType, TimelineId } from "$/tools/api/app";
     import { currentRoute } from "$/routes/_routing.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import { BigNumber } from "ethers";

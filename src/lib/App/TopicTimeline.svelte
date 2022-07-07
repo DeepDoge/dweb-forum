@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { TimelineGroup } from "$/plugins/api/app";
+    import { TimelineGroup } from "$/tools/api/app";
 
-    import { utf8AsBigNumber256 } from "$/plugins/utils/bytes";
+    import { utf8AsBigNumber256 } from "$/tools/utils/bytes";
     import TimelinePage from "./TimelinePage.svelte";
 
     type TimelineProps = TimelinePage["$$prop_def"];

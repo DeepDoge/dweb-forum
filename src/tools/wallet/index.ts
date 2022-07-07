@@ -1,6 +1,6 @@
-import deployed from '$/plugins/hardhat/scripts/deployed.json'
-import type { App, Profile } from '$/plugins/hardhat/typechain-types'
-import { App__factory, Profile__factory } from "$/plugins/hardhat/typechain-types"
+import deployed from '$/tools/hardhat/scripts/deployed.json'
+import type { App, Profile } from '$/tools/hardhat/typechain-types'
+import { App__factory, Profile__factory } from "$/tools/hardhat/typechain-types"
 import { globalDialogManager } from '$lib/kicho-ui/dialog'
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers"
 import { ethers } from "ethers"

@@ -1,9 +1,9 @@
 <script lang="ts">
-    import { getPostData, TimelineGroup, TimelineId } from "$/plugins/api/app";
-    import { bytesToBytes32Array, utf8AsBytes32 } from "$/plugins/utils/bytes";
-    import { encodeContent, parseContent } from "$/plugins/utils/content";
-    import { account, appContract } from "$/plugins/wallet";
-    import { waitContractUntil } from "$/plugins/wallet/listen";
+    import { getPostData, TimelineGroup, TimelineId } from "$/tools/api/app";
+    import { bytesToBytes32Array, utf8AsBytes32 } from "$/tools/utils/bytes";
+    import { encodeContent, parseContent } from "$/tools/utils/content";
+    import { account, appContract } from "$/tools/wallet";
+    import { waitContractUntil } from "$/tools/wallet/listen";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KDialog, { createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";

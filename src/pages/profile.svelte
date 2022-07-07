@@ -11,7 +11,7 @@
 </script>
 
 <script lang="ts">
-    import { TimelineGroup } from "$/plugins/api/app";
+    import { TimelineGroup } from "$/tools/api/app";
     import { currentRoute } from "$/routes/_routing.svelte";
     import AddressOf from "$lib/App/AddressOf.svelte";
     import AvatarOf from "$lib/App/AvatarOf.svelte";
