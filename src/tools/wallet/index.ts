@@ -6,7 +6,7 @@ import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers"
 import { ethers } from "ethers"
 import type { Writable } from 'svelte/store'
 import { get, readable, writable } from 'svelte/store'
-import { asyncFunctionQueue } from '../utils/asyncFunctionQueue'
+import { asyncFunctionQueue } from '$/tools/utils/asyncFunctionQueue'
 
 const eth = (window as any).ethereum
 

@@ -2,11 +2,11 @@ import type { BigNumberish } from "ethers"
 import { BigNumber } from "ethers"
 import type { Writable } from "svelte/store"
 import { get, writable } from "svelte/store"
-import { cachedPromise } from "../../../modules/cachedPromise"
-import type { TimelineAddPostEventObject } from "../hardhat/typechain-types/App"
-import { bytesToBytes32, hexToUtf8, utf8AsBytes32 } from "../utils/bytes"
-import { account, appContract } from "../wallet"
-import { listenContract } from "../wallet/listen"
+import { cachedPromise } from "$/tools/utils/cachedPromise"
+import type { TimelineAddPostEventObject } from "$/tools/hardhat/typechain-types/App"
+import { bytesToBytes32, hexToUtf8, utf8AsBytes32 } from "$/tools/utils/bytes"
+import { account, appContract } from "$/tools/wallet"
+import { listenContract } from "$/tools/wallet/listen"
 
 export const enum TimelineGroup
 {
