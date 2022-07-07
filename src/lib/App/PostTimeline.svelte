@@ -53,7 +53,7 @@
         {/if}
         {#if repliesTimeline}
             {#each prefixPostIds as timelinePostId}
-                <a href="#{$currentRoute.path}#{timelinePostId}" bind:this={postElements[timelinePostId.toString()]} class="post root-post">
+                <a href={timelinePostId ? `#${$currentRoute.path}#${timelinePostId}` : null} bind:this={postElements[timelinePostId.toString()]} class="post root-post">
                     <Post postId={timelinePostId}>
                         <svelte:fragment slot="before" let:postData>
                             {#if postData?.post.timelineGroup.eq(TimelineGroup.Topics)}
@@ -71,7 +71,7 @@
             <b>Replies{$repliesTimelineLoading ? "..." : ":"}</b>
             <Timeline publish timeline={repliesTimeline} let:postIds>
                 {#each postIds as timelinePostId}
-                    <a href="#{$currentRoute.path}#{timelinePostId}" class="post" bind:this={postElements[timelinePostId.toString()]}>
+                    <a href={timelinePostId ? `#${$currentRoute.path}#${timelinePostId}` : null} class="post" bind:this={postElements[timelinePostId.toString()]}>
                         <Post postId={timelinePostId} />
                     </a>
                 {/each}

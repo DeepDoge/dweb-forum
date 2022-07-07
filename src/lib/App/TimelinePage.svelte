@@ -37,7 +37,7 @@
         </header>
         <Timeline publish {timeline} let:postIds>
             {#each postIds as postId (postId.toString())}
-                <a href="#{$currentRoute.path}#{postId}">
+                <a href={postId ? `#${$currentRoute.path}#${postId}` : null}>
                     <Post {postId} />
                 </a>
             {/each}
