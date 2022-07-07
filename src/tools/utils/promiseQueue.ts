@@ -1,6 +1,6 @@
 
 let counter = 0
-export function asyncFunctionQueue<F extends (...params: any) => Promise<any>>(func: F)
+export function promiseQueue<F extends (...params: any) => Promise<any>>(func: F)
 {
     const id = counter++
     const queue: QueueItem[] = []

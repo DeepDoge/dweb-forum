@@ -6,7 +6,7 @@ import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers"
 import { ethers } from "ethers"
 import type { Writable } from 'svelte/store'
 import { get, readable, writable } from 'svelte/store'
-import { asyncFunctionQueue } from '$/tools/utils/asyncFunctionQueue'
+import { promiseQueue } from '$/tools/utils/promiseQueue'
 
 const eth = (window as any).ethereum
 
@@ -95,7 +95,7 @@ export async function changeNetwork(target: JsonRpcProviderInfo)
     }
 }
 
-const providerChange = asyncFunctionQueue(async (provider: Web3Provider | JsonRpcProvider) =>
+const providerChange = promiseQueue(async (provider: Web3Provider | JsonRpcProvider) =>
 {
     console.log('update', provider)
     isContractsReady.set(false)
