@@ -41,7 +41,7 @@ function decodeMetadataResponse(reponseMetadata: [string, string][]): PostData['
 
 export const getPostData = cachedPromise<{ postId: BigNumber }, Writable<PostData>>(
     (params) => params.postId.toString(),
-    async (params) =>
+    async ({ params }) =>
     {
         const response = await appContract.getPostData(params.postId, encodeMetadataKeys(['hidden']))
         return writable<PostData>({ ...response, metadata: decodeMetadataResponse(response.metadata) })
@@ -56,7 +56,7 @@ function setPostData({ postData }: { postData: PostData })
 
 export const getTimelinePostData = cachedPromise<{ timelineId: TimelineId, postIndex: BigNumber }, Writable<PostData>>(
     (params) => `${params.timelineId.group}:${params.timelineId.id}:${params.postIndex}`,
-    async (params) =>
+    async ({ params }) =>
     {
         const postData = await appContract.getTimelinePostData(
             params.timelineId.group,
@@ -72,7 +72,7 @@ export const getTimelinePostData = cachedPromise<{ timelineId: TimelineId, postI
 
 export const getTimelineLength = cachedPromise<{ timelineId: TimelineId }, { length: Writable<BigNumber>, listen(): void, unlisten(): void, lastEvent: Writable<TimelineAddPostEventObject> }>(
     (params) => `${params.timelineId.group}:${params.timelineId.id}`,
-    async (params) =>
+    async ({ params }) =>
     {
         const length = writable(await appContract.getTimelineLength(params.timelineId.group, params.timelineId.id))
         const lastEvent: Writable<TimelineAddPostEventObject> = writable(null)
