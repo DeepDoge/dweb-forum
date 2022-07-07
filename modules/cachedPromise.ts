@@ -1,6 +1,6 @@
 const FinalizationRegistry = (window as any).FinalizationRegistry
 
-export function cachedPromise<P extends Record<string, any>, R extends object>(keyGetter: (params: P) => string, func: (params: P) => Promise<R>)
+export function cachedPromise<P extends Record<string, any>, R extends object>(keyGetter: (params: P) => string, promise: (params: P) => Promise<R>)
 {
     // Using WeakSet instead of WeakRef because WeakRef doesn't have full browser support yet.
     const caches: Record<string, WeakSet<R>> = {}
@@ -9,19 +9,34 @@ export function cachedPromise<P extends Record<string, any>, R extends object>(k
         console.log(`Finalizing cached promise: ${key}`)
         delete caches[key]
     })
+    function setCache(key: string, value: R)
+    {
+        if (caches[key]) 
+        {
+            const cache = getCache(key)
+            if (cache === value) return
+            finalizer.unregister(cache)
+        }
+        caches[key] = new WeakSet([value])
+        finalizer.register(value)
+    }
+    function getCache(key: string)
+    {
+        return caches[key]?.[0]
+    }
+
     const onGoingTasks: Record<string, Promise<R>> = {}
     async function task(params: P): Promise<R>
     {
         const key = keyGetter(params)
-        const cache = caches[key][0]
+        const cache = getCache(key)
         if (cache) return cache
 
         const onGoing = onGoingTasks[key]
         if (onGoing) return await onGoing
 
-        const result = await (onGoingTasks[key] = func(params))
-        caches[key] = new WeakSet([result])
-        finalizer.register(result, key)
+        const result = await (onGoingTasks[key] = promise(params))
+        setCache(key, result)
         delete onGoingTasks[key]
 
         return result
@@ -32,7 +47,7 @@ export function cachedPromise<P extends Record<string, any>, R extends object>(k
         _getCache(key: string): R
         _setCache(key: string, value: R): void
     } = task as any
-    taskWithInternalAccess._getCache = (key) => caches[key][0]
-    taskWithInternalAccess._setCache = (key, value) => caches[key] = new WeakSet([value])
+    taskWithInternalAccess._getCache = (key) => getCache(key)
+    taskWithInternalAccess._setCache = (key, value) => setCache(key, value)
     return taskWithInternalAccess
 }
