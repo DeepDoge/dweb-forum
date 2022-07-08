@@ -21,8 +21,7 @@ contract App {
         uint256 indexed timelineId,
         uint256 postId,
         address owner,
-        uint256 timelineLength,
-        uint256 timestamp
+        uint256 timelineLength
     );
 
     function addPostToTimeline(
@@ -32,7 +31,7 @@ contract App {
     ) private {
         uint256[] storage timeline = timelines[timelineGroup][timelineId];
         timeline.push() = postId;
-        emit TimelineAddPost(timelineGroup, timelineId, postId, msg.sender, timeline.length, block.timestamp);
+        emit TimelineAddPost(timelineGroup, timelineId, postId, msg.sender, timeline.length);
     }
 
     /* 
@@ -66,7 +65,7 @@ contract App {
     uint256 public constant TIMELINE_GROUP_TOPICS = 5;
     uint256 public constant LAST_DEFAULT_TIMELINE_GROUP = 5;
 
-    event PostPublished(uint256 indexed blockNumber, address indexed owner, uint256 postId);
+    event PostPublished(uint256 indexed blockNumber);
 
     Post[] public posts;
 
@@ -101,7 +100,7 @@ contract App {
             addPostToTimeline(TIMELINE_GROUP_PROFILE_MENTIONS, uint256(uint160(address(mentions[i]))), postId);
         }
 
-        emit PostPublished(block.number, msg.sender, postId);
+        emit PostPublished(block.number);
     }
 
     modifier onlyPostOwner(uint256 postId) {
@@ -138,7 +137,7 @@ contract App {
     */
 
     mapping(uint256 => mapping(bytes32 => bytes32)) public postMetadatas;
-    event PostMetadataSet(uint256 indexed postId, bytes32 indexed key, bytes32 value, uint256 timestamp);
+    event PostMetadataSet(uint256 indexed postId, bytes32 key, bytes32 value, uint256 blockNumber);
 
     function setPostMetadata(
         uint256 postId,
@@ -146,7 +145,7 @@ contract App {
         bytes32 value
     ) public onlyPostOwner(postId) {
         postMetadatas[postId][key] = value;
-        emit PostMetadataSet(postId, key, value, block.timestamp);
+        emit PostMetadataSet(postId, key, value, block.number);
     }
 
     /* 
