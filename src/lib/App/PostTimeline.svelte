@@ -10,7 +10,7 @@
     export let postId: BigNumber;
 
     let repliesTimelineId: TimelineId;
-    $: repliesTimelineId = postId ? { group: TimelineGroup.Replies, id: postId } : null;
+    $: repliesTimelineId = postId ? { group: TimelineGroup.Replies, key: postId } : null;
 
     let repliesTimeline: TimelineType = null;
     $: repliesTimelineLoading = repliesTimeline?.loading;
@@ -58,8 +58,8 @@
                         <svelte:fragment slot="before" let:postData>
                             {#if postData?.post.timelineGroup.eq(TimelineGroup.Topics)}
                                 <div class="topic-button">
-                                    <KButton size="normal" color="master" href="#{bigNumberAsUtf8(postData.post.timelineId)}">
-                                        #{bigNumberAsUtf8(postData.post.timelineId)}
+                                    <KButton size="normal" color="master" href="#{bigNumberAsUtf8(postData.post.timelineKey)}">
+                                        #{bigNumberAsUtf8(postData.post.timelineKey)}
                                     </KButton>
                                     <div>⌄</div>
                                 </div>

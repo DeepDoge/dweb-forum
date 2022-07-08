@@ -28,7 +28,7 @@
     let parentPostData: Writable<PostData> = null;
 
     let repliesTimelineId: TimelineId;
-    $: repliesTimelineId = { group: TimelineGroup.Replies, id: postId };
+    $: repliesTimelineId = { group: TimelineGroup.Replies, key: postId };
 
     let repliesTimelineLengthData: Awaited<ReturnType<typeof getTimelineLength>> = null;
     $: repliesLength = repliesTimelineLengthData?.length;
@@ -40,7 +40,7 @@
         parentPostData = null;
         if (postId.lt(0)) return;
         postData = await getPostData({ postId });
-        if ($postData.post.timelineGroup.eq(TimelineGroup.Replies)) parentPostData = await getPostData({ postId: $postData.post.timelineId });
+        if ($postData.post.timelineGroup.eq(TimelineGroup.Replies)) parentPostData = await getPostData({ postId: $postData.post.timelineKey });
         repliesTimelineLengthData = await getTimelineLength({ timelineId: repliesTimelineId });
     }
 
@@ -69,12 +69,12 @@
                         <a href="#{$currentRoute.path}#{$parentPostData.postId}">
                             <KChip color="slave">
                                 <div class="k-text-singleline">Reply to:</div>
-                                <NicknameOf address={$parentPostData.post.owner} /> @{$postData.post.timelineId}
+                                <NicknameOf address={$parentPostData.post.owner} /> @{$postData.post.timelineKey}
                             </KChip>
                         </a>
                     {:else if $postData?.post.timelineGroup.eq(TimelineGroup.Topics)}
-                        <a href="#{bigNumberAsUtf8($postData.post.timelineId)}#{$postData.postId}">
-                            <KChip>#{bigNumberAsUtf8($postData.post.timelineId)}</KChip>
+                        <a href="#{bigNumberAsUtf8($postData.post.timelineKey)}#{$postData.postId}">
+                            <KChip>#{bigNumberAsUtf8($postData.post.timelineKey)}</KChip>
                         </a>
                     {/if}
                     <div>

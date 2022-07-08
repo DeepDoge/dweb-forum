@@ -34,7 +34,7 @@
                     $account,
                     contentText,
                     BigNumber.from(timelineId.group).eq(TimelineGroup.Replies)
-                        ? [get(await getPostData({ postId: BigNumber.from(timelineId.id) })).post.owner]
+                        ? [get(await getPostData({ postId: BigNumber.from(timelineId.key) })).post.owner]
                         : []
                 )
             );
@@ -47,7 +47,7 @@
                     (
                         await appContract.publishPost(
                             timelineId.group,
-                            timelineId.id,
+                            timelineId.key,
                             utf8AsBytes32(titleText?.trim()),
                             content.itemsData,
                             content.mentions

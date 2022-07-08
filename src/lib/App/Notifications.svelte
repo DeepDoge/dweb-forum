@@ -13,7 +13,7 @@
     $: account, onAccountChange();
     async function onAccountChange() {
         mentionsTimeline = null;
-        mentionsTimeline = await getTimeline({ timelineId: { group: TimelineGroup.ProfileMentions, id: account } });
+        mentionsTimeline = await getTimeline({ timelineId: { group: TimelineGroup.ProfileMentions, key: account } });
     }
 </script>
 

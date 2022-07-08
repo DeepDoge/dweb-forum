@@ -25,7 +25,7 @@ export type PostData = Omit<Awaited<ReturnType<typeof appContract.getPostData>>,
     metadata: Record<string, string | BigNumber>
 }
 
-export type TimelineId = { group: BigNumberish, id: BigNumberish }
+export type TimelineId = { group: BigNumberish, key: BigNumberish }
 
 export type Timeline = Awaited<ReturnType<typeof getTimeline>>
 
@@ -58,12 +58,12 @@ function setPostData({ postData }: { postData: PostData })
 }
 
 export const getTimelinePostData = cachedPromise<{ timelineId: TimelineId, postIndex: BigNumber }, Writable<PostData>>(
-    (params) => `${params.timelineId.group}:${params.timelineId.id}:${params.postIndex}`,
+    (params) => `${params.timelineId.group}:${params.timelineId.key}:${params.postIndex}`,
     async ({ params }) =>
     {
         const postData = await appContract.getTimelinePostData(
             params.timelineId.group,
-            params.timelineId.id,
+            params.timelineId.key,
             params.postIndex,
             [[utf8AsBytes32('hidden'), bytesToBytes32()]]
         )
@@ -73,7 +73,7 @@ export const getTimelinePostData = cachedPromise<{ timelineId: TimelineId, postI
     }
 )
 
-type LastTimelineLengthEvent = Omit<TimelineAddPostEventObject, 'postId'> & { postId: BigNumber }
+type LastTimelineLengthEvent = TimelineAddPostEventObject
 export const getTimelineLength = cachedPromise<
     { timelineId: TimelineId },
     {
@@ -83,10 +83,10 @@ export const getTimelineLength = cachedPromise<
         lastEvent: Readable<LastTimelineLengthEvent>
     }
 >(
-    (params) => `${params.timelineId.group}:${params.timelineId.id}`,
+    (params) => `${params.timelineId.group}:${params.timelineId.key}`,
     async ({ params }) =>
     {
-        const length = writable(await appContract.getTimelineLength(params.timelineId.group, params.timelineId.id))
+        const length = writable(await appContract.getTimelineLength(params.timelineId.group, params.timelineId.key))
         const lastEvent: Writable<LastTimelineLengthEvent> = writable(null)
 
         let unlisten: () => void = null
@@ -97,12 +97,11 @@ export const getTimelineLength = cachedPromise<
 
             unlisten = listenContract(
                 appContract,
-                appContract.filters.TimelineAddPost(params.timelineId.group, params.timelineId.id),
-                (timelineGroup, timelineId, postId, owner, timelineLength) =>
+                appContract.filters.TimelineAddPost(BigNumber.from(params.timelineId.group).shr(160).or(params.timelineId.key)),
+                (timelineId, postId, owner, timelineLength) =>
                 {
                     if (timelineLength.lte(get(length))) return
                     lastEvent.set({
-                        timelineGroup,
                         timelineId,
                         timelineLength,
                         owner,
@@ -198,7 +197,7 @@ export async function getPostRoot({ postId }: { postId: BigNumber })
     {
         const postData = get(await getPostData({ postId }))
         if (postData.post.timelineGroup.eq(TimelineGroup.Replies))
-            return postData.post.timelineId
+            return postData.post.timelineKey
         return null
     }
     const result: BigNumber[] = []

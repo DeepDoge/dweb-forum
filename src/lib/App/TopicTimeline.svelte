@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { TimelineGroup } from "$/tools/api/app";
+    import { TimelineGroup, type TimelineId } from "$/tools/api/app";
 
     import { utf8AsBigNumber256 } from "$/utils/common/bytes";
     import TimelinePage from "./TimelinePage.svelte";
@@ -11,7 +11,8 @@
 
     export let topic: $$Props["topic"];
     $: topicId = utf8AsBigNumber256(topic);
-    $: timelineId = { group: TimelineGroup.Topics, id: topicId };
+    let timelineId: TimelineId
+    $: timelineId = { group: TimelineGroup.Topics, key: topicId };
 </script>
 
 <TimelinePage {timelineId}>

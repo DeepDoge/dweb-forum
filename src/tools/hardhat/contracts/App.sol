@@ -10,37 +10,36 @@ contract App {
     ==========================
     */
 
-    mapping(uint256 => mapping(uint256 => uint256[])) public timelines;
+    mapping(uint256 => uint256[]) public timelines;
 
-    function getTimelineLength(uint256 group, uint256 id) external view returns (uint256) {
-        return timelines[group][id].length;
+    function getTimelineLength(uint96 timelineGroup, uint160 timelineKey) external view returns (uint256) {
+        return timelines[getTimelineId(timelineGroup, timelineKey)].length;
     }
 
-    event TimelineAddPost(
-        uint256 indexed timelineGroup,
-        uint256 indexed timelineId,
-        uint256 postId,
-        address owner,
-        uint256 timelineLength
-    );
+    event TimelineAddPost(uint256 indexed timelineId, uint256 postId, address owner, uint256 timelineLength);
 
-    mapping (uint256 => mapping(uint256 => bool)) public mentionIndex;
+    mapping(uint256 => mapping(uint160 => bool)) public mentionIndex;
 
     function addPostToTimeline(
-        uint256 timelineGroup,
-        uint256 timelineId,
+        uint96 timelineGroup,
+        uint160 timelineKey,
         uint256 postId
     ) private {
-        if (timelineGroup == TIMELINE_GROUP_PROFILE_MENTIONS)
-        {
-            mapping(uint256 => bool) storage postMentionIndex = mentionIndex[postId];
-            if (postMentionIndex[timelineId]) return;
-            postMentionIndex[timelineId] = true;
+        if (timelineGroup == TIMELINE_GROUP_PROFILE_MENTIONS) {
+            mapping (uint160 => bool) storage postMentionIndex = mentionIndex[postId];
+            if (postMentionIndex[timelineKey]) return;
+            postMentionIndex[timelineKey] = true;
         }
 
-        uint256[] storage timeline = timelines[timelineGroup][timelineId];
+        uint256 timelineId = getTimelineId(timelineGroup, timelineKey);
+        uint256[] storage timeline = timelines[timelineId];
         timeline.push() = postId;
-        emit TimelineAddPost(timelineGroup, timelineId, postId, msg.sender, timeline.length);
+        emit TimelineAddPost(timelineId, postId, msg.sender, timeline.length);
+    }
+
+    function getTimelineId(uint96 timelineGroup, uint160 timelineKey) private pure returns(uint256)
+    {
+        return (uint256(timelineGroup) >> 160) | timelineKey;
     }
 
     /* 
@@ -50,8 +49,8 @@ contract App {
     */
     struct Post {
         address owner;
-        uint256 timelineGroup;
-        uint256 timelineId;
+        uint96 timelineGroup;
+        uint160 timelineKey;
         uint256 timelinePostIndex;
         address contentPointer;
     }
@@ -64,50 +63,51 @@ contract App {
     }
 
     /* INTERNAL TIMELINE GROUPS */
-    uint256 public constant TIMELINE_GROUP_PROFILE_POSTS = 0;
-    uint256 public constant TIMELINE_GROUP_PROFILE_REPLIES = 1;
-    uint256 public constant TIMELINE_GROUP_PROFILE_MENTIONS = 2;
-    uint256 public constant TIMELINE_GROUP_ALL = 3;
-    uint256 public constant LAST_INTERNAL_TIMELINE_GROUP = 3;
+    uint96 public constant TIMELINE_GROUP_PROFILE_POSTS = 0;
+    uint96 public constant TIMELINE_GROUP_PROFILE_REPLIES = 1;
+    uint96 public constant TIMELINE_GROUP_PROFILE_MENTIONS = 2;
+    uint96 public constant TIMELINE_GROUP_ALL = 3;
+    uint96 public constant LAST_INTERNAL_TIMELINE_GROUP = 3;
     /* DEFAULT TIMELINE GROUPS */
-    uint256 public constant TIMELINE_GROUP_REPLIES = 4;
-    uint256 public constant TIMELINE_GROUP_TOPICS = 5;
-    uint256 public constant LAST_DEFAULT_TIMELINE_GROUP = 5;
+    uint96 public constant TIMELINE_GROUP_REPLIES = 4;
+    uint96 public constant TIMELINE_GROUP_TOPICS = 5;
+    uint96 public constant LAST_DEFAULT_TIMELINE_GROUP = 5;
 
     event PostPublished(uint256 indexed blockNumber);
 
     Post[] public posts;
 
     function publishPost(
-        uint256 timelineGroup,
-        uint256 timelineId,
+        uint96 timelineGroup,
+        uint160 timelineKey,
         bytes32 title,
         bytes calldata data,
         address[] calldata mentions
     ) external {
         require(timelineGroup > LAST_INTERNAL_TIMELINE_GROUP, "Can't post on internal timeline group.");
 
-        uint256 timelineLength = timelines[timelineGroup][timelineId].length;
+        uint256 timelineId = getTimelineId(timelineGroup, timelineKey);
+        uint256 timelineLength = timelines[timelineId].length;
         uint256 postId = posts.length;
         posts.push() = Post(
             msg.sender,
             timelineGroup,
-            timelineId,
+            timelineKey,
             timelineLength,
             SSTORE2.write(abi.encode(PostContent(title, block.timestamp, mentions, data)))
         );
 
-        addPostToTimeline(timelineGroup, timelineId, postId);
+        addPostToTimeline(timelineGroup, timelineKey, postId);
         addPostToTimeline(TIMELINE_GROUP_ALL, timelineGroup, postId);
-
+    
         addPostToTimeline(
             timelineGroup == TIMELINE_GROUP_REPLIES ? TIMELINE_GROUP_PROFILE_REPLIES : TIMELINE_GROUP_PROFILE_POSTS,
-            uint256(uint160(address(msg.sender))),
+            uint160(address(msg.sender)),
             postId
         );
 
         for (uint256 i = 0; i < mentions.length; i++)
-            addPostToTimeline(TIMELINE_GROUP_PROFILE_MENTIONS, uint256(uint160(address(mentions[i]))), postId);
+            addPostToTimeline(TIMELINE_GROUP_PROFILE_MENTIONS, uint160(address(mentions[i])), postId);
 
         emit PostPublished(block.number);
     }
@@ -175,12 +175,13 @@ contract App {
     }
 
     function getTimelinePostData(
-        uint256 timelineGroup,
-        uint256 timelineId,
+        uint96 timelineGroup,
+        uint160 timelineKey,
         uint256 postIndex,
         bytes32[2][] memory metadata
     ) external view returns (PostData memory) {
-        uint256 postId = timelines[timelineGroup][timelineId][postIndex];
+        uint256 timelineId = getTimelineId(timelineGroup, timelineKey);
+        uint256 postId = timelines[timelineId][postIndex];
 
         Post memory post = posts[postId];
         PostContent memory content = getPostContent(posts[postId].contentPointer);

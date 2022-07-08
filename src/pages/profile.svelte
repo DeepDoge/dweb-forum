@@ -40,7 +40,7 @@
 
     <div class="content">
         <div class="posts">
-            <TimelinePage timelineId={{ group: mode, id: address }}>
+            <TimelinePage timelineId={{ group: mode, key: address }}>
                 <svelte:fragment slot="timeline-header">
                     <div class="tabs">
                         {#each tabsEntries as [path, tab] (path)}
