@@ -1,12 +1,11 @@
 import deployed from '$/tools/hardhat/scripts/deployed.json'
-import type { App, Profile } from '$/tools/hardhat/typechain-types'
-import { App__factory, Profile__factory } from "$/tools/hardhat/typechain-types"
+import { App__factory, Profile__factory, type App, type Profile } from '$/tools/hardhat/typechain-types'
+import { promiseQueue } from '$/utils/common/promiseQueue'
 import { globalDialogManager } from '$lib/kicho-ui/dialog'
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers"
 import { ethers } from "ethers"
 import type { Writable } from 'svelte/store'
 import { get, readable, writable } from 'svelte/store'
-import { promiseQueue } from '$/utils/common/promiseQueue'
 
 const eth = (window as any).ethereum
 
@@ -41,10 +40,10 @@ export const jsonProviders =
         }),
         LocalHost: createJsonRpcProviderInfo({
             chainName: 'Localhost',
-            chainId: ethers.utils.hexlify(5777),
-            nativeCurrency: { name: 'Fake ETH', decimals: 18, symbol: 'Fake ETH' },
+            chainId: ethers.utils.hexlify(1337),
+            nativeCurrency: { name: 'ETH', decimals: 18, symbol: 'ETH' },
             rpcUrls: ['http://localhost:8545'],
-            blockExplorerUrls: []
+            blockExplorerUrls: null
         }),
         Ethereum: createJsonRpcProviderInfo({
             chainName: 'Ethereum Mainnet',
@@ -69,7 +68,7 @@ export const jsonProviders =
         })
     } as const)
 
-export const currentProviderInfo = writable(jsonProviders.Optimism)
+export const currentProviderInfo = writable(jsonProviders.LocalHost)
 export const ethereumProviderInfo = writable(jsonProviders.Ethereum)
 export const ethereumJsonRpcProvider = readable<JsonRpcProvider>(
     null,
@@ -145,7 +144,7 @@ account.subscribe((account) =>
 {
     const providerInfo = get(currentProviderInfo)
     provider.set(
-        account ?
+        account || providerInfo === jsonProviders.LocalHost ?
             new ethers.providers.Web3Provider(eth) :
             new ethers.providers.JsonRpcProvider(providerInfo.rpcUrls[0],
                 {

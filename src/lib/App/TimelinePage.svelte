@@ -18,7 +18,7 @@
     }
 
     let selectedPostId: BigNumber = null;
-    $: selectedPostId = $currentRoute.hash ? (ethers.utils.isAddress($currentRoute.hash) ? BigNumber.from($currentRoute.hash) : selectedPostId) : null;
+    $: selectedPostId = $currentRoute.hash ? (/[0-9]/.test($currentRoute.hash) ? BigNumber.from($currentRoute.hash) : selectedPostId) : null;
 
     let fixed = false;
     async function updateFixed() {
