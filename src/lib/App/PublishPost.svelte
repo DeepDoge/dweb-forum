@@ -1,12 +1,12 @@
 <script lang="ts">
-    import { getPostData, TimelineGroup, TimelineId } from "$/tools/api/app";
-    import { bytesToBytes32Array, utf8AsBytes32 } from "$/utils/common/bytes";
-    import { encodeContent, parseContent } from "$/utils/content";
-    import { account, appContract } from "$/tools/wallet";
+    import { getPostData,TimelineGroup,TimelineId } from "$/tools/api/app";
+    import { account,appContract } from "$/tools/wallet";
     import { waitContractUntil } from "$/tools/wallet/listen";
+    import { utf8AsBytes32 } from "$/utils/common/bytes";
+    import { encodeContent,parseContent } from "$/utils/content";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
-    import KDialog, { createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
+    import KDialog,{ createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import { BigNumber } from "ethers";
     import { createEventDispatcher } from "svelte";
@@ -18,7 +18,7 @@
     const dialogManager = createDialogManager();
 
     export let timelineId: TimelineId;
-    export let reply = false;
+    $: reply = timelineId.group === TimelineGroup.Replies;
 
     let contentText: string;
     $: content = contentText?.length > 0 ? parseContent($account, contentText) : null;
@@ -37,8 +37,7 @@
                         : []
                 )
             );
-
-            while (content.mentions.length < 8) content.mentions.push(`0x${"0".repeat(40)}`);
+            
             publishing = true;
 
             await waitContractUntil(

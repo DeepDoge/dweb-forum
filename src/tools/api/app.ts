@@ -1,6 +1,6 @@
 import type { BigNumberish } from "ethers"
 import { BigNumber } from "ethers"
-import type { Writable } from "svelte/store"
+import { readable, type Readable, type Writable } from "svelte/store"
 import { get, writable } from "svelte/store"
 import { cachedPromise } from "$/utils/common/cachedPromise"
 import type { TimelineAddPostEventObject } from "$/tools/hardhat/typechain-types/App"
@@ -20,7 +20,10 @@ export const enum TimelineGroup
     LastDefault = 5
 }
 
-export type PostData = Omit<Awaited<ReturnType<typeof appContract.getPostData>>, 'metadata'> & { metadata: Record<string, string | BigNumber> }
+export type PostData = Omit<Awaited<ReturnType<typeof appContract.getPostData>>, 'metadata'> &
+{
+    metadata: Record<string, string | BigNumber>
+}
 
 export type TimelineId = { group: BigNumberish, id: BigNumberish }
 
@@ -50,7 +53,7 @@ export const getPostData = cachedPromise<{ postId: BigNumber }, Writable<PostDat
 
 function setPostData({ postData }: { postData: PostData })
 {
-    const key = postData.id.toString()
+    const key = postData.postId.toString()
     getPostData._cacheRecord.get(key) ? getPostData._cacheRecord.get(key).set(postData) : getPostData._cacheRecord.set(key, writable(postData))
 }
 
@@ -66,16 +69,25 @@ export const getTimelinePostData = cachedPromise<{ timelineId: TimelineId, postI
         )
         setPostData({ postData: { ...postData, metadata: decodeMetadataResponse(postData.metadata) } })
 
-        return getPostData({ postId: postData.id })
+        return getPostData({ postId: postData.postId })
     }
 )
 
-export const getTimelineLength = cachedPromise<{ timelineId: TimelineId }, { length: Writable<BigNumber>, listen(): void, unlisten(): void, lastEvent: Writable<TimelineAddPostEventObject> }>(
+type LastTimelineLengthEvent = Omit<TimelineAddPostEventObject, 'postId'> & { postId: BigNumber }
+export const getTimelineLength = cachedPromise<
+    { timelineId: TimelineId },
+    {
+        length: Writable<BigNumber>,
+        listen(): void,
+        unlisten(): void,
+        lastEvent: Readable<LastTimelineLengthEvent>
+    }
+>(
     (params) => `${params.timelineId.group}:${params.timelineId.id}`,
     async ({ params }) =>
     {
         const length = writable(await appContract.getTimelineLength(params.timelineId.group, params.timelineId.id))
-        const lastEvent: Writable<TimelineAddPostEventObject> = writable(null)
+        const lastEvent: Writable<LastTimelineLengthEvent> = writable(null)
 
         let unlisten: () => void = null
         let listenerCount = 0
@@ -112,7 +124,7 @@ export const getTimelineLength = cachedPromise<{ timelineId: TimelineId }, { len
                 if (--listenerCount === 0)
                     unlisten()
             },
-            lastEvent
+            lastEvent: readable(get(lastEvent), (set) => lastEvent.subscribe((value) => set(value)))
         }
     }
 )
@@ -154,7 +166,7 @@ export async function getTimeline(params: { timelineId: TimelineId })
             promises.push((async () =>
             {
                 const postData = get(await getTimelinePostData({ timelineId: params.timelineId, postIndex: loadOlderPivot }))
-                return postData.id
+                return postData.postId
             })())
 
             loadOlderPivot = loadOlderPivot.sub(1)

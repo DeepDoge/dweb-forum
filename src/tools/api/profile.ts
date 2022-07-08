@@ -16,17 +16,17 @@ const listeners: Record<string, { count: number, unlisten: () => void }> = {}
 export const getProfileData = cachedPromise<
     { address: string, key: string }, ProfileInfo>(
         ({ address, key }) => `${address}:${key}`,
-        async ({ address, key }) =>
+        async ({ params }) =>
         {
-            const result = writable(hexToUtf8(await profileContract.profiles(address, utf8AsBytes32(key))))
-            const listenerKey = `${address}:${key}`
+            const result = writable(hexToUtf8(await profileContract.profiles(params.address, utf8AsBytes32(params.key))))
+            const listenerKey = `${params.address}:${params.key}`
 
             function listen()
             {
                 if (listeners[listenerKey]) listeners[listenerKey].count++
                 else listeners[listenerKey] = {
                     count: 0, unlisten: listenContract(
-                        profileContract, profileContract.filters.ProfileSet(address, utf8AsBytes32(key)),
+                        profileContract, profileContract.filters.ProfileSet(params.address, utf8AsBytes32(params.key)),
                         async (owner, key, value: string, timestamp) =>
                         {
                             result.set(hexToUtf8(value))

@@ -16,7 +16,7 @@ library SSTORE2 {
     @notice Stores `_data` and returns `pointer` as key for later retrieval
     @dev The pointer is a contract address with `_data` as code
     @param _data to be written
-    @return pointer Pointer to the written `_data`
+    @return pointer Id to the written `_data`
   */
     function write(bytes memory _data) internal returns (address pointer) {
         // Append 00 to _data so contract can't be called

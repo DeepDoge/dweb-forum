@@ -11,7 +11,6 @@ contract App {
     */
 
     mapping(uint256 => mapping(uint256 => uint256[])) timelines;
-    mapping(uint256 => mapping(uint256 => mapping(uint256 => uint256[2]))) postIdToPostIndexOnTimelineMap;
 
     function getTimelineLength(uint256 group, uint256 id) external view returns (uint256) {
         return timelines[group][id].length;
@@ -31,15 +30,7 @@ contract App {
         uint256 timelineId,
         uint256 postId
     ) private {
-        uint256[2] storage postIndexMap = postIdToPostIndexOnTimelineMap[timelineGroup][timelineId][postId];
-
-        // Stop duplicate
-        if (postIndexMap[1] == 1) return;
         uint256[] storage timeline = timelines[timelineGroup][timelineId];
-        postIndexMap[0] = timeline.length;
-        postIndexMap[1] = 1;
-
-        // Add post to timeline
         timeline.push() = postId;
         emit TimelineAddPost(timelineGroup, timelineId, postId, msg.sender, timeline.length, block.timestamp);
     }
@@ -49,17 +40,19 @@ contract App {
     Post
     ==========================
     */
-
-    mapping(uint256 => Post) public posts;
     struct Post {
         address owner;
         uint256 timelineGroup;
         uint256 timelineId;
         uint256 timelinePostIndex;
-        uint256 time;
-        bytes32 title;
         address contentPointer;
-        address[8] mentions;
+    }
+
+    struct PostContent {
+        bytes32 title;
+        uint256 time;
+        address[] mentions;
+        bytes data;
     }
 
     /* INTERNAL TIMELINE GROUPS */
@@ -73,33 +66,38 @@ contract App {
     uint256 public constant TIMELINE_GROUP_TOPICS = 5;
     uint256 public constant LAST_DEFAULT_TIMELINE_GROUP = 5;
 
-    uint256 public postCounter = 1;
-
     event PostPublished(uint256 indexed blockNumber, address indexed owner, uint256 postId);
+
+    Post[] public posts;
 
     function publishPost(
         uint256 timelineGroup,
         uint256 timelineId,
         bytes32 title,
-        bytes calldata content,
-        address[8] calldata mentions
+        bytes calldata data,
+        address[] calldata mentions
     ) external {
         require(timelineGroup > LAST_INTERNAL_TIMELINE_GROUP, "Can't post on internal timeline group.");
 
-        uint256 postId = postCounter++;
         uint256 timelineLength = timelines[timelineGroup][timelineId].length;
-        posts[postId] = Post(msg.sender, timelineGroup, timelineId, timelineLength, block.timestamp, title, SSTORE2.write(content), mentions);
+        uint256 postId = posts.length;
+        posts.push() = Post(
+            msg.sender,
+            timelineGroup,
+            timelineId,
+            timelineLength,
+            SSTORE2.write(abi.encode(PostContent(title, block.timestamp, mentions, data)))
+        );
 
         addPostToTimeline(timelineGroup, timelineId, postId);
+        addPostToTimeline(TIMELINE_GROUP_ALL, timelineGroup, postId);
+
         addPostToTimeline(
             timelineGroup == TIMELINE_GROUP_REPLIES ? TIMELINE_GROUP_PROFILE_REPLIES : TIMELINE_GROUP_PROFILE_POSTS,
             uint256(uint160(address(msg.sender))),
             postId
         );
-        addPostToTimeline(TIMELINE_GROUP_ALL, timelineGroup, postId);
-
         for (uint256 i = 0; i < mentions.length; i++) {
-            if (mentions[i] == address(0)) break;
             addPostToTimeline(TIMELINE_GROUP_PROFILE_MENTIONS, uint256(uint160(address(mentions[i]))), postId);
         }
 
@@ -117,36 +115,20 @@ contract App {
     ==========================
     */
 
-    mapping(uint256 => PostHistory[]) public postHistory;
-    struct PostHistory {
-        uint256 time;
-        bytes32 title;
-        address contentPointer;
-        address[8] mentions;
-    }
+    mapping(uint256 => address[]) public postContentHistory;
 
-    event PostEdit(uint256 indexed postId, bytes32 title, bytes content, address[8] mentions, uint256 time);
+    event PostEdit(uint256 indexed postId, bytes32 title, bytes data, address[] mentions);
 
     function editPost(
         uint256 postId,
         bytes32 title,
-        bytes calldata content,
-        address[8] calldata mentions
+        bytes calldata data,
+        address[] calldata mentions
     ) external onlyPostOwner(postId) {
-        {
-            Post memory post = posts[postId];
-            postHistory[postId].push() = PostHistory(post.time, post.title, post.contentPointer, post.mentions);
-        }
-
-        {
-            Post storage post = posts[postId];
-            post.time = block.timestamp;
-            post.title = title;
-            post.contentPointer = SSTORE2.write(content);
-            post.mentions = mentions;
-        }
-
-        emit PostEdit(postId, title, content, mentions, block.timestamp);
+        Post storage postRef = posts[postId];
+        postContentHistory[postId].push(postRef.contentPointer);
+        postRef.contentPointer = SSTORE2.write(abi.encode(PostContent(title, block.timestamp, mentions, data)));
+        emit PostEdit(postId, title, data, mentions);
     }
 
     /* 
@@ -156,15 +138,15 @@ contract App {
     */
 
     mapping(uint256 => mapping(bytes32 => bytes32)) public postMetadatas;
-    event PostMetadataSet(uint256 indexed postIndex, bytes32 indexed key, bytes32 value, uint256 timestamp);
+    event PostMetadataSet(uint256 indexed postId, bytes32 indexed key, bytes32 value, uint256 timestamp);
 
     function setPostMetadata(
-        uint256 postIndex,
+        uint256 postId,
         bytes32 key,
         bytes32 value
-    ) public onlyPostOwner(postIndex) {
-        postMetadatas[postIndex][key] = value;
-        emit PostMetadataSet(postIndex, key, value, block.timestamp);
+    ) public onlyPostOwner(postId) {
+        postMetadatas[postId][key] = value;
+        emit PostMetadataSet(postId, key, value, block.timestamp);
     }
 
     /* 
@@ -174,10 +156,14 @@ contract App {
     */
 
     struct PostData {
-        uint256 id;
+        uint256 postId;
         Post post;
-        bytes content;
+        PostContent content;
         bytes32[2][] metadata;
+    }
+
+    function getPostContent(address contentPointer) private view returns (PostContent memory) {
+        return abi.decode(SSTORE2.read(contentPointer), (PostContent));
     }
 
     function getTimelinePostData(
@@ -187,12 +173,19 @@ contract App {
         bytes32[2][] memory metadata
     ) external view returns (PostData memory) {
         uint256 postId = timelines[timelineGroup][timelineId][postIndex];
+
+        Post memory post = posts[postId];
+        PostContent memory content = getPostContent(posts[postId].contentPointer);
+
         for (uint256 i = 0; i < metadata.length; i++) metadata[i][1] = postMetadatas[postId][metadata[i][0]];
-        return PostData(postId, posts[postId], SSTORE2.read(posts[postId].contentPointer), metadata);
+        return PostData(postId, post, content, metadata);
     }
 
     function getPostData(uint256 postId, bytes32[2][] memory metadata) external view returns (PostData memory) {
+        Post memory post = posts[postId];
+        PostContent memory content = getPostContent(posts[postId].contentPointer);
+
         for (uint256 i = 0; i < metadata.length; i++) metadata[i][1] = postMetadatas[postId][metadata[i][0]];
-        return PostData(postId, posts[postId], SSTORE2.read(posts[postId].contentPointer), metadata);
+        return PostData(postId, post, content, metadata);
     }
 }

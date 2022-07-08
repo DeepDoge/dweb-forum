@@ -1,9 +1,9 @@
 <script lang="ts">
+    import { currentRoute } from "$/routes/_routing.svelte";
     import { getPostData, getTimelineLength, PostData, TimelineGroup, TimelineId } from "$/tools/api/app";
-    import { bigNumberAsUtf8, combineBytes, hexToBytes, hexToUtf8 } from "$/utils/common/bytes";
+    import { bigNumberAsUtf8, hexToBytes, hexToUtf8 } from "$/utils/common/bytes";
     import { decodeContent } from "$/utils/content";
     import { second } from "$/utils/second";
-    import { currentRoute } from "$/routes/_routing.svelte";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KChip from "$lib/kicho-ui/components/KChip.svelte";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
@@ -23,7 +23,7 @@
     export let postId: BigNumber;
 
     let postData: Writable<PostData> = null;
-    $: postContent = $postData ? decodeContent({ itemsData: hexToBytes($postData.content), mentions: $postData.post.mentions }) : null;
+    $: postContent = $postData ? decodeContent({ itemsData: hexToBytes($postData.content.data), mentions: $postData.content.mentions }) : null;
 
     let parentPostData: Writable<PostData> = null;
 
@@ -33,7 +33,7 @@
     let repliesTimelineLengthData: Awaited<ReturnType<typeof getTimelineLength>> = null;
     $: repliesLength = repliesTimelineLengthData?.length;
 
-    $: postId?.toString() != $postData?.id.toString() && updatePost();
+    $: postId?.toString() != $postData?.postId.toString() && updatePost();
     async function updatePost() {
         postData = null;
         repliesTimelineLengthData = null;
@@ -44,8 +44,8 @@
         repliesTimelineLengthData = await getTimelineLength({ timelineId: repliesTimelineId });
     }
 
-    $: date = $second && ((postData && format(new Date($postData.post.time.toNumber() * 1000))) ?? null);
-    $: title = (postData && hexToUtf8($postData.post.title)) ?? null;
+    $: date = $second && ((postData && format(new Date($postData.content.time.toNumber() * 1000))) ?? null);
+    $: title = (postData && hexToUtf8($postData.content.title)) ?? null;
     $: loading = postId && !postData;
     $: selected = /[0-9]/.test($currentRoute.hash) && postId?.eq($currentRoute.hash);
 </script>
@@ -66,19 +66,19 @@
                 </a>
                 <div class="chip">
                     {#if parentPostData}
-                        <a href="#{$currentRoute.path}#{$parentPostData.id}">
-                            <KChip color="slave"
-                                ><div class="k-text-singleline">Reply to:</div>
-                                <NicknameOf address={$parentPostData.post.owner} /> @{$postData.post.timelineId}</KChip
-                            >
+                        <a href="#{$currentRoute.path}#{$parentPostData.postId}">
+                            <KChip color="slave">
+                                <div class="k-text-singleline">Reply to:</div>
+                                <NicknameOf address={$parentPostData.post.owner} /> @{$postData.post.timelineId}
+                            </KChip>
                         </a>
                     {:else if $postData?.post.timelineGroup.eq(TimelineGroup.Topics)}
-                        <a href="#{bigNumberAsUtf8($postData.post.timelineId)}#{$postData.id}">
+                        <a href="#{bigNumberAsUtf8($postData.post.timelineId)}#{$postData.postId}">
                             <KChip>#{bigNumberAsUtf8($postData.post.timelineId)}</KChip>
                         </a>
                     {/if}
                     <div>
-                        <KChip color="mode-pop">@{$postData?.id}</KChip>
+                        <KChip color="mode-pop">@{$postData?.postId}</KChip>
                     </div>
                 </div>
 

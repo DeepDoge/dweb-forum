@@ -43,7 +43,7 @@
 <div class="timeline">
     <div class="posts">
         {#if publish && timeline?.timelineId.group > TimelineGroup.LastInternal}
-            <PublishPost timelineId={timeline.timelineId} reply={timeline.timelineId.group === TimelineGroup.Replies} />
+            <PublishPost timelineId={timeline.timelineId} />
         {/if}
         {#if !timeline}
             <Post postId={BigNumber.from(-1)} />
