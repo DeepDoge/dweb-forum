@@ -1,12 +1,12 @@
 <script lang="ts">
-    import { getPostData,TimelineGroup,TimelineId } from "$/tools/api/app";
-    import { account,appContract } from "$/tools/wallet";
+    import { getPostData, TimelineGroup, TimelineId } from "$/tools/api/app";
+    import { account, appContract } from "$/tools/wallet";
     import { waitContractUntil } from "$/tools/wallet/listen";
-    import { utf8AsBytes32 } from "$/utils/common/bytes";
-    import { encodeContent,parseContent } from "$/utils/content";
+    import { bytesToUtf8, utf8AsBytes32 } from "$/utils/common/bytes";
+    import { encodeContent, parseContent } from "$/utils/content";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
-    import KDialog,{ createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
+    import KDialog, { createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import { BigNumber } from "ethers";
     import { createEventDispatcher } from "svelte";
@@ -20,24 +20,25 @@
     export let timelineId: TimelineId;
     $: reply = timelineId.group === TimelineGroup.Replies;
 
+    let titleText: string;
     let contentText: string;
     $: content = contentText?.length > 0 ? parseContent($account, contentText) : null;
     $: encodedContent = content ? encodeContent(content) : null;
     $: length = encodedContent?.itemsData.length ?? 0;
 
     let publishing = false;
-    async function publish(params: { title: string; content: string }) {
+    async function publish() {
         try {
             const content = encodeContent(
                 parseContent(
                     $account,
-                    params.content,
+                    contentText,
                     BigNumber.from(timelineId.group).eq(TimelineGroup.Replies)
                         ? [get(await getPostData({ postId: BigNumber.from(timelineId.id) })).post.owner]
                         : []
                 )
             );
-            
+
             publishing = true;
 
             await waitContractUntil(
@@ -47,7 +48,7 @@
                         await appContract.publishPost(
                             timelineId.group,
                             timelineId.id,
-                            utf8AsBytes32(params.title?.trim()),
+                            utf8AsBytes32(titleText?.trim()),
                             content.itemsData,
                             content.mentions
                         )
@@ -56,6 +57,8 @@
                 () => true
             );
 
+            titleText = null
+            contentText = null
             dispatchEvent("done");
         } catch (error) {
             await dialogManager.alert(error.message);
@@ -70,24 +73,19 @@
 
 {#if $account}
     <!-- svelte-ignore missing-declaration -->
-    <form
-        on:submit|preventDefault={async (e) => {
-            const form = e.currentTarget;
-            await publish({
-                title: new FormData(form).get("title")?.toString(),
-                content: new FormData(form).get("content")?.toString(),
-            });
-            form.reset();
-        }}
-        class="publish-post"
-        class:publishing
-        class:reply
-        class:empty={!contentText}
-    >
+    <form on:submit|preventDefault={publish} class="publish-post" class:publishing class:reply class:empty={!contentText}>
         <KBoxEffect color="mode" background radius="rounded">
             <div class="fields">
                 {#if !reply}
-                    <KTextField disabled={publishing} size="x-larger" background={false} type="text" name="title" placeholder="Title" />
+                    <KTextField
+                        bind:value={titleText}
+                        disabled={publishing}
+                        size="x-larger"
+                        background={false}
+                        type="text"
+                        name="title"
+                        placeholder="Title"
+                    />
                 {/if}
                 <div class="content-field">
                     <div class="avatar">
@@ -97,6 +95,7 @@
                         <NicknameOf address={$account} />
                     </div>
                     <div class="field">
+                        {encodedContent && bytesToUtf8(encodedContent.itemsData)}
                         <KTextField
                             disabled={publishing}
                             compact

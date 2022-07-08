@@ -111,11 +111,12 @@ export function parseContent(account: string, contentText: string, mentions: str
 
         if (isValidIpfsHash(part))
             items.push({ type: ContentType.IpfsLink, data: part })
-        else if (mentions.length < 8 && ethers.utils.isAddress(part) && part.toLowerCase() !== account.toLowerCase())
+        else if (ethers.utils.isAddress(part))
         {
-            const index = mentions.length
-            mentions.push(part)
-            items.push({ type: ContentType.Mention, data: index.toString() })
+            const address = ethers.utils.getAddress(part)
+            const index = mentions.indexOf(address)
+            if (index >= 0) items.push({ type: ContentType.Mention, data: index.toString() })
+            else items.push({ type: ContentType.Mention, data: (mentions.push(address) - 1).toString() })
         }
         else if (items.length > 0 && items[items.length - 1].type === ContentType.Text)
             items[items.length - 1].data += ` ${part}`

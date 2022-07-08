@@ -52,10 +52,24 @@ export const jsonProviders =
             nativeCurrency: { name: 'ETH', decimals: 18, symbol: 'ETH' },
             rpcUrls: ['https://cloudflare-eth.com'],
             blockExplorerUrls: ['https://etherscan.io']
+        }),
+        Optimism: createJsonRpcProviderInfo({
+            chainName: 'Optimism Mainnet',
+            chainId: ethers.utils.hexlify(10),
+            nativeCurrency: { name: 'ETH', decimals: 18, symbol: 'ETH' },
+            rpcUrls: ['https://mainnet.optimism.io'],
+            blockExplorerUrls: ['https://optimistic.etherscan.io']
+        }),
+        Arbitrum: createJsonRpcProviderInfo({
+            chainName: 'Arbitrum One',
+            chainId: ethers.utils.hexlify(42161),
+            nativeCurrency: { name: 'ETH', decimals: 18, symbol: 'ETH' },
+            rpcUrls: ['https://arb1.arbitrum.io/rpc'],
+            blockExplorerUrls: ['https://arbiscan.io/']
         })
     } as const)
 
-export const currentProviderInfo = writable(jsonProviders.Polygon)
+export const currentProviderInfo = writable(jsonProviders.Optimism)
 export const ethereumProviderInfo = writable(jsonProviders.Ethereum)
 export const ethereumJsonRpcProvider = readable<JsonRpcProvider>(
     null,

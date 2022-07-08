@@ -10,7 +10,7 @@ contract App {
     ==========================
     */
 
-    mapping(uint256 => mapping(uint256 => uint256[])) timelines;
+    mapping(uint256 => mapping(uint256 => uint256[])) public timelines;
 
     function getTimelineLength(uint256 group, uint256 id) external view returns (uint256) {
         return timelines[group][id].length;
@@ -24,12 +24,22 @@ contract App {
         uint256 timelineLength
     );
 
+    mapping (uint256 => mapping(uint256 => bool)) public mentionIndex;
+
     function addPostToTimeline(
         uint256 timelineGroup,
         uint256 timelineId,
         uint256 postId
     ) private {
         uint256[] storage timeline = timelines[timelineGroup][timelineId];
+
+        if (timelineGroup == TIMELINE_GROUP_PROFILE_MENTIONS)
+        {
+            mapping(uint256 => bool) storage postMentionIndex = mentionIndex[postId];
+            if (postMentionIndex[timelineId]) return;
+            postMentionIndex[timelineId] = true;
+        }
+
         timeline.push() = postId;
         emit TimelineAddPost(timelineGroup, timelineId, postId, msg.sender, timeline.length);
     }
@@ -96,9 +106,9 @@ contract App {
             uint256(uint160(address(msg.sender))),
             postId
         );
-        for (uint256 i = 0; i < mentions.length; i++) {
+
+        for (uint256 i = 0; i < mentions.length; i++)
             addPostToTimeline(TIMELINE_GROUP_PROFILE_MENTIONS, uint256(uint160(address(mentions[i]))), postId);
-        }
 
         emit PostPublished(block.number);
     }

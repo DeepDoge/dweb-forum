@@ -38,6 +38,14 @@ const config: HardhatUserConfig = {
     polygon: {
       url: `https://polygon-rpc.com/`,
       accounts: [secrets.privateKey]
+    },
+    optimism: {
+      url: 'https://mainnet.optimism.io',
+      accounts: [secrets.privateKey]
+    },
+    arbitrum: {
+      url: 'https://arb1.arbitrum.io/rpc',
+      accounts: [secrets.privateKey]
     }
   }
 }
