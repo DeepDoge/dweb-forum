@@ -39,8 +39,6 @@
                 )
             );
 
-            while (content.mentions.length < 8) content.mentions.push(`0x${'0'.repeat(40)}`)
-
             publishing = true;
 
             await waitContractUntil(
