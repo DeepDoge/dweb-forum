@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.0;
+pragma solidity 0.8.15;
 
 import "./SSTORE.sol";
 
@@ -31,8 +31,6 @@ contract App {
         uint256 timelineId,
         uint256 postId
     ) private {
-        uint256[] storage timeline = timelines[timelineGroup][timelineId];
-
         if (timelineGroup == TIMELINE_GROUP_PROFILE_MENTIONS)
         {
             mapping(uint256 => bool) storage postMentionIndex = mentionIndex[postId];
@@ -40,6 +38,7 @@ contract App {
             postMentionIndex[timelineId] = true;
         }
 
+        uint256[] storage timeline = timelines[timelineGroup][timelineId];
         timeline.push() = postId;
         emit TimelineAddPost(timelineGroup, timelineId, postId, msg.sender, timeline.length);
     }
