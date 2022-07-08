@@ -98,7 +98,7 @@ export const getTimelineLength = cachedPromise<
             unlisten = listenContract(
                 appContract,
                 appContract.filters.TimelineAddPost(params.timelineId.group, params.timelineId.id),
-                (timelineGroup, timelineId, postId, owner, timelineLength, timestamp) =>
+                (timelineGroup, timelineId, postId, owner, timelineLength) =>
                 {
                     if (timelineLength.lte(get(length))) return
                     lastEvent.set({
@@ -106,8 +106,7 @@ export const getTimelineLength = cachedPromise<
                         timelineId,
                         timelineLength,
                         owner,
-                        postId,
-                        timestamp
+                        postId
                     })
                     length.set(timelineLength)
                 }
