@@ -1,65 +1,7 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity 0.8.15;
 
-import "./SSTORE.sol";
-
 contract App {
-    /* 
-    ==========================
-    Timeline
-    ==========================
-    */
-
-    mapping(uint256 => uint256) public timelines;
-
-    function getTimelineId(uint96 timelineGroup, uint160 timelineKey) private pure returns (uint256) {
-        return (uint256(timelineGroup) << 160) | timelineKey;
-    }
-
-    function getTimelineLength(uint96 timelineGroup, uint160 timelineKey) external view returns (uint256) {
-        return timelines[getTimelineId(timelineGroup, timelineKey)];
-    }
-
-    event TimelineAddPost(uint256 indexed timelineId, uint256 indexed postIndex, address postId, address owner);
-
-    mapping(address => mapping(uint160 => bool)) public mentionIndex;
-
-    function addPostToTimeline(
-        uint96 timelineGroup,
-        uint160 timelineKey,
-        address postId
-    ) private {
-        if (timelineGroup == TIMELINE_GROUP_PROFILE_MENTIONS) {
-            mapping(uint160 => bool) storage postMentionIndex = mentionIndex[postId];
-            if (postMentionIndex[timelineKey]) return;
-            postMentionIndex[timelineKey] = true;
-        }
-
-        uint256 timelineId = getTimelineId(timelineGroup, timelineKey);
-/*         address[] storage timeline = timelines[timelineId];
-        timeline.push() = postId; */
-        emit TimelineAddPost(timelineId, timelines[timelineId]++, postId, msg.sender);
-    }
-
-    /* 
-    ==========================
-    Post
-    ==========================
-    */
-    struct Post {
-        uint96 timelineGroup;
-        uint160 timelineKey;
-        uint256 timelinePostIndex;
-        address contentPointer;
-        address owner;
-    }
-
-    struct PostContent {
-        bytes32 title;
-        uint256 time;
-        address[] mentions;
-        bytes data;
-    }
 
     /* INTERNAL TIMELINE GROUPS */
     uint96 public constant TIMELINE_GROUP_PROFILE_POSTS = 0;
@@ -72,9 +14,63 @@ contract App {
     uint96 public constant TIMELINE_GROUP_TOPICS = 5;
     uint96 public constant LAST_DEFAULT_TIMELINE_GROUP = 5;
 
-    event PostPublished(uint256 indexed blockNumber);
+    /* 
+    ==========================
+    Timeline
+    ==========================
+    */
 
-    mapping(address => Post) posts;
+    mapping(uint256 => uint256) public timelineLengths;
+
+    function getTimelineId(uint96 timelineGroup, uint160 timelineKey) private pure returns (uint256) {
+        return (uint256(timelineGroup) << 160) | timelineKey;
+    }
+
+    function getTimelineLength(uint96 timelineGroup, uint160 timelineKey) external view returns (uint256) {
+        return timelineLengths[getTimelineId(timelineGroup, timelineKey)];
+    }
+
+    event TimelineAddPost(uint256 indexed timelineId, uint256 indexed postIndex, address postId, address owner);
+
+    function addPostToTimeline(
+        uint96 timelineGroup,
+        uint160 timelineKey,
+        address postId
+    ) private {
+        uint256 timelineId = getTimelineId(timelineGroup, timelineKey);
+        emit TimelineAddPost(timelineId, timelineLengths[timelineId]++, postId, msg.sender);
+    }
+
+    /* 
+    ==========================
+    Post
+    ==========================
+    */
+
+    struct PostInfo {
+        uint256 postBlockPointer;
+        uint256 postContentBlockPointer;
+        address owner;
+    }
+
+    struct Post {
+        uint96 timelineGroup;
+        uint160 timelineKey;
+        uint256 timelinePostIndex;
+    }
+
+    struct PostContent {
+        bytes32 title;
+        uint256 time;
+        address[] mentions;
+        bytes data;
+    }
+
+    event PostPublished(address indexed postId, Post post);
+    event PostContentPublished(address indexed postId, PostContent postContent);
+
+    mapping(address => PostInfo) public postInfos;
+    uint160 public postCounter = 1;
 
     function publishPost(
         uint96 timelineGroup,
@@ -82,35 +78,33 @@ contract App {
         bytes32 title,
         bytes calldata data,
         address[] calldata mentions
-    ) external {
+    ) external returns (address) {
         require(timelineGroup > LAST_INTERNAL_TIMELINE_GROUP, "Can't post on internal timeline group.");
 
-        uint256 timelineId = getTimelineId(timelineGroup, timelineKey);
-        uint256 timelineLength = timelines[timelineId];
+        uint256 timelineLength = timelineLengths[getTimelineId(timelineGroup, timelineKey)];
 
-        // First content pointer is also the postId
-        // content pointer can change but postId stays the same
-        address contentPointer = SSTORE2.write(abi.encode(PostContent(title, block.timestamp, mentions, data)));
+        address postId = address(postCounter++);
+        postInfos[postId] = PostInfo(block.number, block.number, msg.sender);
 
-        posts[contentPointer] = Post(timelineGroup, timelineKey, timelineLength, contentPointer, msg.sender);
+        emit PostPublished(postId, Post(timelineGroup, timelineKey, timelineLength));
+        emit PostContentPublished(postId, PostContent(title, block.timestamp, mentions, data));
 
-        addPostToTimeline(timelineGroup, timelineKey, contentPointer);
-        addPostToTimeline(TIMELINE_GROUP_ALL, timelineGroup, contentPointer);
+        addPostToTimeline(timelineGroup, timelineKey, postId);
+        addPostToTimeline(TIMELINE_GROUP_ALL, timelineGroup, postId);
 
         addPostToTimeline(
             timelineGroup == TIMELINE_GROUP_REPLIES ? TIMELINE_GROUP_PROFILE_REPLIES : TIMELINE_GROUP_PROFILE_POSTS,
             uint160(address(msg.sender)),
-            contentPointer
+            postId
         );
 
-        for (uint256 i = 0; i < mentions.length; i++)
-            addPostToTimeline(TIMELINE_GROUP_PROFILE_MENTIONS, uint160(address(mentions[i])), contentPointer);
+        for (uint256 i = 0; i < mentions.length; i++) addPostToTimeline(TIMELINE_GROUP_PROFILE_MENTIONS, uint160(address(mentions[i])), postId);
 
-        emit PostPublished(block.number);
+        return postId;
     }
 
     modifier onlyPostOwner(address postId) {
-        require(posts[postId].owner == msg.sender, "You don't own this post.");
+        require(postInfos[postId].owner == msg.sender, "You don't own this post.");
         _;
     }
 
@@ -119,10 +113,7 @@ contract App {
     Post Edit
     ==========================
     */
-
-    mapping(address => address[]) public postContentHistory;
-
-    event PostEdit(address indexed postId, bytes32 title, bytes data, address[] mentions);
+    mapping(address => uint256[]) public postContentHistory;
 
     function editPost(
         address postId,
@@ -130,10 +121,11 @@ contract App {
         bytes calldata data,
         address[] calldata mentions
     ) external onlyPostOwner(postId) {
-        Post storage postRef = posts[postId];
-        postContentHistory[postId].push(postRef.contentPointer);
-        postRef.contentPointer = SSTORE2.write(abi.encode(PostContent(title, block.timestamp, mentions, data)));
-        emit PostEdit(postId, title, data, mentions);
+        PostInfo storage postInfo = postInfos[postId];
+        postContentHistory[postId].push(postInfo.postContentBlockPointer);
+
+        postInfo.postContentBlockPointer = block.number;
+        emit PostContentPublished(postId, PostContent(title, block.timestamp, mentions, data));
     }
 
     /* 
@@ -141,9 +133,8 @@ contract App {
     Post MetaData
     ==========================
     */
-
     mapping(address => mapping(bytes32 => bytes32)) public postMetadatas;
-    event PostMetadataSet(address indexed postId, bytes32 key, bytes32 value, uint256 blockNumber);
+    event PostMetadataSet(address indexed postId, bytes32 key, bytes32 value);
 
     function setPostMetadata(
         address postId,
@@ -151,47 +142,6 @@ contract App {
         bytes32 value
     ) public onlyPostOwner(postId) {
         postMetadatas[postId][key] = value;
-        emit PostMetadataSet(postId, key, value, block.number);
-    }
-
-    /* 
-    ==========================
-    Get Post
-    ==========================
-    */
-
-    struct PostData {
-        address postId;
-        Post post;
-        PostContent content;
-        bytes32[2][] metadata;
-    }
-
-    function getPostContent(address contentPointer) private view returns (PostContent memory) {
-        return abi.decode(SSTORE2.read(contentPointer), (PostContent));
-    }
-
-/*     function getTimelinePostData(
-        uint96 timelineGroup,
-        uint160 timelineKey,
-        uint256 postIndex,
-        bytes32[2][] memory metadata
-    ) external view returns (PostData memory) {
-        uint256 timelineId = getTimelineId(timelineGroup, timelineKey);
-        address postId = timelines[timelineId][postIndex];
-
-        Post memory post = posts[postId];
-        PostContent memory content = getPostContent(posts[postId].contentPointer);
-
-        for (uint256 i = 0; i < metadata.length; i++) metadata[i][1] = postMetadatas[postId][metadata[i][0]];
-        return PostData(postId, post, content, metadata);
-    } */
-
-    function getPostData(address postId, bytes32[2][] memory metadata) external view returns (PostData memory) {
-        Post memory post = posts[postId];
-        PostContent memory content = getPostContent(posts[postId].contentPointer);
-
-        for (uint256 i = 0; i < metadata.length; i++) metadata[i][1] = postMetadatas[postId][metadata[i][0]];
-        return PostData(postId, post, content, metadata);
+        emit PostMetadataSet(postId, key, value);
     }
 }

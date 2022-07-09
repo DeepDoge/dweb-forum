@@ -1,8 +1,9 @@
-import type { TimelineAddPostEventObject } from "$/tools/hardhat/typechain-types/App"
+import type { App, TimelineAddPostEventObject } from "$/tools/hardhat/typechain-types/App"
 import { account, appContract, provider } from "$/tools/wallet"
 import { listenContract } from "$/tools/wallet/listen"
 import { bytesToBytes32, hexToUtf8, utf8AsBytes32 } from "$/utils/common/bytes"
 import { cachedPromise } from "$/utils/common/cachedPromise"
+import type { OmitMatch, ReplaceType } from "$/utils/common/types"
 import type { BigNumberish } from "ethers"
 import { BigNumber } from "ethers"
 import { get, readable, writable, type Readable, type Writable } from "svelte/store"
@@ -19,48 +20,50 @@ export const enum TimelineGroup
     LastDefault = 5
 }
 
-export type PostData = Omit<Awaited<ReturnType<typeof appContract.getPostData>>, 'metadata'> &
-{
-    metadata: Record<string, string | BigNumber>
-}
-
+export type Timeline = Awaited<ReturnType<typeof getTimeline>>
 export type TimelineId = { group: BigNumberish, key: BigNumberish }
 export type PostId = string
+
+
+
+export type PostData =
+    Omit<App.PostContentStructOutput, Exclude<keyof App.PostContentStructOutput, keyof App.PostContentStruct>> &
+    Omit<App.PostStructOutput, Exclude<keyof App.PostStructOutput, keyof App.PostStruct>> &
+    {
+        postId: PostId 
+        owner: string 
+    }
 
 export function packTimelineId(timelineId: TimelineId)
 {
     return BigNumber.from(timelineId.group).shl(160).or(timelineId.key)
 }
 
-export type Timeline = Awaited<ReturnType<typeof getTimeline>>
-
-function encodeMetadataKeys(keys: string[]): [Uint8Array, Uint8Array][]
-{
-    return keys.map((key) => [utf8AsBytes32(key), bytesToBytes32(new Uint8Array())])
-}
-
-function decodeMetadataResponse(reponseMetadata: [string, string][]): PostData['metadata']
-{
-    const metadata: PostData['metadata'] = {}
-    for (const item of reponseMetadata)
-        metadata[hexToUtf8(item[0]), hexToUtf8(item[1])]
-    return metadata
-}
-
 export const getPostData = cachedPromise<{ postId: PostId }, Writable<PostData>>(
     (params) => params.postId.toString(),
     async ({ params }) =>
     {
-        const response = await appContract.getPostData(params.postId, encodeMetadataKeys(['hidden']))
-        return writable<PostData>({ ...response, metadata: decodeMetadataResponse(response.metadata) })
+        const postInfo = await appContract.postInfos(params.postId)
+        const [post, postContent] = (await Promise.all(
+            [
+                appContract.queryFilter(appContract.filters.PostPublished(params.postId), postInfo.postBlockPointer.toNumber(), postInfo.postBlockPointer.add(1).toNumber()),
+                appContract.queryFilter(appContract.filters.PostContentPublished(params.postId), postInfo.postContentBlockPointer.toNumber(), postInfo.postContentBlockPointer.add(1).toNumber())
+            ]
+        ))
+
+        return writable<PostData>({
+            postId: params.postId,
+            owner: postInfo.owner,
+            timelineGroup: post[0].args[1].timelineGroup,
+            timelineKey: post[0].args[1].timelineKey,
+            timelinePostIndex: post[0].args[1].timelinePostIndex,
+            title: postContent[0].args[1].title,
+            data: postContent[0].args[1].data,
+            mentions: postContent[0].args[1].mentions,
+            time: postContent[0].args[1].time
+        })
     }
 )
-
-function setPostData({ postData }: { postData: PostData })
-{
-    const key = postData.postId.toString()
-    getPostData._cacheRecord.get(key) ? getPostData._cacheRecord.get(key).set(postData) : getPostData._cacheRecord.set(key, writable(postData))
-}
 
 export const getTimelinePostInfo = cachedPromise<{ timelineId: TimelineId, postIndex: BigNumber, blockNumber: number }, { owner: string, postId: PostId, blockNumber: number }>(
     (params) => `${params.timelineId.group}:${params.timelineId.key}:${params.postIndex}`,
@@ -201,8 +204,8 @@ export async function getPostRoot({ postId }: { postId: PostId })
     const next = async (postId: PostId) =>
     {
         const postData = get(await getPostData({ postId }))
-        if (postData.post.timelineGroup.eq(TimelineGroup.Replies))
-            return postData.post.timelineKey._hex
+        if (postData.timelineGroup.eq(TimelineGroup.Replies))
+            return postData.timelineKey._hex
         return null
     }
     const result: PostId[] = []

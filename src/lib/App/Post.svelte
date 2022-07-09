@@ -23,7 +23,7 @@
     export let postId: $$Props["postId"];
 
     let postData: Writable<PostData> = null;
-    $: postContent = $postData ? decodeContent({ itemsData: hexToBytes($postData.content.data), mentions: $postData.content.mentions }) : null;
+    $: postContent = $postData ? decodeContent({ itemsData: hexToBytes($postData.data), mentions: $postData.mentions }) : null;
 
     let parentPostData: Writable<PostData> = null;
 
@@ -40,12 +40,12 @@
         parentPostData = null;
         if (!ethers.utils.isAddress(postId)) return;
         postData = await getPostData({ postId });
-        if ($postData.post.timelineGroup.eq(TimelineGroup.Replies)) parentPostData = await getPostData({ postId: $postData.post.timelineKey._hex });
+        if ($postData.timelineGroup.eq(TimelineGroup.Replies)) parentPostData = await getPostData({ postId: $postData.timelineKey._hex });
         repliesTimelineLengthData = await getTimelineLength({ timelineId: repliesTimelineId });
     }
 
-    $: date = $second && ((postData && format(new Date($postData.content.time.toNumber() * 1000))) ?? null);
-    $: title = (postData && hexToUtf8($postData.content.title)) ?? null;
+    $: date = $second && ((postData && format(new Date($postData.time.toNumber() * 1000))) ?? null);
+    $: title = (postData && hexToUtf8($postData.title)) ?? null;
     $: loading = postId && !postData;
     $: selected = /[0-9]/.test($currentRoute.hash) && postId === $currentRoute.hash;
 </script>
@@ -56,12 +56,12 @@
         <KBoxEffect color="mode" radius="rounded" background {loading} hideContent={loading} glow={selected ? "master" : false} {...$$props}>
             <div class="inner">
                 <div class="avatar">
-                    <AvatarOf address={$postData?.post.owner} />
+                    <AvatarOf address={$postData?.owner} />
                 </div>
-                <a href="#{$postData?.post.owner}" class="nickname">
-                    <NicknameOf address={$postData?.post.owner} />
+                <a href="#{$postData?.owner}" class="nickname">
+                    <NicknameOf address={$postData?.owner} />
                     <KHoverMenu background direction="right">
-                        <ProfileMiniCard address={$postData?.post.owner} />
+                        <ProfileMiniCard address={$postData?.owner} />
                     </KHoverMenu>
                 </a>
                 <div class="chip">
@@ -69,12 +69,12 @@
                         <a href="#{$currentRoute.path}#{$parentPostData.postId}">
                             <KChip color="slave">
                                 <div class="k-text-singleline">Reply to:</div>
-                                <NicknameOf address={$parentPostData.post.owner} /> @{$postData.post.timelineKey._hex.substring(42 - 4)}
+                                <NicknameOf address={$parentPostData.owner} /> @{$postData.timelineKey._hex.substring(42 - 4)}
                             </KChip>
                         </a>
-                    {:else if $postData?.post.timelineGroup.eq(TimelineGroup.Topics)}
-                        <a href="#{bigNumberAsUtf8($postData.post.timelineKey)}#{$postData.postId}">
-                            <KChip>#{bigNumberAsUtf8($postData.post.timelineKey)}</KChip>
+                    {:else if $postData?.timelineGroup.eq(TimelineGroup.Topics)}
+                        <a href="#{bigNumberAsUtf8($postData.timelineKey)}#{$postData.postId}">
+                            <KChip>#{bigNumberAsUtf8($postData.timelineKey)}</KChip>
                         </a>
                     {/if}
                     <div>

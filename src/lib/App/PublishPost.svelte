@@ -34,30 +34,22 @@
                     $account,
                     contentText,
                     BigNumber.from(timelineId.group).eq(TimelineGroup.Replies)
-                        ? [get(await getPostData({ postId: BigNumber.from(timelineId.key)._hex })).post.owner]
+                        ? [get(await getPostData({ postId: BigNumber.from(timelineId.key)._hex })).owner]
                         : []
                 )
             );
 
-            console.log(content.mentions);
-
             publishing = true;
 
-            await waitContractUntil(
-                appContract,
-                appContract.filters.PostPublished(
-                    (
-                        await appContract.publishPost(
-                            timelineId.group,
-                            timelineId.key,
-                            utf8AsBytes32(titleText?.trim()),
-                            content.itemsData,
-                            content.mentions
-                        )
-                    ).blockNumber
-                ),
-                () => true
+            const tx = await appContract.publishPost(
+                timelineId.group,
+                timelineId.key,
+                utf8AsBytes32(titleText?.trim()),
+                content.itemsData,
+                content.mentions
             );
+
+            await waitContractUntil(appContract, appContract.filters.PostPublished(), (x, y, event) => tx.blockNumber === event.blockNumber)
 
             titleText = null;
             contentText = null;

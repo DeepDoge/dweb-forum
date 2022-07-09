@@ -59,10 +59,10 @@
                 >
                     <Post postId={timelinePostId}>
                         <svelte:fragment slot="before" let:postData>
-                            {#if postData?.post.timelineGroup.eq(TimelineGroup.Topics)}
+                            {#if postData?.timelineGroup.eq(TimelineGroup.Topics)}
                                 <div class="topic-button">
-                                    <KButton size="normal" color="master" href="#{bigNumberAsUtf8(postData.post.timelineKey)}">
-                                        #{bigNumberAsUtf8(postData.post.timelineKey)}
+                                    <KButton size="normal" color="master" href="#{bigNumberAsUtf8(postData.timelineKey)}">
+                                        #{bigNumberAsUtf8(postData.timelineKey)}
                                     </KButton>
                                     <div>⌄</div>
                                 </div>
