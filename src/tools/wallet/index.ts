@@ -65,6 +65,13 @@ export const jsonProviders =
             nativeCurrency: { name: 'ETH', decimals: 18, symbol: 'ETH' },
             rpcUrls: ['https://arb1.arbitrum.io/rpc'],
             blockExplorerUrls: ['https://arbiscan.io/']
+        }),
+        Avalanche: createJsonRpcProviderInfo({
+            chainName: 'Avalanche C-Chain',
+            chainId: ethers.utils.hexlify(43114),
+            nativeCurrency: { name: "AVAX", decimals: 18, symbol: 'AVAX' },
+            rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
+            blockExplorerUrls: ['https://cchain.explorer.avax.network/']
         })
     } as const)
 
@@ -114,15 +121,9 @@ const providerChange = promiseQueue(async (provider: Web3Provider | JsonRpcProvi
     isContractsReady.set(false)
     if (!provider) return
     await provider.ready
-    let contractAddress: string = null
     let chainId = (await provider.getNetwork()).chainId
 
-    console.log(chainId, provider)
-
-    /*     if (provider instanceof Web3Provider)
-            console.log(':)', await provider.lookupAddress('0xE272C9a263701DAFFe940FB4ecEACFa9b2c1217D')) */
-
-    if (!(contractAddress = deployed[chainId]?.['App'] ?? null))
+    if (ethers.utils.hexlify(chainId) !== get(currentProviderInfo).chainId)
     {
         isContractsReady.set('wrongNetwork')
         throw new Error('Wrong Network')
@@ -131,7 +132,7 @@ const providerChange = promiseQueue(async (provider: Web3Provider | JsonRpcProvi
     const signer = provider instanceof Web3Provider ? provider.getSigner() : provider.getSigner('0x0000000000000000000000000000000000000000')
 
     appContract?.removeAllListeners()
-    appContract = App__factory.connect(contractAddress, signer)
+    appContract = App__factory.connect(deployed[chainId]?.['App'], signer)
 
     profileContract?.removeAllListeners()
     profileContract = Profile__factory.connect(deployed[chainId]['Profile'], signer)

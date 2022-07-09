@@ -1,10 +1,11 @@
 <script lang="ts">
     import { currentRoute } from "$/routes/_routing.svelte";
     import { getPostRoot, getTimeline, PostId, Timeline as TimelineType, TimelineGroup, TimelineId } from "$/tools/api/app";
-    import { bigNumberAsUtf8 } from "$/utils/common/bytes";
+    import { bigNumberAsUtf8 } from "$/utils/bytes";
     import Post from "$lib/App/Post.svelte";
     import Timeline from "$lib/App/Timeline.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
+import { BigNumber } from "ethers";
 
     export let postId: PostId;
 
@@ -48,7 +49,7 @@
 <div class:loading class="post-reply-timeline">
     <div class="posts">
         {#if loading && prefixPostIds.length === 0}
-            <Post postId={"placeholder"} />
+            <Post postId={BigNumber.from(-1)} />
         {/if}
         {#if repliesTimeline}
             {#each prefixPostIds as timelinePostId (timelinePostId)}

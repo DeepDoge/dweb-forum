@@ -54,6 +54,10 @@ const config: HardhatUserConfig = {
     arbitrum: {
       url: 'https://arb1.arbitrum.io/rpc',
       accounts: [secrets.privateKey]
+    },
+    avalanche: {
+      url: 'https://api.avax.network/ext/bc/C/rpc',
+      accounts: [secrets.privateKey]
     }
   }
 }

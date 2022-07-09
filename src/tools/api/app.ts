@@ -1,12 +1,10 @@
-import type { App, TimelineAddPostEventObject } from "$/tools/hardhat/typechain-types/App"
+import type { App, TimelineAddPostEvent } from "$/tools/hardhat/typechain-types/App"
 import { account, appContract, provider } from "$/tools/wallet"
-import { listenContract } from "$/tools/wallet/listen"
-import { bytesToBytes32, hexToUtf8, utf8AsBytes32 } from "$/utils/common/bytes"
 import { cachedPromise } from "$/utils/common/cachedPromise"
-import type { OmitMatch, ReplaceType } from "$/utils/common/types"
 import type { BigNumberish } from "ethers"
 import { BigNumber } from "ethers"
-import { get, readable, writable, type Readable, type Writable } from "svelte/store"
+import { get, writable, type Readable, type Writable } from "svelte/store"
+import type { TypedListener } from "../hardhat/typechain-types/common"
 
 export const enum TimelineGroup
 {
@@ -22,7 +20,7 @@ export const enum TimelineGroup
 
 export type Timeline = Awaited<ReturnType<typeof getTimeline>>
 export type TimelineId = { group: BigNumberish, key: BigNumberish }
-export type PostId = string
+export type PostId = BigNumber
 
 
 
@@ -30,9 +28,15 @@ export type PostData =
     Omit<App.PostContentStructOutput, Exclude<keyof App.PostContentStructOutput, keyof App.PostContentStruct>> &
     Omit<App.PostStructOutput, Exclude<keyof App.PostStructOutput, keyof App.PostStruct>> &
     {
-        postId: PostId 
-        owner: string 
+        postId: PostId
+        owner: string
     }
+
+export interface TimelineInfo
+{
+    length: BigNumber
+    lastBlockPointer: BigNumber
+}
 
 export function packTimelineId(timelineId: TimelineId)
 {
@@ -56,7 +60,6 @@ export const getPostData = cachedPromise<{ postId: PostId }, Writable<PostData>>
             owner: postInfo.owner,
             timelineGroup: post[0].args[1].timelineGroup,
             timelineKey: post[0].args[1].timelineKey,
-            timelinePostIndex: post[0].args[1].timelinePostIndex,
             title: postContent[0].args[1].title,
             data: postContent[0].args[1].data,
             mentions: postContent[0].args[1].mentions,
@@ -65,130 +68,115 @@ export const getPostData = cachedPromise<{ postId: PostId }, Writable<PostData>>
     }
 )
 
-export const getTimelinePostInfo = cachedPromise<{ timelineId: TimelineId, postIndex: BigNumber, blockNumber: number }, { owner: string, postId: PostId, blockNumber: number }>(
-    (params) => `${params.timelineId.group}:${params.timelineId.key}:${params.postIndex}`,
+export const getTimelinePostsAtBlock = cachedPromise<
+    { timelineId: TimelineId, blockNumber: number },
+    { owner: string, postId: PostId, previousBlockPointer: BigNumber }[]
+>(
+    (params) => `${params.timelineId.group}:${params.timelineId.key}:${params.blockNumber}`,
     async ({ params }) =>
     {
-        const timelinePostInfo = (await appContract.queryFilter(appContract.filters.TimelineAddPost(packTimelineId(params.timelineId), params.postIndex), params.blockNumber - 5000, params.blockNumber))?.[0]
-        if (!timelinePostInfo) throw `Index ${params.postIndex} doesn't exist on timeline (${params.timelineId.group}, ${params.timelineId.key})`
-        return { owner: timelinePostInfo.args.owner, postId: timelinePostInfo.args.postId, blockNumber: timelinePostInfo.blockNumber }
+        const events = (await appContract.queryFilter(
+            appContract.filters.TimelineAddPost(packTimelineId(params.timelineId)),
+            params.blockNumber,
+            params.blockNumber + 1
+        ))
+
+        return events.map((event) =>
+        {
+            return {
+                owner: event.args.owner,
+                postId: event.args.postId,
+                previousBlockPointer: event.args.previousBlockPointer
+            }
+        })
     }
 )
 
-type LastTimelineLengthEvent = TimelineAddPostEventObject & { timelineLength: BigNumber }
-export const getTimelineLength = cachedPromise<
-    { timelineId: TimelineId },
-    {
-        length: Writable<BigNumber>,
-        listen(): void,
-        unlisten(): void,
-        lastEvent: Readable<LastTimelineLengthEvent>
-    }
->(
+export const getTimelineInfo = cachedPromise<{ timelineId: TimelineId }, { timelineInfo: Writable<TimelineInfo>, lastEvent: Writable<TimelineAddPostEvent> }>(
     (params) => `${params.timelineId.group}:${params.timelineId.key}`,
-    async ({ params }) =>
+    async ({ params, setFinalizeCallback }) =>
     {
-        const length = writable(await appContract.getTimelineLength(params.timelineId.group, params.timelineId.key))
-        const lastEvent: Writable<LastTimelineLengthEvent> = writable(null)
+        const timelineIdPacked = packTimelineId(params.timelineId)
+        const timeline = await appContract.timelines(timelineIdPacked)
+        const timelineInfo: Writable<TimelineInfo> = writable({ length: timeline[0], lastBlockPointer: timeline.lastBlockPointer })
+        const lastEvent: Writable<TimelineAddPostEvent> = writable(null)
 
-        let unlisten: () => void = null
-        let listenerCount = 0
-        async function listen()
+        const filter = appContract.filters.TimelineAddPost(timelineIdPacked)
+        const listener: TypedListener<TimelineAddPostEvent> = (timelineId, postId, owner, previousBlockPointer, timelineLength, event) =>
         {
-            if (listenerCount > 0) return
-
-            unlisten = listenContract(
-                appContract,
-                appContract.filters.TimelineAddPost(packTimelineId(params.timelineId)),
-                (timelineId, postIndex, postId, owner) =>
-                {
-                    const timelineLength = postIndex.add(1)
-                    if (timelineLength.lte(get(length))) return
-                    lastEvent.set({
-                        timelineId,
-                        timelineLength,
-                        postIndex,
-                        owner,
-                        postId
-                    })
-                    length.set(timelineLength)
-                }
-            )
-            listenerCount++
+            if (!(event.blockNumber > (get(lastEvent)?.blockNumber ?? get(timelineInfo).lastBlockPointer.toNumber()))) return
+            timelineInfo.set({ length: timelineLength, lastBlockPointer: BigNumber.from(event.blockNumber) })
+            lastEvent.set(event)
         }
+        appContract.on(filter, listener)
+        setFinalizeCallback(() => appContract.off(filter, listener))
 
         return {
-            length,
-            listen,
-            unlisten()
-            {
-                if (listenerCount === 0) return
-                if (--listenerCount === 0)
-                    unlisten()
-            },
-            lastEvent: readable(get(lastEvent), (set) => lastEvent.subscribe((value) => set(value)))
+            timelineInfo,
+            lastEvent
         }
     }
 )
 
 export async function getTimeline(params: { timelineId: TimelineId })
 {
+    console.log(params.timelineId)
+
     const postIds = writable<PostId[]>([])
-    const postIdsPublishedByCurrentSession: PostId[] = []
+    let postIdsPublishedByCurrentSession: PostId[] = []
     const loadedPostIds: PostId[] = []
     const loading = writable(false)
     let done = false
 
-    const lengthData = await getTimelineLength({ timelineId: params.timelineId })
+    const timelineInfo = await getTimelineInfo({ timelineId: params.timelineId })
+    let lengthCache = get(timelineInfo.timelineInfo).length
+    let lastBlock = get(timelineInfo.timelineInfo).lastBlockPointer
     const newPostCount = writable(BigNumber.from(0))
-    const pivotIndex = get(lengthData.length).sub(1)
-    lengthData.lastEvent.subscribe((params) => 
+    timelineInfo.lastEvent.subscribe((event) => 
     {
-        if (!params) return
-        if (params.owner.toLowerCase() === get(account)?.toLowerCase()) 
+        if (!event) return
+        if (event.args.owner === get(account))
         {
-            postIdsPublishedByCurrentSession.unshift(params.postId)
-            if (done) postIds.set([...postIdsPublishedByCurrentSession, ...loadedPostIds])
+            postIdsPublishedByCurrentSession = [event.args.postId, ...postIdsPublishedByCurrentSession]
+            postIds.set([...postIdsPublishedByCurrentSession, ...loadedPostIds])
+            newPostCount.set(event.args.timelineLength.sub(lengthCache).sub(postIdsPublishedByCurrentSession.length))
         }
-        newPostCount.set(params.timelineLength.sub(pivotIndex).sub(1).sub(postIdsPublishedByCurrentSession.length))
     })
 
-    let loadOlderPivot = pivotIndex
-    let loadOlderBlockPivot = await get(provider).getBlockNumber()
     async function loadOlder()
     {
-        loading.set(true)
-
-        const promises: Promise<PostId>[] = []
-        const placeHolderPostIds: PostId[] = []
-        for (let i = 0; i < 64; i++)
+        if (done) return true
+        if (lastBlock.gt(0))
         {
-            if (loadOlderPivot.lt(0)) break
+            loading.set(true)
 
-            placeHolderPostIds.push(`placeholder${i}`)
-            promises.push((async () =>
-            {
-                const postInfo = await getTimelinePostInfo({ timelineId: params.timelineId, postIndex: loadOlderPivot, blockNumber: loadOlderBlockPivot })
-                if (postInfo.blockNumber < loadOlderBlockPivot) loadOlderBlockPivot = postInfo.blockNumber
-                return postInfo.postId
-            })())
+            postIds.set([...postIdsPublishedByCurrentSession, BigNumber.from(-1), ...loadedPostIds])
 
-            loadOlderPivot = loadOlderPivot.sub(1)
+            const posts = await getTimelinePostsAtBlock({
+                timelineId: params.timelineId,
+                blockNumber: lastBlock.toNumber()
+            })
+            loadedPostIds.push(...posts.map((post) => post.postId))
+
+            lastBlock = posts[0]?.previousBlockPointer ?? BigNumber.from(0)
+
+            postIds.set([...postIdsPublishedByCurrentSession, ...loadedPostIds])
+
+            loading.set(false)
         }
 
-        postIds.set([...postIdsPublishedByCurrentSession, ...loadedPostIds, ...placeHolderPostIds])
-        const newPostIds = await Promise.all(promises)
-        loadedPostIds.push(...newPostIds)
-        postIds.set([...postIdsPublishedByCurrentSession, ...loadedPostIds])
+        if (lastBlock.lte(0)) 
+        {
+            done = true
+            return true
+        }
 
-        loading.set(false)
-        if (done = (newPostIds.length === 0)) return false
-        return true
+        return false
     }
+
 
     return {
         timelineId: params.timelineId,
-        lengthData,
         newPostCount,
         postIds,
         loadOlder,
@@ -201,11 +189,11 @@ export async function getTimeline(params: { timelineId: TimelineId })
 // Not caching this because postData is already cached
 export async function getPostRoot({ postId }: { postId: PostId })
 {
-    const next = async (postId: PostId) =>
+    const next = async (postId: PostId): Promise<PostId> =>
     {
         const postData = get(await getPostData({ postId }))
         if (postData.timelineGroup.eq(TimelineGroup.Replies))
-            return postData.timelineKey._hex
+            return postData.timelineKey
         return null
     }
     const result: PostId[] = []

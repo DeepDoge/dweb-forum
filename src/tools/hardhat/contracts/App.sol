@@ -20,25 +20,29 @@ contract App {
     ==========================
     */
 
-    mapping(uint256 => uint256) public timelineLengths;
+    struct Timeline
+    {
+        uint256 lastBlockPointer;
+        uint256 length;
+    }
+
+    mapping(uint256 => Timeline) public timelines;
 
     function getTimelineId(uint96 timelineGroup, uint160 timelineKey) private pure returns (uint256) {
         return (uint256(timelineGroup) << 160) | timelineKey;
     }
 
-    function getTimelineLength(uint96 timelineGroup, uint160 timelineKey) external view returns (uint256) {
-        return timelineLengths[getTimelineId(timelineGroup, timelineKey)];
-    }
-
-    event TimelineAddPost(uint256 indexed timelineId, uint256 indexed postIndex, address postId, address owner);
+    event TimelineAddPost(uint256 indexed timelineId, uint160 postId, address owner, uint256 previousBlockPointer, uint256 timelineLength);
 
     function addPostToTimeline(
         uint96 timelineGroup,
         uint160 timelineKey,
-        address postId
+        uint160 postId
     ) private {
         uint256 timelineId = getTimelineId(timelineGroup, timelineKey);
-        emit TimelineAddPost(timelineId, timelineLengths[timelineId]++, postId, msg.sender);
+        Timeline memory timeline = timelines[timelineId];
+        timelines[timelineId] = Timeline(block.number, timeline.length + 1); 
+        emit TimelineAddPost(timelineId, postId, msg.sender, timeline.lastBlockPointer, timeline.length + 1);
     }
 
     /* 
@@ -56,7 +60,6 @@ contract App {
     struct Post {
         uint96 timelineGroup;
         uint160 timelineKey;
-        uint256 timelinePostIndex;
     }
 
     struct PostContent {
@@ -66,10 +69,10 @@ contract App {
         bytes data;
     }
 
-    event PostPublished(address indexed postId, Post post);
-    event PostContentPublished(address indexed postId, PostContent postContent);
+    event PostPublished(uint160 indexed postId, Post post);
+    event PostContentPublished(uint160 indexed postId, PostContent postContent);
 
-    mapping(address => PostInfo) public postInfos;
+    mapping(uint160 => PostInfo) public postInfos;
     uint160 public postCounter = 1;
 
     function publishPost(
@@ -78,15 +81,13 @@ contract App {
         bytes32 title,
         bytes calldata data,
         address[] calldata mentions
-    ) external returns (address) {
+    ) external {
         require(timelineGroup > LAST_INTERNAL_TIMELINE_GROUP, "Can't post on internal timeline group.");
 
-        uint256 timelineLength = timelineLengths[getTimelineId(timelineGroup, timelineKey)];
-
-        address postId = address(postCounter++);
+        uint160 postId = postCounter++;
         postInfos[postId] = PostInfo(block.number, block.number, msg.sender);
 
-        emit PostPublished(postId, Post(timelineGroup, timelineKey, timelineLength));
+        emit PostPublished(postId, Post(timelineGroup, timelineKey));
         emit PostContentPublished(postId, PostContent(title, block.timestamp, mentions, data));
 
         addPostToTimeline(timelineGroup, timelineKey, postId);
@@ -99,11 +100,9 @@ contract App {
         );
 
         for (uint256 i = 0; i < mentions.length; i++) addPostToTimeline(TIMELINE_GROUP_PROFILE_MENTIONS, uint160(address(mentions[i])), postId);
-
-        return postId;
     }
 
-    modifier onlyPostOwner(address postId) {
+    modifier onlyPostOwner(uint160 postId) {
         require(postInfos[postId].owner == msg.sender, "You don't own this post.");
         _;
     }
@@ -113,10 +112,10 @@ contract App {
     Post Edit
     ==========================
     */
-    mapping(address => uint256[]) public postContentHistory;
+    mapping(uint160 => uint256[]) public postContentHistory;
 
     function editPost(
-        address postId,
+        uint160 postId,
         bytes32 title,
         bytes calldata data,
         address[] calldata mentions
@@ -133,11 +132,11 @@ contract App {
     Post MetaData
     ==========================
     */
-    mapping(address => mapping(bytes32 => bytes32)) public postMetadatas;
-    event PostMetadataSet(address indexed postId, bytes32 key, bytes32 value);
+    mapping(uint160 => mapping(bytes32 => bytes32)) public postMetadatas;
+    event PostMetadataSet(uint160 indexed postId, bytes32 key, bytes32 value);
 
     function setPostMetadata(
-        address postId,
+        uint160 postId,
         bytes32 key,
         bytes32 value
     ) public onlyPostOwner(postId) {

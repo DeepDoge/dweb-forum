@@ -3,7 +3,7 @@
     import Post from "$lib/App/Post.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KIntersectionObserver from "$lib/kicho-ui/components/KIntersectionObserver.svelte";
-    import { onDestroy } from "svelte";
+    import { BigNumber } from "ethers";
     import PublishPost from "./PublishPost.svelte";
 
     export let publish = false;
@@ -16,22 +16,16 @@
     $: !done && intersecting && !active && loop();
     async function loop() {
         active = true;
-        while (!done && intersecting) {
-            const isThereMoreToLoad = await timeline.loadOlder();
-            done = !isThereMoreToLoad;
-        }
+        while (!done && intersecting) 
+            done = await timeline.loadOlder();
         active = false;
     }
+    
     $: timeline, onTimelineChange();
-    let timelineCache: typeof timeline;
     function onTimelineChange() {
-        const isNull = !timeline;
-        timelineCache?.lengthData.unlisten();
-        timeline?.lengthData.listen();
-        timelineCache = timeline;
-        setTimeout(() => (done = isNull)); // so fucking weird that i have to do this
+        const isNull = !timeline;;
+        setTimeout(() => (done = isNull));
     }
-    onDestroy(() => timelineCache?.lengthData.unlisten());
 
     $: newPostCount = timeline?.newPostCount;
     async function refresh() {
@@ -45,7 +39,7 @@
             <PublishPost timelineId={timeline.timelineId} />
         {/if}
         {#if !timeline}
-            <Post postId={"placeholder"} />
+            <Post postId={BigNumber.from(-1)} />
         {:else}
             <div class="refresh-button">
                 <KButton title="Refresh" on:click={refresh} background={!$newPostCount.eq(0)} color="mode-pop">

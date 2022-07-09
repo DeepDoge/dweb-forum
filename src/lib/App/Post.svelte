@@ -1,13 +1,12 @@
 <script lang="ts">
     import { currentRoute } from "$/routes/_routing.svelte";
-    import { getPostData, getTimelineLength, PostData, PostId, TimelineGroup, TimelineId } from "$/tools/api/app";
-    import { bigNumberAsUtf8, hexToBytes, hexToUtf8 } from "$/utils/common/bytes";
+    import { getPostData, getTimelineInfo, PostData, PostId, TimelineGroup, TimelineId } from "$/tools/api/app";
+    import { bigNumberAsUtf8, hexToBytes, hexToUtf8 } from "$/utils/bytes";
     import { decodeContent } from "$/utils/content";
     import { second } from "$/utils/second";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KChip from "$lib/kicho-ui/components/KChip.svelte";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
-    import { ethers } from "ethers";
     import type { Writable } from "svelte/store";
     import { format } from "timeago.js";
     import AvatarOf from "./AvatarOf.svelte";
@@ -30,24 +29,23 @@
     let repliesTimelineId: TimelineId;
     $: repliesTimelineId = { group: TimelineGroup.Replies, key: postId };
 
-    let repliesTimelineLengthData: Awaited<ReturnType<typeof getTimelineLength>> = null;
-    $: repliesLength = repliesTimelineLengthData?.length;
+    let repliesTimelineInfo: Awaited<ReturnType<typeof getTimelineInfo>>['timelineInfo'] = null;
 
-    $: postId !== $postData?.postId && updatePost();
+    $: (!$postData || !postId.eq($postData.postId)) && updatePost();
     async function updatePost() {
         postData = null;
-        repliesTimelineLengthData = null;
+        repliesTimelineInfo = null;
         parentPostData = null;
-        if (!ethers.utils.isAddress(postId)) return;
+        if (postId.lte(0)) return;
         postData = await getPostData({ postId });
-        if ($postData.timelineGroup.eq(TimelineGroup.Replies)) parentPostData = await getPostData({ postId: $postData.timelineKey._hex });
-        repliesTimelineLengthData = await getTimelineLength({ timelineId: repliesTimelineId });
+        if ($postData.timelineGroup.eq(TimelineGroup.Replies)) parentPostData = await getPostData({ postId: $postData.timelineKey });
+        repliesTimelineInfo = (await getTimelineInfo({ timelineId: repliesTimelineId })).timelineInfo;
     }
 
     $: date = $second && ((postData && format(new Date($postData.time.toNumber() * 1000))) ?? null);
     $: title = (postData && hexToUtf8($postData.title)) ?? null;
     $: loading = postId && !postData;
-    $: selected = /[0-9]/.test($currentRoute.hash) && postId === $currentRoute.hash;
+    $: selected = /[0-9]/.test($currentRoute.hash) && postId?.eq($currentRoute.hash);
 </script>
 
 <slot name="before" postData={$postData} />
@@ -69,7 +67,7 @@
                         <a href="#{$currentRoute.path}#{$parentPostData.postId}">
                             <KChip color="slave">
                                 <div class="k-text-singleline">Reply to:</div>
-                                <NicknameOf address={$parentPostData.owner} /> @{$postData.timelineKey._hex.substring(42 - 4)}
+                                <NicknameOf address={$parentPostData.owner} /> @{$postData.timelineKey}
                             </KChip>
                         </a>
                     {:else if $postData?.timelineGroup.eq(TimelineGroup.Topics)}
@@ -78,7 +76,7 @@
                         </a>
                     {/if}
                     <div>
-                        <KChip color="mode-pop">@{$postData?.postId.substring(42 - 4)}</KChip>
+                        <KChip color="mode-pop">@{$postData?.postId}</KChip>
                     </div>
                 </div>
 
@@ -103,7 +101,7 @@
                                 d="M4.79805 3C3.80445 3 2.99805 3.8055 2.99805 4.8V15.6C2.99805 16.5936 3.80445 17.4 4.79805 17.4H7.49805V21L11.098 17.4H19.198C20.1925 17.4 20.998 16.5936 20.998 15.6V4.8C20.998 3.8055 20.1925 3 19.198 3H4.79805Z"
                             />
                         </svg>
-                        {$repliesLength ?? "..."}
+                        {$repliesTimelineInfo?.length ?? "..."}
                     </div>
                     <div class="date k-text-singleline">{date?.toLocaleString()}</div>
                 </div>

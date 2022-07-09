@@ -2,7 +2,7 @@
     import { currentRoute } from "$/routes/_routing.svelte";
     import { getTimeline, PostId, Timeline as TimelineType, TimelineId } from "$/tools/api/app";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
-    import { ethers } from "ethers";
+    import { BigNumber } from "ethers";
     import Post from "./Post.svelte";
     import PostTimeline from "./PostTimeline.svelte";
     import Timeline from "./Timeline.svelte";
@@ -18,7 +18,7 @@
     }
 
     let selectedPostId: PostId = null;
-    $: selectedPostId = $currentRoute.hash ? (ethers.utils.isAddress($currentRoute.hash) ? $currentRoute.hash : selectedPostId) : null;
+    $: selectedPostId = $currentRoute.hash ? (/[0-9]/.test($currentRoute.hash) ? BigNumber.from($currentRoute.hash) : selectedPostId) : null;
 
     let fixed = false;
     async function updateFixed() {
@@ -71,7 +71,6 @@
         align-content: stretch;
         align-items: stretch;
         justify-items: stretch;
-        background-color: var(--k-color-mode-body);
         gap: calc(var(--k-padding) * 2);
     }
 
