@@ -47,11 +47,11 @@ contract App {
     ==========================
     */
     struct Post {
-        address owner;
         uint96 timelineGroup;
         uint160 timelineKey;
         uint256 timelinePostIndex;
         address contentPointer;
+        address owner;
     }
 
     struct PostContent {
@@ -92,7 +92,7 @@ contract App {
         // content pointer can change but postId stays the same
         address contentPointer = SSTORE2.write(abi.encode(PostContent(title, block.timestamp, mentions, data)));
 
-        posts[contentPointer] = Post(msg.sender, timelineGroup, timelineKey, timelineLength, contentPointer);
+        posts[contentPointer] = Post(timelineGroup, timelineKey, timelineLength, contentPointer, msg.sender);
 
         addPostToTimeline(timelineGroup, timelineKey, contentPointer);
         addPostToTimeline(TIMELINE_GROUP_ALL, timelineGroup, contentPointer);
