@@ -34,7 +34,7 @@
                     $account,
                     contentText,
                     BigNumber.from(timelineId.group).eq(TimelineGroup.Replies)
-                        ? [get(await getPostData({ postId: BigNumber.from(timelineId.key) })).post.owner]
+                        ? [get(await getPostData({ postId: BigNumber.from(timelineId.key)._hex })).post.owner]
                         : []
                 )
             );
@@ -57,8 +57,8 @@
                 () => true
             );
 
-            titleText = null
-            contentText = null
+            titleText = null;
+            contentText = null;
             dispatchEvent("done");
         } catch (error) {
             await dialogManager.alert(error.message);

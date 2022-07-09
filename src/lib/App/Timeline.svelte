@@ -3,7 +3,6 @@
     import Post from "$lib/App/Post.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KIntersectionObserver from "$lib/kicho-ui/components/KIntersectionObserver.svelte";
-    import { BigNumber } from "ethers";
     import { onDestroy } from "svelte";
     import PublishPost from "./PublishPost.svelte";
 
@@ -46,7 +45,7 @@
             <PublishPost timelineId={timeline.timelineId} />
         {/if}
         {#if !timeline}
-            <Post postId={BigNumber.from(-1)} />
+            <Post postId={"placeholder"} />
         {:else}
             <div class="refresh-button">
                 <KButton title="Refresh" on:click={refresh} background={!$newPostCount.eq(0)} color="mode-pop">

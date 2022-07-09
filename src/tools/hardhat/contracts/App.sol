@@ -10,36 +10,35 @@ contract App {
     ==========================
     */
 
-    mapping(uint256 => uint256[]) public timelines;
+    mapping(uint256 => address[]) public timelines;
+
+    function getTimelineId(uint96 timelineGroup, uint160 timelineKey) private pure returns (uint256) {
+        return (uint256(timelineGroup) >> 160) | timelineKey;
+    }
 
     function getTimelineLength(uint96 timelineGroup, uint160 timelineKey) external view returns (uint256) {
         return timelines[getTimelineId(timelineGroup, timelineKey)].length;
     }
 
-    event TimelineAddPost(uint256 indexed timelineId, uint256 postId, address owner, uint256 timelineLength);
+    event TimelineAddPost(uint256 indexed timelineId, address postId, address owner, uint256 timelineLength);
 
-    mapping(uint256 => mapping(uint160 => bool)) public mentionIndex;
+    mapping(address => mapping(uint160 => bool)) public mentionIndex;
 
     function addPostToTimeline(
         uint96 timelineGroup,
         uint160 timelineKey,
-        uint256 postId
+        address postId
     ) private {
         if (timelineGroup == TIMELINE_GROUP_PROFILE_MENTIONS) {
-            mapping (uint160 => bool) storage postMentionIndex = mentionIndex[postId];
+            mapping(uint160 => bool) storage postMentionIndex = mentionIndex[postId];
             if (postMentionIndex[timelineKey]) return;
             postMentionIndex[timelineKey] = true;
         }
 
         uint256 timelineId = getTimelineId(timelineGroup, timelineKey);
-        uint256[] storage timeline = timelines[timelineId];
+        address[] storage timeline = timelines[timelineId];
         timeline.push() = postId;
         emit TimelineAddPost(timelineId, postId, msg.sender, timeline.length);
-    }
-
-    function getTimelineId(uint96 timelineGroup, uint160 timelineKey) private pure returns(uint256)
-    {
-        return (uint256(timelineGroup) >> 160) | timelineKey;
     }
 
     /* 
@@ -75,7 +74,7 @@ contract App {
 
     event PostPublished(uint256 indexed blockNumber);
 
-    Post[] public posts;
+    mapping(address => Post) posts;
 
     function publishPost(
         uint96 timelineGroup,
@@ -88,31 +87,29 @@ contract App {
 
         uint256 timelineId = getTimelineId(timelineGroup, timelineKey);
         uint256 timelineLength = timelines[timelineId].length;
-        uint256 postId = posts.length;
-        posts.push() = Post(
-            msg.sender,
-            timelineGroup,
-            timelineKey,
-            timelineLength,
-            SSTORE2.write(abi.encode(PostContent(title, block.timestamp, mentions, data)))
-        );
 
-        addPostToTimeline(timelineGroup, timelineKey, postId);
-        addPostToTimeline(TIMELINE_GROUP_ALL, timelineGroup, postId);
-    
+        // First content pointer is also the postId
+        // content pointer can change but postId stays the same
+        address contentPointer = SSTORE2.write(abi.encode(PostContent(title, block.timestamp, mentions, data)));
+
+        posts[contentPointer] = Post(msg.sender, timelineGroup, timelineKey, timelineLength, contentPointer);
+
+        addPostToTimeline(timelineGroup, timelineKey, contentPointer);
+        addPostToTimeline(TIMELINE_GROUP_ALL, timelineGroup, contentPointer);
+
         addPostToTimeline(
             timelineGroup == TIMELINE_GROUP_REPLIES ? TIMELINE_GROUP_PROFILE_REPLIES : TIMELINE_GROUP_PROFILE_POSTS,
             uint160(address(msg.sender)),
-            postId
+            contentPointer
         );
 
         for (uint256 i = 0; i < mentions.length; i++)
-            addPostToTimeline(TIMELINE_GROUP_PROFILE_MENTIONS, uint160(address(mentions[i])), postId);
+            addPostToTimeline(TIMELINE_GROUP_PROFILE_MENTIONS, uint160(address(mentions[i])), contentPointer);
 
         emit PostPublished(block.number);
     }
 
-    modifier onlyPostOwner(uint256 postId) {
+    modifier onlyPostOwner(address postId) {
         require(posts[postId].owner == msg.sender, "You don't own this post.");
         _;
     }
@@ -123,12 +120,12 @@ contract App {
     ==========================
     */
 
-    mapping(uint256 => address[]) public postContentHistory;
+    mapping(address => address[]) public postContentHistory;
 
-    event PostEdit(uint256 indexed postId, bytes32 title, bytes data, address[] mentions);
+    event PostEdit(address indexed postId, bytes32 title, bytes data, address[] mentions);
 
     function editPost(
-        uint256 postId,
+        address postId,
         bytes32 title,
         bytes calldata data,
         address[] calldata mentions
@@ -145,11 +142,11 @@ contract App {
     ==========================
     */
 
-    mapping(uint256 => mapping(bytes32 => bytes32)) public postMetadatas;
-    event PostMetadataSet(uint256 indexed postId, bytes32 key, bytes32 value, uint256 blockNumber);
+    mapping(address => mapping(bytes32 => bytes32)) public postMetadatas;
+    event PostMetadataSet(address indexed postId, bytes32 key, bytes32 value, uint256 blockNumber);
 
     function setPostMetadata(
-        uint256 postId,
+        address postId,
         bytes32 key,
         bytes32 value
     ) public onlyPostOwner(postId) {
@@ -164,7 +161,7 @@ contract App {
     */
 
     struct PostData {
-        uint256 postId;
+        address postId;
         Post post;
         PostContent content;
         bytes32[2][] metadata;
@@ -181,7 +178,7 @@ contract App {
         bytes32[2][] memory metadata
     ) external view returns (PostData memory) {
         uint256 timelineId = getTimelineId(timelineGroup, timelineKey);
-        uint256 postId = timelines[timelineId][postIndex];
+        address postId = timelines[timelineId][postIndex];
 
         Post memory post = posts[postId];
         PostContent memory content = getPostContent(posts[postId].contentPointer);
@@ -190,7 +187,7 @@ contract App {
         return PostData(postId, post, content, metadata);
     }
 
-    function getPostData(uint256 postId, bytes32[2][] memory metadata) external view returns (PostData memory) {
+    function getPostData(address postId, bytes32[2][] memory metadata) external view returns (PostData memory) {
         Post memory post = posts[postId];
         PostContent memory content = getPostContent(posts[postId].contentPointer);
 

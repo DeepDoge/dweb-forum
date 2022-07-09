@@ -11,7 +11,7 @@
 
     export let topic: $$Props["topic"];
     $: topicId = utf8AsBigNumber256(topic);
-    let timelineId: TimelineId
+    let timelineId: TimelineId;
     $: timelineId = { group: TimelineGroup.Topics, key: topicId };
 </script>
 

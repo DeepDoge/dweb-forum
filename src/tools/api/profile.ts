@@ -1,9 +1,9 @@
+import { profileContract } from "$/tools/wallet"
+import { listenContract } from "$/tools/wallet/listen"
+import { hexToUtf8, utf8AsBytes32 } from "$/utils/common/bytes"
 import { cachedPromise } from "$/utils/common/cachedPromise"
 import type { Writable } from "svelte/store"
 import { writable } from "svelte/store"
-import { hexToUtf8, utf8AsBytes32 } from "$/utils/common/bytes"
-import { profileContract } from "$/tools/wallet"
-import { listenContract } from "$/tools/wallet/listen"
 
 export interface ProfileInfo
 {

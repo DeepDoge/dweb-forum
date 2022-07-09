@@ -1,13 +1,12 @@
 <script lang="ts">
-    import { getPostRoot, getTimeline, Timeline as TimelineType, TimelineGroup, TimelineId } from "$/tools/api/app";
-    import { bigNumberAsUtf8 } from "$/utils/common/bytes";
     import { currentRoute } from "$/routes/_routing.svelte";
+    import { getPostRoot, getTimeline, PostId, Timeline as TimelineType, TimelineGroup, TimelineId } from "$/tools/api/app";
+    import { bigNumberAsUtf8 } from "$/utils/common/bytes";
     import Post from "$lib/App/Post.svelte";
     import Timeline from "$lib/App/Timeline.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
-    import { BigNumber } from "ethers";
 
-    export let postId: BigNumber;
+    export let postId: PostId;
 
     let repliesTimelineId: TimelineId;
     $: repliesTimelineId = postId ? { group: TimelineGroup.Replies, key: postId } : null;
@@ -15,7 +14,7 @@
     let repliesTimeline: TimelineType = null;
     $: repliesTimelineLoading = repliesTimeline?.loading;
 
-    let prefixPostIds: BigNumber[] = [];
+    let prefixPostIds: PostId[] = [];
 
     let loading = false;
     let _loading = loading;
@@ -49,11 +48,15 @@
 <div class:loading class="post-reply-timeline">
     <div class="posts">
         {#if loading && prefixPostIds.length === 0}
-            <Post postId={BigNumber.from(-1)} />
+            <Post postId={"placeholder"} />
         {/if}
         {#if repliesTimeline}
-            {#each prefixPostIds as timelinePostId}
-                <a href={timelinePostId ? `#${$currentRoute.path}#${timelinePostId}` : null} bind:this={postElements[timelinePostId.toString()]} class="post root-post">
+            {#each prefixPostIds as timelinePostId (timelinePostId)}
+                <a
+                    href={timelinePostId ? `#${$currentRoute.path}#${timelinePostId}` : null}
+                    bind:this={postElements[timelinePostId.toString()]}
+                    class="post root-post"
+                >
                     <Post postId={timelinePostId}>
                         <svelte:fragment slot="before" let:postData>
                             {#if postData?.post.timelineGroup.eq(TimelineGroup.Topics)}
@@ -70,8 +73,12 @@
             {/each}
             <b>Replies{$repliesTimelineLoading ? "..." : ":"}</b>
             <Timeline publish timeline={repliesTimeline} let:postIds>
-                {#each postIds as timelinePostId}
-                    <a href={timelinePostId ? `#${$currentRoute.path}#${timelinePostId}` : null} class="post" bind:this={postElements[timelinePostId.toString()]}>
+                {#each postIds as timelinePostId (timelinePostId)}
+                    <a
+                        href={timelinePostId ? `#${$currentRoute.path}#${timelinePostId}` : null}
+                        class="post"
+                        bind:this={postElements[timelinePostId.toString()]}
+                    >
                         <Post postId={timelinePostId} />
                     </a>
                 {/each}

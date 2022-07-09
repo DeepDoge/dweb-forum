@@ -1,12 +1,11 @@
-import type { BigNumberish } from "ethers"
-import { BigNumber } from "ethers"
-import { readable, type Readable, type Writable } from "svelte/store"
-import { get, writable } from "svelte/store"
-import { cachedPromise } from "$/utils/common/cachedPromise"
 import type { TimelineAddPostEventObject } from "$/tools/hardhat/typechain-types/App"
-import { bytesToBytes32, hexToUtf8, utf8AsBytes32 } from "$/utils/common/bytes"
 import { account, appContract } from "$/tools/wallet"
 import { listenContract } from "$/tools/wallet/listen"
+import { bytesToBytes32, hexToUtf8, utf8AsBytes32 } from "$/utils/common/bytes"
+import { cachedPromise } from "$/utils/common/cachedPromise"
+import type { BigNumberish } from "ethers"
+import { BigNumber } from "ethers"
+import { get, readable, writable, type Readable, type Writable } from "svelte/store"
 
 export const enum TimelineGroup
 {
@@ -26,6 +25,7 @@ export type PostData = Omit<Awaited<ReturnType<typeof appContract.getPostData>>,
 }
 
 export type TimelineId = { group: BigNumberish, key: BigNumberish }
+export type PostId = string
 
 export type Timeline = Awaited<ReturnType<typeof getTimeline>>
 
@@ -42,7 +42,7 @@ function decodeMetadataResponse(reponseMetadata: [string, string][]): PostData['
     return metadata
 }
 
-export const getPostData = cachedPromise<{ postId: BigNumber }, Writable<PostData>>(
+export const getPostData = cachedPromise<{ postId: PostId }, Writable<PostData>>(
     (params) => params.postId.toString(),
     async ({ params }) =>
     {
@@ -129,9 +129,9 @@ export const getTimelineLength = cachedPromise<
 
 export async function getTimeline(params: { timelineId: TimelineId })
 {
-    const postIds = writable<BigNumber[]>([])
-    const postIdsPublishedByCurrentSession: BigNumber[] = []
-    const loadedPostIds: BigNumber[] = []
+    const postIds = writable<PostId[]>([])
+    const postIdsPublishedByCurrentSession: PostId[] = []
+    const loadedPostIds: PostId[] = []
     const loading = writable(false)
     let done = false
 
@@ -154,13 +154,13 @@ export async function getTimeline(params: { timelineId: TimelineId })
     {
         loading.set(true)
 
-        const promises: Promise<BigNumber>[] = []
-        const placeHolderPostIds: BigNumber[] = []
+        const promises: Promise<PostId>[] = []
+        const placeHolderPostIds: PostId[] = []
         for (let i = 0; i < 64; i++)
         {
             if (loadOlderPivot.lt(0)) break
 
-            placeHolderPostIds.push(BigNumber.from((i + 1) * -1))
+            placeHolderPostIds.push(`placeholder${i}`)
             promises.push((async () =>
             {
                 const postData = get(await getTimelinePostData({ timelineId: params.timelineId, postIndex: loadOlderPivot }))
@@ -191,16 +191,16 @@ export async function getTimeline(params: { timelineId: TimelineId })
 }
 
 // Not caching this because postData is already cached
-export async function getPostRoot({ postId }: { postId: BigNumber })
+export async function getPostRoot({ postId }: { postId: PostId })
 {
-    const next = async (postId: BigNumber) =>
+    const next = async (postId: PostId) =>
     {
         const postData = get(await getPostData({ postId }))
         if (postData.post.timelineGroup.eq(TimelineGroup.Replies))
-            return postData.post.timelineKey
+            return postData.post.timelineKey._hex
         return null
     }
-    const result: BigNumber[] = []
+    const result: PostId[] = []
 
     let current = await next(postId)
     for (let i = 0; i < 16; i++)

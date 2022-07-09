@@ -1,16 +1,11 @@
 <script lang="ts">
     import KBoxEffect from "$/lib/kicho-ui/components/effects/KBoxEffect.svelte";
-    import { getTimeline, TimelineGroup } from "$/tools/api/app";
     import { account, connectWallet } from "$/tools/wallet";
     import AddressOf from "$lib/App/AddressOf.svelte";
     import AvatarOf from "$lib/App/AvatarOf.svelte";
     import NicknameOf from "$lib/App/NicknameOf.svelte";
     import Notifications from "$lib/App/Notifications.svelte";
-    import Post from "$lib/App/Post.svelte";
-    import Timeline from "$lib/App/Timeline.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
-    import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
-    import { get } from "svelte/store";
     import { currentRoute } from "./_routing.svelte";
 
     let height: number = 0;

@@ -1,10 +1,10 @@
 <script lang="ts">
+    import { currentRoute } from "$/routes/_routing.svelte";
+    import { getTimeline, Timeline as TImelineType, TimelineGroup } from "$/tools/api/app";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
     import Post from "./Post.svelte";
     import Timeline from "./Timeline.svelte";
-    import { getTimeline, Timeline as TImelineType, TimelineGroup } from "$/tools/api/app";
-    import { currentRoute } from "$/routes/_routing.svelte";
 
     export let account: string;
     let mentionsTimeline: TImelineType = null;
@@ -26,7 +26,7 @@
             <div class="notifications">
                 <b>Notifications</b>
                 <Timeline timeline={mentionsTimeline} let:postIds>
-                    {#each postIds as postId (postId.toString())}
+                    {#each postIds as postId (postId)}
                         <a href="#{$currentRoute.path}#{postId}">
                             <Post {postId} />
                         </a>
