@@ -1,5 +1,5 @@
 import type { TimelineAddPostEventObject } from "$/tools/hardhat/typechain-types/App"
-import { account, appContract } from "$/tools/wallet"
+import { account, appContract, provider } from "$/tools/wallet"
 import { listenContract } from "$/tools/wallet/listen"
 import { bytesToBytes32, hexToUtf8, utf8AsBytes32 } from "$/utils/common/bytes"
 import { cachedPromise } from "$/utils/common/cachedPromise"
@@ -26,6 +26,11 @@ export type PostData = Omit<Awaited<ReturnType<typeof appContract.getPostData>>,
 
 export type TimelineId = { group: BigNumberish, key: BigNumberish }
 export type PostId = string
+
+export function packTimelineId(timelineId: TimelineId)
+{
+    return BigNumber.from(timelineId.group).shl(160).or(timelineId.key)
+}
 
 export type Timeline = Awaited<ReturnType<typeof getTimeline>>
 
@@ -57,23 +62,17 @@ function setPostData({ postData }: { postData: PostData })
     getPostData._cacheRecord.get(key) ? getPostData._cacheRecord.get(key).set(postData) : getPostData._cacheRecord.set(key, writable(postData))
 }
 
-export const getTimelinePostData = cachedPromise<{ timelineId: TimelineId, postIndex: BigNumber }, Writable<PostData>>(
+export const getTimelinePostInfo = cachedPromise<{ timelineId: TimelineId, postIndex: BigNumber, blockNumber: number }, { owner: string, postId: PostId, blockNumber: number }>(
     (params) => `${params.timelineId.group}:${params.timelineId.key}:${params.postIndex}`,
     async ({ params }) =>
     {
-        const postData = await appContract.getTimelinePostData(
-            params.timelineId.group,
-            params.timelineId.key,
-            params.postIndex,
-            [[utf8AsBytes32('hidden'), bytesToBytes32()]]
-        )
-        setPostData({ postData: { ...postData, metadata: decodeMetadataResponse(postData.metadata) } })
-
-        return getPostData({ postId: postData.postId })
+        const timelinePostInfo = (await appContract.queryFilter(appContract.filters.TimelineAddPost(packTimelineId(params.timelineId), params.postIndex), params.blockNumber - 5000, params.blockNumber))?.[0]
+        if (!timelinePostInfo) throw `Index ${params.postIndex} doesn't exist on timeline (${params.timelineId.group}, ${params.timelineId.key})`
+        return { owner: timelinePostInfo.args.owner, postId: timelinePostInfo.args.postId, blockNumber: timelinePostInfo.blockNumber }
     }
 )
 
-type LastTimelineLengthEvent = TimelineAddPostEventObject
+type LastTimelineLengthEvent = TimelineAddPostEventObject & { timelineLength: BigNumber }
 export const getTimelineLength = cachedPromise<
     { timelineId: TimelineId },
     {
@@ -97,13 +96,15 @@ export const getTimelineLength = cachedPromise<
 
             unlisten = listenContract(
                 appContract,
-                appContract.filters.TimelineAddPost(BigNumber.from(params.timelineId.group).shr(160).or(params.timelineId.key)),
-                (timelineId, postId, owner, timelineLength) =>
+                appContract.filters.TimelineAddPost(packTimelineId(params.timelineId)),
+                (timelineId, postIndex, postId, owner) =>
                 {
+                    const timelineLength = postIndex.add(1)
                     if (timelineLength.lte(get(length))) return
                     lastEvent.set({
                         timelineId,
                         timelineLength,
+                        postIndex,
                         owner,
                         postId
                     })
@@ -150,6 +151,7 @@ export async function getTimeline(params: { timelineId: TimelineId })
     })
 
     let loadOlderPivot = pivotIndex
+    let loadOlderBlockPivot = await get(provider).getBlockNumber()
     async function loadOlder()
     {
         loading.set(true)
@@ -163,8 +165,9 @@ export async function getTimeline(params: { timelineId: TimelineId })
             placeHolderPostIds.push(`placeholder${i}`)
             promises.push((async () =>
             {
-                const postData = get(await getTimelinePostData({ timelineId: params.timelineId, postIndex: loadOlderPivot }))
-                return postData.postId
+                const postInfo = await getTimelinePostInfo({ timelineId: params.timelineId, postIndex: loadOlderPivot, blockNumber: loadOlderBlockPivot })
+                if (postInfo.blockNumber < loadOlderBlockPivot) loadOlderBlockPivot = postInfo.blockNumber
+                return postInfo.postId
             })())
 
             loadOlderPivot = loadOlderPivot.sub(1)
@@ -189,6 +192,8 @@ export async function getTimeline(params: { timelineId: TimelineId })
         loading
     }
 }
+
+(window as any).BigNumber = BigNumber
 
 // Not caching this because postData is already cached
 export async function getPostRoot({ postId }: { postId: PostId })

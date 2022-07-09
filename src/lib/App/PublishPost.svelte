@@ -1,6 +1,6 @@
 <script lang="ts">
     import { getPostData, TimelineGroup, TimelineId } from "$/tools/api/app";
-    import { account, appContract } from "$/tools/wallet";
+    import { account, appContract, provider } from "$/tools/wallet";
     import { waitContractUntil } from "$/tools/wallet/listen";
     import { bytesToUtf8, utf8AsBytes32 } from "$/utils/common/bytes";
     import { encodeContent, parseContent } from "$/utils/content";
@@ -38,6 +38,8 @@
                         : []
                 )
             );
+
+            console.log(content.mentions);
 
             publishing = true;
 

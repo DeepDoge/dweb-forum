@@ -8,7 +8,7 @@
 
     export let account: string;
     let mentionsTimeline: TImelineType = null;
-    $: timelineLength = mentionsTimeline?.lengthData.length;
+    $: newPostCount = mentionsTimeline?.newPostCount;
 
     $: account, onAccountChange();
     async function onAccountChange() {
@@ -21,7 +21,7 @@
     {#if !mentionsTimeline}
         N...
     {:else}
-        N: {$timelineLength}
+        N: {$newPostCount}
         <KHoverMenu radius="rounded" color="master" size="normal" background direction="left">
             <div class="notifications">
                 <b>Notifications</b>

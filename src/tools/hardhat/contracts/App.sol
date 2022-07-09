@@ -10,17 +10,17 @@ contract App {
     ==========================
     */
 
-    mapping(uint256 => address[]) public timelines;
+    mapping(uint256 => uint256) public timelines;
 
     function getTimelineId(uint96 timelineGroup, uint160 timelineKey) private pure returns (uint256) {
-        return (uint256(timelineGroup) >> 160) | timelineKey;
+        return (uint256(timelineGroup) << 160) | timelineKey;
     }
 
     function getTimelineLength(uint96 timelineGroup, uint160 timelineKey) external view returns (uint256) {
-        return timelines[getTimelineId(timelineGroup, timelineKey)].length;
+        return timelines[getTimelineId(timelineGroup, timelineKey)];
     }
 
-    event TimelineAddPost(uint256 indexed timelineId, address postId, address owner, uint256 timelineLength);
+    event TimelineAddPost(uint256 indexed timelineId, uint256 indexed postIndex, address postId, address owner);
 
     mapping(address => mapping(uint160 => bool)) public mentionIndex;
 
@@ -36,9 +36,9 @@ contract App {
         }
 
         uint256 timelineId = getTimelineId(timelineGroup, timelineKey);
-        address[] storage timeline = timelines[timelineId];
-        timeline.push() = postId;
-        emit TimelineAddPost(timelineId, postId, msg.sender, timeline.length);
+/*         address[] storage timeline = timelines[timelineId];
+        timeline.push() = postId; */
+        emit TimelineAddPost(timelineId, timelines[timelineId]++, postId, msg.sender);
     }
 
     /* 
@@ -86,7 +86,7 @@ contract App {
         require(timelineGroup > LAST_INTERNAL_TIMELINE_GROUP, "Can't post on internal timeline group.");
 
         uint256 timelineId = getTimelineId(timelineGroup, timelineKey);
-        uint256 timelineLength = timelines[timelineId].length;
+        uint256 timelineLength = timelines[timelineId];
 
         // First content pointer is also the postId
         // content pointer can change but postId stays the same
@@ -171,7 +171,7 @@ contract App {
         return abi.decode(SSTORE2.read(contentPointer), (PostContent));
     }
 
-    function getTimelinePostData(
+/*     function getTimelinePostData(
         uint96 timelineGroup,
         uint160 timelineKey,
         uint256 postIndex,
@@ -185,7 +185,7 @@ contract App {
 
         for (uint256 i = 0; i < metadata.length; i++) metadata[i][1] = postMetadatas[postId][metadata[i][0]];
         return PostData(postId, post, content, metadata);
-    }
+    } */
 
     function getPostData(address postId, bytes32[2][] memory metadata) external view returns (PostData memory) {
         Post memory post = posts[postId];
