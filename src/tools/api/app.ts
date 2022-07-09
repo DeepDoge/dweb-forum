@@ -120,8 +120,6 @@ export const getTimelineInfo = cachedPromise<{ timelineId: TimelineId }, { timel
 
 export async function getTimeline(params: { timelineId: TimelineId })
 {
-    console.log(params.timelineId)
-
     const postIds = writable<PostId[]>([])
     let postIdsPublishedByCurrentSession: PostId[] = []
     const loadedPostIds: PostId[] = []

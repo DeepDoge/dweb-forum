@@ -93,7 +93,6 @@ export async function changeNetwork(target: JsonRpcProviderInfo)
 {
     if (ethers.utils.hexlify(parseInt(eth.networkVersion)) !== target.chainId)
     {
-        console.log(target)
         try
         {
             await eth.request({

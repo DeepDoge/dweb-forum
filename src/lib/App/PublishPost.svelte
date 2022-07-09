@@ -40,7 +40,6 @@
             );
 
             publishing = true;
-            console.log(timelineId.key)
             const tx = (await appContract.publishPost(
                 timelineId.group,
                 timelineId.key,
