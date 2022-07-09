@@ -2,7 +2,6 @@
 pragma solidity 0.8.15;
 
 contract App {
-
     /* INTERNAL TIMELINE GROUPS */
     uint96 public constant TIMELINE_GROUP_PROFILE_POSTS = 0;
     uint96 public constant TIMELINE_GROUP_PROFILE_REPLIES = 1;
@@ -20,8 +19,7 @@ contract App {
     ==========================
     */
 
-    struct Timeline
-    {
+    struct Timeline {
         uint256 lastBlockPointer;
         uint256 length;
     }
@@ -41,7 +39,7 @@ contract App {
     ) private {
         uint256 timelineId = getTimelineId(timelineGroup, timelineKey);
         Timeline memory timeline = timelines[timelineId];
-        timelines[timelineId] = Timeline(block.number, timeline.length + 1); 
+        timelines[timelineId] = Timeline(block.number, timeline.length + 1);
         emit TimelineAddPost(timelineId, postId, msg.sender, timeline.lastBlockPointer, timeline.length + 1);
     }
 

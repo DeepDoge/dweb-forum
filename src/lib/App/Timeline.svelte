@@ -16,14 +16,13 @@
     $: !done && intersecting && !active && loop();
     async function loop() {
         active = true;
-        while (!done && intersecting) 
-            done = await timeline.loadOlder();
+        while (!done && intersecting) done = await timeline.loadOlder();
         active = false;
     }
-    
+
     $: timeline, onTimelineChange();
     function onTimelineChange() {
-        const isNull = !timeline;;
+        const isNull = !timeline;
         setTimeout(() => (done = isNull));
     }
 

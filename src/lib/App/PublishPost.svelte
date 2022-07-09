@@ -1,8 +1,8 @@
 <script lang="ts">
     import { getPostData, TimelineGroup, TimelineId } from "$/tools/api/app";
-    import { account, appContract, provider } from "$/tools/wallet";
+    import { account, appContract } from "$/tools/wallet";
     import { waitContractUntil } from "$/tools/wallet/listen";
-    import { bytesToUtf8, utf8AsBytes32 } from "$/utils/bytes";
+    import { utf8AsBytes32 } from "$/utils/bytes";
     import { encodeContent, parseContent } from "$/utils/content";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
@@ -40,15 +40,15 @@
             );
 
             publishing = true;
-            const tx = (await appContract.publishPost(
+            const tx = await appContract.publishPost(
                 timelineId.group,
                 timelineId.key,
                 utf8AsBytes32(titleText?.trim()),
                 content.itemsData,
                 content.mentions
-            ));
+            );
 
-            await waitContractUntil(appContract, appContract.filters.PostPublished(), (x, y, event) => tx.hash === event.transactionHash)
+            await waitContractUntil(appContract, appContract.filters.PostPublished(), (x, y, event) => tx.hash === event.transactionHash);
 
             titleText = null;
             contentText = null;

@@ -29,7 +29,7 @@
     let repliesTimelineId: TimelineId;
     $: repliesTimelineId = { group: TimelineGroup.Replies, key: postId };
 
-    let repliesTimelineInfo: Awaited<ReturnType<typeof getTimelineInfo>>['timelineInfo'] = null;
+    let repliesTimelineInfo: Awaited<ReturnType<typeof getTimelineInfo>>["timelineInfo"] = null;
 
     $: (!$postData || !postId.eq($postData.postId)) && updatePost();
     async function updatePost() {
