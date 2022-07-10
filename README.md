@@ -12,6 +12,7 @@ the [1629d8e](https://github.com/DeepDoge/web3-forum/commit/1629d8e0e03e2f497571
 - ipfs://bafybeig3dmgqnmimfnnxfdgyfahqtteiv5moi2bmlzvhgaxvlu2bppvja4
 - https://bafybeig3dmgqnmimfnnxfdgyfahqtteiv5moi2bmlzvhgaxvlu2bppvja4.ipfs.dweb.link
 - https://bafybeig3dmgqnmimfnnxfdgyfahqtteiv5moi2bmlzvhgaxvlu2bppvja4.ipfs.cf-ipfs.com
+ <br />
 Ok so i made chages to use the event logs as store instead of SSTORE or SSTORE2(Contract). <br />
 So instead of storing data on the state or contract, i just use the block. <br />
 Which is right way to do it but im not sure if its the right way for this project. <br />
