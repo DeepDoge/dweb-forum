@@ -8,10 +8,13 @@ This is a Web3 + IPFS based forum, or social media, or how ever you wanna call i
 # How to use it?
 It's still in early stages. <br />
 But if you wanna try it, 
-the [5658ff7](https://github.com/DeepDoge/web3-forum/commit/5658ff7d1aca824376bc5a3e24ba7cebdb7e1d16) version is live on Polygon Network at: <br /> 
-- ipfs://bafybeias5sk4n5vs2isjqsoj5prqkclu6h75drxim5ydilza2rk2a6ygey
-- https://bafybeias5sk4n5vs2isjqsoj5prqkclu6h75drxim5ydilza2rk2a6ygey.ipfs.dweb.link
-- https://bafybeias5sk4n5vs2isjqsoj5prqkclu6h75drxim5ydilza2rk2a6ygey.ipfs.cf-ipfs.com
+the [1629d8e](https://github.com/DeepDoge/web3-forum/commit/1629d8e0e03e2f497571c1d2932cd12b9db70378) version is live on Polygon Network at: <br /> 
+- ipfs://bafybeig3dmgqnmimfnnxfdgyfahqtteiv5moi2bmlzvhgaxvlu2bppvja4
+- https://bafybeig3dmgqnmimfnnxfdgyfahqtteiv5moi2bmlzvhgaxvlu2bppvja4.ipfs.dweb.link
+- https://bafybeig3dmgqnmimfnnxfdgyfahqtteiv5moi2bmlzvhgaxvlu2bppvja4.ipfs.cf-ipfs.com
+Ok so i made chages to use the event logs as store instead of SSTORE or SSTORE2(Contract). <br />
+So instead of storing data on the state or contract, i just use the block. <br />
+Which is right way to do it but im not sure if its the right way for this project. <br />
 
 # TODO
 To anyone looking at this I'm having trouble getting ENS names from Ethereum provider using `ethers` -> `JsonRpcProvider` -> `lookupAddress`.
