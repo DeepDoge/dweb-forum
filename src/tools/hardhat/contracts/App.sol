@@ -88,8 +88,10 @@ contract App {
         emit PostPublished(postId, Post(timelineGroup, timelineKey));
         emit PostContentPublished(postId, PostContent(title, block.timestamp, mentions, data));
 
-        addPostToTimeline(timelineGroup, timelineKey, postId);
-        addPostToTimeline(TIMELINE_GROUP_ALL, timelineGroup, postId);
+        if (timelineGroup != 0 && timelineKey != 0) {
+            addPostToTimeline(timelineGroup, timelineKey, postId);
+            addPostToTimeline(TIMELINE_GROUP_ALL, timelineGroup, postId);
+        }
 
         addPostToTimeline(
             timelineGroup == TIMELINE_GROUP_REPLIES ? TIMELINE_GROUP_PROFILE_REPLIES : TIMELINE_GROUP_PROFILE_POSTS,

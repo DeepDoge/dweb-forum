@@ -28,6 +28,7 @@
         loading = true;
 
         const [root, timeline] = await Promise.all([await getPostRoot({ postId }), await getTimeline({ timelineId: repliesTimelineId })]);
+
         await timeline.loadOlder();
 
         prefixPostIds = [...root, postId];
@@ -42,8 +43,19 @@
         if (target.getBoundingClientRect().top < 0) target.scrollIntoView();
     }
 
+    function scrollToPost()
+    {
+        scrollIntoViewIfNeeded(postElements[postId.toString()]);
+    }
+
     const postElements: Record<string, HTMLElement> = {};
-    $: setTimeout(() => scrollIntoViewIfNeeded(postElements[postId.toString()]));
+        $: currentPostsElement = postElements[postId.toString()]
+    let cache = null
+    $: (() => {
+        if (cache === currentPostsElement) return
+        cache = currentPostsElement
+        scrollToPost()
+    })()
 </script>
 
 <div class:loading class="post-reply-timeline">
@@ -52,7 +64,7 @@
             <Post postId={BigNumber.from(-1)} />
         {/if}
         {#if repliesTimeline}
-            {#each prefixPostIds as timelinePostId (timelinePostId)}
+            {#each prefixPostIds as timelinePostId (timelinePostId.toString())}
                 <a
                     href={timelinePostId ? `#${$currentRoute.path}#${timelinePostId}` : null}
                     bind:this={postElements[timelinePostId.toString()]}
@@ -74,7 +86,7 @@
             {/each}
             <b>Replies{$repliesTimelineLoading ? "..." : ":"}</b>
             <Timeline publish timeline={repliesTimeline} let:postIds>
-                {#each postIds as timelinePostId (timelinePostId)}
+                {#each postIds as timelinePostId (timelinePostId.toString())}
                     <a
                         href={timelinePostId ? `#${$currentRoute.path}#${timelinePostId}` : null}
                         class="post"
