@@ -58,7 +58,7 @@
                 </div>
                 <a href="#{$postData?.owner}" class="nickname">
                     <NicknameOf address={$postData?.owner} />
-                    <KHoverMenu background direction="right">
+                    <KHoverMenu background>
                         <ProfileMiniCard address={$postData?.owner} />
                     </KHoverMenu>
                 </a>

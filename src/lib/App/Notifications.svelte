@@ -22,7 +22,7 @@
         N...
     {:else}
         N: {$newPostCount}
-        <KHoverMenu radius="rounded" color="master" size="normal" background direction="left">
+        <KHoverMenu radius="rounded" color="master" size="normal" background>
             <div class="notifications">
                 <b>Notifications</b>
                 <Timeline timeline={mentionsTimeline} let:postIds>
@@ -39,7 +39,8 @@
 
 <style>
     .notifications {
-        width: min(40em, 100vw);
+        width: 40em;
+        max-width: 100%;
         padding: calc(var(--k-padding) * 2);
     }
 

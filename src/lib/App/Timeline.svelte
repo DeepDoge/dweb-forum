@@ -16,7 +16,12 @@
     $: !done && intersecting && !active && loop();
     async function loop() {
         active = true;
-        while (!done && intersecting) done = await timeline.loadOlder();
+        while (!done && intersecting) 
+        {
+            done = await timeline.loadOlder();
+            // This is to see if there was an error instead of getting infinite loop
+            await new Promise((r) => setTimeout(r, 100))
+        }
         active = false;
     }
 

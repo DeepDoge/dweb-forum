@@ -132,5 +132,6 @@
 
     .loading {
         opacity: 0.5;
+        pointer-events: none;
     }
 </style>
