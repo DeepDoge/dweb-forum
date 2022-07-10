@@ -138,7 +138,7 @@ const providerChange = promiseQueue(async (provider: Web3Provider | JsonRpcProvi
 
     isContractsReady.set(true)
 })
-provider.subscribe((value) => providerChange.call(value))
+provider.subscribe((value) => providerChange(value))
 
 account.subscribe((account) =>
 {

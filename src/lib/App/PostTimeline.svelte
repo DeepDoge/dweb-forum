@@ -2,6 +2,7 @@
     import { currentRoute } from "$/routes/_routing.svelte";
     import { getPostRoot, getTimeline, PostId, Timeline as TimelineType, TimelineGroup, TimelineId } from "$/tools/api/app";
     import { bigNumberAsUtf8 } from "$/utils/bytes";
+    import { promiseQueue } from "$/utils/common/promiseQueue";
     import Post from "$lib/App/Post.svelte";
     import Timeline from "$lib/App/Timeline.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
@@ -9,12 +10,8 @@
 
     export let postId: PostId;
 
-    let repliesTimelineId: TimelineId;
-    $: repliesTimelineId = postId ? { group: TimelineGroup.Replies, key: postId } : null;
-
     let repliesTimeline: TimelineType = null;
     $: repliesTimelineLoading = repliesTimeline?.loading;
-
     let prefixPostIds: PostId[] = [];
 
     let loading = false;
@@ -22,12 +19,15 @@
     $: _loading = loading;
     export { _loading as loading };
 
-    $: repliesTimelineId && updateReplies();
-    async function updateReplies() {
+    $: postId && updateReplies(postId);
+    const updateReplies = promiseQueue(async (postId: PostId) => {
         if (loading) return;
         loading = true;
 
-        const [root, timeline] = await Promise.all([await getPostRoot({ postId }), await getTimeline({ timelineId: repliesTimelineId })]);
+        const [root, timeline] = await Promise.all([
+            await getPostRoot({ postId }),
+            await getTimeline({ timelineId: { group: TimelineGroup.Replies, key: postId } }),
+        ]);
 
         await timeline.loadOlder();
 
@@ -35,7 +35,7 @@
         repliesTimeline = timeline;
 
         loading = false;
-    }
+    });
 
     function scrollIntoViewIfNeeded(target: HTMLElement) {
         if (!target) return;
@@ -43,19 +43,18 @@
         if (target.getBoundingClientRect().top < 0) target.scrollIntoView();
     }
 
-    function scrollToPost()
-    {
+    function scrollToPost() {
         scrollIntoViewIfNeeded(postElements[postId.toString()]);
     }
 
     const postElements: Record<string, HTMLElement> = {};
-        $: currentPostsElement = postElements[postId.toString()]
-    let cache = null
+    $: currentPostsElement = postElements[postId.toString()];
+    let cache = null;
     $: (() => {
-        if (cache === currentPostsElement) return
-        cache = currentPostsElement
-        scrollToPost()
-    })()
+        if (cache === currentPostsElement) return;
+        cache = currentPostsElement;
+        scrollToPost();
+    })();
 </script>
 
 <div class:loading class="post-reply-timeline">
