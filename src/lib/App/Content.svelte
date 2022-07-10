@@ -1,4 +1,4 @@
-<script lang="ts">
+<script lang="ts"> 
     import type { Content } from "$/utils/content";
     import { ContentType } from "$/utils/content";
     import { getIpfsUrl } from "$/utils/ipfsUrl";
@@ -31,7 +31,7 @@
             </a>
         </div>
     {:else if item.type === ContentType.Text}
-        {#each item.data.split("\n") as part}
+        {#each item.data.split(/(\n)/g) as part}
             {#if part === "\n"}
                 <br />
             {:else}

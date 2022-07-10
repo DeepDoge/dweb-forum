@@ -2,7 +2,7 @@
     import { getPostData, TimelineGroup, TimelineId } from "$/tools/api/app";
     import { account, appContract } from "$/tools/wallet";
     import { waitContractUntil } from "$/tools/wallet/listen";
-    import { utf8AsBytes32 } from "$/utils/bytes";
+    import { bytesToUtf8, utf8AsBytes32 } from "$/utils/bytes";
     import { encodeContent, parseContent } from "$/utils/content";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
@@ -88,6 +88,7 @@
                         <NicknameOf address={$account} />
                     </div>
                     <div class="field">
+                        <!-- {encodedContent && bytesToUtf8(encodedContent.itemsData)} -->
                         <KTextField
                             disabled={publishing}
                             compact
