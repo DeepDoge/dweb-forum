@@ -8,10 +8,10 @@ This is a Web3 + IPFS based forum, or social media, or how ever you wanna call i
 # How to use it?
 It's still in early stages. <br />
 But if you wanna try it, 
-the [6a7df20](https://github.com/DeepDoge/web3-forum/commit/6a7df200bf8646f7cd5dc1846ad9f301188798c4) version is live on Polygon Network at: <br /> 
-- ipfs://bafybeifx6gjoz2zgyqazr7bdr2s47cse3kqg4s7ovojku7wmnu45adxv5y
-- https://bafybeifx6gjoz2zgyqazr7bdr2s47cse3kqg4s7ovojku7wmnu45adxv5y.ipfs.dweb.link
-- https://bafybeifx6gjoz2zgyqazr7bdr2s47cse3kqg4s7ovojku7wmnu45adxv5y.ipfs.cf-ipfs.com
+the [b05f4f0](https://github.com/DeepDoge/web3-forum/commit/b05f4f0d79423516aa51e89cf014e34fe01f8f9b) version is live on Polygon Network at: <br /> 
+- ipfs://bafybeicorhseokuuxki5c67dbidyffuaz755cssozpn4ho7efgncr4a5i4
+- https://bafybeicorhseokuuxki5c67dbidyffuaz755cssozpn4ho7efgncr4a5i4.ipfs.dweb.link
+- https://bafybeicorhseokuuxki5c67dbidyffuaz755cssozpn4ho7efgncr4a5i4.ipfs.cf-ipfs.com
  <br />
 Ok so i made chages to use the event logs as store instead of SSTORE or SSTORE2(Contract). <br />
 So instead of storing data on the state or contract, i just use the block. <br />
