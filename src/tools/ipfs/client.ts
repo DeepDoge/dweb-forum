@@ -12,10 +12,6 @@ interface Config
 }
 
 export const ipfsConfigs: Writable<Config[]> = writable([
-    /*     {
-            api: 'http://127.0.0.1:45005',
-            gateway: 'http://localhost:48084/ipfs/'
-        }, */
     {
         api: 'http://127.0.0.1:5001',
         gateway: 'http://127.0.0.1:5002/ipfs/'
@@ -51,7 +47,7 @@ const onIpfsAPIsUpdate = promiseQueue(async (set: Subscriber<Client>, configs: C
 
 export function getIpfsUrl(hash: string)
 {
-    const client = get(ipfsClient)
+    let client: Client = get(ipfsClient)
     hash = new CID(hash).toV0().toString()
     return `${client.__config.gateway}${hash}`
 }

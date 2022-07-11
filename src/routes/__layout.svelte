@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { ipfsClient } from "$/tools/ipfs/client";
     import { changeNetwork, currentProviderInfo, isContractsReady, provider } from "$/tools/wallet";
     import ClaimName from "$lib/App/ClaimName.svelte";
     import KApp from "$lib/kicho-ui/components/KApp.svelte";
@@ -26,21 +27,25 @@
             {:then}
                 {#if $isContractsReady === true}
                     {#key $provider.network.chainId}
-                        <Header />
-                        <main>
-                            <form class="search-form" on:submit|preventDefault={search}>
-                                <KTextField background bind:value={searchInput} placeholder="#Topic, 0xAddress, ENS name" />
-                                <KButton color="master">Search</KButton>
-                            </form>
+                        {#if $ipfsClient}
+                            <Header />
+                            <main>
+                                <form class="search-form" on:submit|preventDefault={search}>
+                                    <KTextField background bind:value={searchInput} placeholder="#Topic, 0xAddress, ENS name" />
+                                    <KButton color="master">Search</KButton>
+                                </form>
 
-                            <Routing />
+                                <Routing />
 
-                            <KModalHashRoute hash="claim-name" hashOverride={$currentRoute.hash}>
-                                <ClaimName on:done={() => history.back()} />
-                            </KModalHashRoute>
+                                <KModalHashRoute hash="claim-name" hashOverride={$currentRoute.hash}>
+                                    <ClaimName on:done={() => history.back()} />
+                                </KModalHashRoute>
 
-                            <KDialog dialogManager={globalDialogManager} />
-                        </main>
+                                <KDialog dialogManager={globalDialogManager} />
+                            </main>
+                        {:else}
+                            Waiting for IPFS Client...
+                        {/if}
                     {/key}
                 {:else if $isContractsReady === "wrongNetwork"}
                     Wrong Network
