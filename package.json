@@ -19,7 +19,8 @@
     "hardhat:deploy:rinkeby": "npm run hardhat:compile && hardhat run src/tools/hardhat/scripts/deploy.ts --network rinkeby --config src/tools/hardhat/hardhat.config.ts --tsconfig src/tools/hardhat/tsconfig.json",
     "hardhat:deploy:polygon": "npm run hardhat:compile && hardhat run src/tools/hardhat/scripts/deploy.ts --network polygon --config src/tools/hardhat/hardhat.config.ts --tsconfig src/tools/hardhat/tsconfig.json",
     "hardhat:deploy:optimism": "npm run hardhat:compile && hardhat run src/tools/hardhat/scripts/deploy.ts --network optimism --config src/tools/hardhat/hardhat.config.ts --tsconfig src/tools/hardhat/tsconfig.json",
-    "hardhat:deploy:avalanche": "npm run hardhat:compile && hardhat run src/tools/hardhat/scripts/deploy.ts --network arbitrum --config src/tools/hardhat/hardhat.config.ts --tsconfig src/tools/hardhat/tsconfig.json","hardhat:deploy:arbitrum": "npm run hardhat:compile && hardhat run src/tools/hardhat/scripts/deploy.ts --network avalanche --config src/tools/hardhat/hardhat.config.ts --tsconfig src/tools/hardhat/tsconfig.json"
+    "hardhat:deploy:avalanche": "npm run hardhat:compile && hardhat run src/tools/hardhat/scripts/deploy.ts --network arbitrum --config src/tools/hardhat/hardhat.config.ts --tsconfig src/tools/hardhat/tsconfig.json",
+    "hardhat:deploy:arbitrum": "npm run hardhat:compile && hardhat run src/tools/hardhat/scripts/deploy.ts --network avalanche --config src/tools/hardhat/hardhat.config.ts --tsconfig src/tools/hardhat/tsconfig.json"
   },
   "devDependencies": {
     "@fontsource/fira-mono": "^4.5.0",
@@ -34,6 +35,7 @@
     "dotenv": "^10.0.0",
     "ethers": "^5.6.9",
     "hardhat": "^2.9.9",
+    "ipfs-http-client": "^57.0.3",
     "prettier": "^2.6.2",
     "prettier-plugin-solidity": "^1.0.0-beta.19",
     "svelte": "^3.44.0",

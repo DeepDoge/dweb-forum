@@ -1,5 +1,6 @@
 <script lang="ts">
     import { getPostData, TimelineGroup, TimelineId } from "$/tools/api/app";
+    import { ipfsClient } from "$/tools/ipfs/client";
     import { account, appContract } from "$/tools/wallet";
     import { waitContractUntil } from "$/tools/wallet/listen";
     import { bytesToUtf8, utf8AsBytes32 } from "$/utils/bytes";
@@ -8,6 +9,7 @@
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KDialog, { createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
+    import { globalDialogManager } from "$lib/kicho-ui/dialog";
     import { BigNumber } from "ethers";
     import { createEventDispatcher } from "svelte";
     import { get } from "svelte/store";
@@ -34,7 +36,9 @@
                     $account,
                     contentText,
                     BigNumber.from(timelineId.group).eq(TimelineGroup.Replies)
-                        ? [get(await getPostData({ postId: BigNumber.from(timelineId.key) })).owner]
+                        ? [get(await getPostData({ postId: BigNumber.from(timelineId.key) })).owner].filter(
+                              (mention) => mention.toLowerCase() !== $account
+                          )
                         : []
                 )
             );
@@ -60,7 +64,32 @@
             publishing = false;
         }
     }
+
+    let uploadElement: HTMLInputElement = null;
+    let uploadingFile = false;
+
+    $: busy = publishing || uploadingFile
 </script>
+
+<svelte:head>
+    <input
+        bind:this={uploadElement}
+        type="file"
+        on:change={async (event) => {
+            uploadingFile = true;
+            try {
+                const pinned = await $ipfsClient.add(uploadElement.files[0], { pin: true, progress: console.log });
+                if (contentText && !/\s/.test(contentText[contentText.length - 1])) contentText += " ";
+                contentText = `${contentText ?? ""}${pinned.cid.toV0()}`;
+            } catch (err) {
+                globalDialogManager.alert("There was an error while uploading the file.");
+                console.error(err);
+            } finally {
+                uploadingFile = false;
+            }
+        }}
+    />
+</svelte:head>
 
 <KDialog {dialogManager} />
 
@@ -90,7 +119,7 @@
                     <div class="field">
                         <!-- {encodedContent && bytesToUtf8(encodedContent.itemsData)} -->
                         <KTextField
-                            disabled={publishing}
+                            disabled={busy}
                             compact
                             background={false}
                             type="textarea"
@@ -107,8 +136,17 @@
             <hr />
             <div class="actions">
                 <input type="submit" style="opacity:0;position:absolute;pointer-events:none;width:0;height:0" />
-                <KButton color="mode-pop" radius="fab" disabled={publishing} on:click={(e) => e.preventDefault()}>🎞</KButton>
-                <KButton color="master" radius="rounded" loading={publishing}>
+                <KButton
+                    loading={uploadingFile}
+                    color="mode-pop"
+                    radius="fab"
+                    disabled={busy}
+                    on:click={(e) => {
+                        e.preventDefault();
+                        uploadElement.click();
+                    }}>🎞</KButton
+                >
+                <KButton color="master" radius="rounded" disabled={busy} loading={publishing}>
                     <div class="publish-button-inner">
                         <svg x="0px" y="0px" viewBox="0 0 512 512" fill="currentColor">
                             <path
