@@ -1,8 +1,8 @@
 import deployed from '$/tools/hardhat/scripts/deployed.json'
 import { App__factory, Profile__factory, type App, type Profile } from '$/tools/hardhat/typechain-types'
 import { promiseQueue } from '$/utils/common/promiseQueue'
-import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
-import { type JsonRpcProvider, Web3Provider } from "@ethersproject/providers"
+import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte"
+import { Web3Provider, type JsonRpcProvider } from "@ethersproject/providers"
 import { ethers } from "ethers"
 import type { Writable } from 'svelte/store'
 import { get, readable, writable } from 'svelte/store'

@@ -4,14 +4,13 @@
     import ClaimName from "$lib/App/ClaimName.svelte";
     import KApp from "$lib/kicho-ui/components/KApp.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
-    import KDialog from "$lib/kicho-ui/components/KDialog.svelte";
+    import KDialog, { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
     import KModalHashRoute from "$lib/kicho-ui/components/KModalHashRoute.svelte";
+    import KTaskNotification, { globalTaskNotificationManager } from "$lib/kicho-ui/components/KTaskNotification.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
-    import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
     import { ethers } from "ethers";
     import Header from "./_header.svelte";
     import Routing, { currentRoute } from "./_routing.svelte";
-    import KTaskNotification, { globalTaskNotificationManager } from "$lib/kicho-ui/components/KTaskNotification.svelte";
 
     let searchInput: string;
     async function search() {

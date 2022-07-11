@@ -12,7 +12,6 @@
     import { globalTaskNotificationManager } from "$lib/kicho-ui/components/KTaskNotification.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import { BigNumber } from "ethers";
-    import { createEventDispatcher } from "svelte";
     import { get } from "svelte/store";
     import AvatarOf from "./AvatarOf.svelte";
     import Content from "./Content.svelte";

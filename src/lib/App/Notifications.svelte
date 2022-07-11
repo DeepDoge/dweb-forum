@@ -1,6 +1,6 @@
 <script lang="ts">
     import { currentRoute } from "$/routes/_routing.svelte";
-    import { getTimeline, Timeline as TImelineType, TimelineGroup } from "$/tools/api/app";
+    import { getTimeline,Timeline as TImelineType,TimelineGroup } from "$/tools/api/app";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
     import Post from "./Post.svelte";

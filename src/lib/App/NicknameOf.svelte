@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { getProfileData, ProfileInfo } from "$/tools/api/profile";
+    import { getProfileData,ProfileInfo } from "$/tools/api/profile";
     import { onDestroy } from "svelte";
 
     export let address: string = null;
