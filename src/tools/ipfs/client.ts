@@ -1,10 +1,17 @@
 import { promiseQueue } from '$/utils/common/promiseQueue'
-import { globalDialogManager } from '$lib/kicho-ui/dialog'
+import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
 import CID from 'cids'
 import { create, type IPFSHTTPClient } from 'ipfs-http-client'
 import { type Readable, readable, writable, type Subscriber, get, type Writable } from 'svelte/store'
 
-type Client = IPFSHTTPClient & { __config: Config }
+interface Client
+{
+    api: IPFSHTTPClient
+    config: Config
+    toURL(hash: string): string
+    validateHash(hash: string): boolean
+}
+
 interface Config
 {
     gateway: string
@@ -29,10 +36,30 @@ const onIpfsAPIsUpdate = promiseQueue(async (set: Subscriber<Client>, configs: C
     {
         try
         {
-            const client: Client = create({ url: config.api }) as any
-            await client.version()
-            client.__config = config
-            set(client)
+            const api = create({ url: config.api })
+            await api.version()
+            set({
+                api,
+                config,
+                toURL(hash)
+                {
+                    hash = new CID(hash).toV0().toString()
+                    return `${config.gateway}${hash}`
+                },
+                validateHash(hash)
+                {
+                    try
+                    {
+                        if (typeof hash !== 'string') throw ""
+                        new CID(hash)
+                        return true
+                    }
+                    catch
+                    {
+                        return false
+                    }
+                },
+            })
             console.log(`Using IPFS API ${config.api}`)
             return
         }
@@ -44,24 +71,3 @@ const onIpfsAPIsUpdate = promiseQueue(async (set: Subscriber<Client>, configs: C
     console.error('No IPFS API is accessible')
     globalDialogManager.alert('No IPFS API is accessible. Some features may not work.')
 })
-
-export function getIpfsUrl(hash: string)
-{
-    let client: Client = get(ipfsClient)
-    hash = new CID(hash).toV0().toString()
-    return `${client.__config.gateway}${hash}`
-}
-
-export function validateIpfsHash(hash: string)
-{
-    try
-    {
-        if (typeof hash !== 'string') throw ""
-        new CID(hash)
-        return true
-    }
-    catch
-    {
-        return false
-    }
-}

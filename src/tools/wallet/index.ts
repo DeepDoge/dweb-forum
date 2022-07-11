@@ -1,7 +1,7 @@
 import deployed from '$/tools/hardhat/scripts/deployed.json'
 import { App__factory, Profile__factory, type App, type Profile } from '$/tools/hardhat/typechain-types'
 import { promiseQueue } from '$/utils/common/promiseQueue'
-import { globalDialogManager } from '$lib/kicho-ui/dialog'
+import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers"
 import { ethers } from "ethers"
 import type { Writable } from 'svelte/store'
@@ -32,7 +32,7 @@ function createJsonRpcProviderInfo(value: JsonRpcProviderInfo)
 export const jsonProviders =
     Object.freeze({
         Polygon: createJsonRpcProviderInfo({
-            chainName: 'Polygon(MATIC)',
+            chainName: 'Polygon Mainnet',
             chainId: ethers.utils.hexlify(137),
             nativeCurrency: { name: 'MATIC', decimals: 18, symbol: 'MATIC' },
             rpcUrls: ['https://polygon-rpc.com'],
@@ -116,10 +116,10 @@ export async function changeNetwork(target: JsonRpcProviderInfo)
 
 const providerChange = promiseQueue(async (provider: Web3Provider | JsonRpcProvider) =>
 {
-    console.log('update', provider)
     isContractsReady.set(false)
     if (!provider) return
     await provider.ready
+    console.log(`Using ${provider instanceof Web3Provider ? 'Web3' : 'JsonRpc'} provider ${provider.network.chainId}(${provider.network.name})`)
     let chainId = (await provider.getNetwork()).chainId
 
     if (ethers.utils.hexlify(chainId) !== get(currentProviderInfo).chainId)
@@ -169,14 +169,14 @@ if (eth)
     // detect Metamask account change
     eth.on('accountsChanged', function (accounts: string[])
     {
-        console.log('accountsChanges', accounts)
+        console.log(`Web3 wallet account changed to ${accounts[0]}`)
         account.set(accounts[0])
     })
 
     // detect Network account change
     eth.on('chainChanged', function (networkId: number)
     {
-        console.log('chainChanged', networkId)
+        console.log(`Web3 wallet changed network to ${networkId}`)
         if (get(provider) instanceof Web3Provider) provider.set(new ethers.providers.Web3Provider(eth))
     })
 }

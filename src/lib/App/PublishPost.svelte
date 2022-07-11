@@ -3,13 +3,13 @@
     import { ipfsClient } from "$/tools/ipfs/client";
     import { account, appContract } from "$/tools/wallet";
     import { waitContractUntil } from "$/tools/wallet/listen";
-    import { bytesToUtf8, utf8AsBytes32 } from "$/utils/bytes";
+    import { utf8AsBytes32 } from "$/utils/bytes";
     import { encodeContent, parseContent } from "$/utils/content";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
-    import KDialog, { createDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
+    import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
+    import { globalTaskNotificationManager } from "$lib/kicho-ui/components/KTaskNotification.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
-    import { globalDialogManager } from "$lib/kicho-ui/dialog";
     import { BigNumber } from "ethers";
     import { createEventDispatcher } from "svelte";
     import { get } from "svelte/store";
@@ -17,7 +17,6 @@
     import NicknameOf from "./NicknameOf.svelte";
 
     const dispatchEvent = createEventDispatcher();
-    const dialogManager = createDialogManager();
 
     export let timelineId: TimelineId;
     $: reply = timelineId.group === TimelineGroup.Replies;
@@ -28,7 +27,6 @@
     $: encodedContent = content ? encodeContent(content) : null;
     $: length = encodedContent?.itemsData.length ?? 0;
 
-    let publishing = false;
     async function publish() {
         try {
             const content = encodeContent(
@@ -43,32 +41,28 @@
                 )
             );
 
-            publishing = true;
-            const tx = await appContract.publishPost(
-                timelineId.group,
-                timelineId.key,
-                utf8AsBytes32(titleText?.trim()),
-                content.itemsData,
-                content.mentions
+            const tx = await globalTaskNotificationManager.append(
+                appContract.publishPost(timelineId.group, timelineId.key, utf8AsBytes32(titleText?.trim()), content.itemsData, content.mentions),
+                "Awaiting Publish Confirmation"
             );
-
-            await waitContractUntil(appContract, appContract.filters.PostPublished(), (x, y, event) => tx.hash === event.transactionHash);
 
             titleText = null;
             contentText = null;
-            dispatchEvent("done");
+
+            await globalTaskNotificationManager.append(
+                waitContractUntil(appContract, appContract.filters.PostPublished(), (x, y, event) => tx.hash === event.transactionHash),
+                "Publishing Post"
+            );
         } catch (error) {
-            await dialogManager.alert(error.message);
+            await globalDialogManager.alert(error.message);
             throw error;
-        } finally {
-            publishing = false;
         }
     }
 
     let uploadElement: HTMLInputElement = null;
     let uploadingFile = false;
 
-    $: busy = publishing || uploadingFile
+    $: busy = uploadingFile;
 </script>
 
 <svelte:head>
@@ -78,9 +72,14 @@
         on:change={async (event) => {
             uploadingFile = true;
             try {
-                const pinned = await $ipfsClient.add(uploadElement.files[0], { pin: true, progress: console.log });
-                if (contentText && !/\s/.test(contentText[contentText.length - 1])) contentText += " ";
-                contentText = `${contentText ?? ""}${pinned.cid.toV0()}`;
+                await globalTaskNotificationManager.append(
+                    (async () => {
+                        const pinned = await $ipfsClient.api.add(uploadElement.files[0], { pin: true, progress: console.log });
+                        if (contentText && !/\s/.test(contentText[contentText.length - 1])) contentText += " ";
+                        contentText = `${contentText ?? ""}${pinned.cid.toV0()}`;
+                    })(),
+                    `Uploading file (${uploadElement.files[0].name}) to IPFS`
+                );
             } catch (err) {
                 globalDialogManager.alert("There was an error while uploading the file.");
                 console.error(err);
@@ -91,23 +90,13 @@
     />
 </svelte:head>
 
-<KDialog {dialogManager} />
-
 {#if $account}
     <!-- svelte-ignore missing-declaration -->
-    <form on:submit|preventDefault={publish} class="publish-post" class:publishing class:reply class:empty={!contentText}>
+    <form on:submit|preventDefault={publish} class="publish-post" class:reply class:empty={!contentText}>
         <KBoxEffect color="mode" background radius="rounded">
             <div class="fields">
                 {#if !reply}
-                    <KTextField
-                        bind:value={titleText}
-                        disabled={publishing}
-                        size="x-larger"
-                        background={false}
-                        type="text"
-                        name="title"
-                        placeholder="Title"
-                    />
+                    <KTextField bind:value={titleText} size="x-larger" background={false} type="text" name="title" placeholder="Title" />
                 {/if}
                 <div class="content-field">
                     <div class="avatar">
@@ -119,7 +108,6 @@
                     <div class="field">
                         <!-- {encodedContent && bytesToUtf8(encodedContent.itemsData)} -->
                         <KTextField
-                            disabled={busy}
                             compact
                             background={false}
                             type="textarea"
@@ -146,7 +134,7 @@
                         uploadElement.click();
                     }}>🎞</KButton
                 >
-                <KButton color="master" radius="rounded" disabled={busy} loading={publishing}>
+                <KButton color="master" radius="rounded" disabled={busy}>
                     <div class="publish-button-inner">
                         <svg x="0px" y="0px" viewBox="0 0 512 512" fill="currentColor">
                             <path

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { getIpfsUrl } from "$/tools/ipfs/client";
+    import { ipfsClient } from "$/tools/ipfs/client";
     import type { Content } from "$/utils/content";
     import { ContentType } from "$/utils/content";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
@@ -23,11 +23,11 @@
             </div>
         </a>
     {:else if item.type === ContentType.IpfsLink}
-        <a target="_blank" href={getIpfsUrl(item.data)}>{item.data}</a>
+        <a target="_blank" href={$ipfsClient.toURL(item.data)}>{item.data}</a>
     {:else if item.type === ContentType.IpfsImage}
         <div class="image">
-            <a target="_blank" href={getIpfsUrl(item.data)}>
-                <img alt={item.data} src={getIpfsUrl(item.data)} />
+            <a target="_blank" href={$ipfsClient.toURL(item.data)}>
+                <img alt={item.data} src={$ipfsClient.toURL(item.data)} />
             </a>
         </div>
     {:else if item.type === ContentType.Text}
