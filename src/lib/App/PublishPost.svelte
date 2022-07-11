@@ -8,15 +8,15 @@
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
+    import KModal from "$lib/kicho-ui/components/KModal.svelte";
     import { globalTaskNotificationManager } from "$lib/kicho-ui/components/KTaskNotification.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import { BigNumber } from "ethers";
     import { createEventDispatcher } from "svelte";
     import { get } from "svelte/store";
     import AvatarOf from "./AvatarOf.svelte";
+    import Content from "./Content.svelte";
     import NicknameOf from "./NicknameOf.svelte";
-
-    const dispatchEvent = createEventDispatcher();
 
     export let timelineId: TimelineId;
     $: reply = timelineId.group === TimelineGroup.Replies;
@@ -62,6 +62,8 @@
     let uploadElement: HTMLInputElement = null;
     let uploadingFile = false;
 
+    let showPostPreview = false;
+
     $: busy = uploadingFile;
 </script>
 
@@ -71,12 +73,15 @@
         type="file"
         on:change={async (event) => {
             uploadingFile = true;
+
+            if (!(await globalDialogManager.confirm(`Are you sure you wanna upload "${uploadElement.files[0].name}"?`))) return;
+
             try {
                 await globalTaskNotificationManager.append(
                     (async () => {
-                        const pinned = await $ipfsClient.api.add(uploadElement.files[0], { pin: true, progress: console.log });
+                        const pinned = await $ipfsClient.api.add(uploadElement.files[0], { pin: true });
                         if (contentText && !/\s/.test(contentText[contentText.length - 1])) contentText += " ";
-                        contentText = `${contentText ?? ""}${pinned.cid.toV0()}`;
+                        contentText = `${contentText ?? ""}${uploadElement.files[0].type.startsWith("image/") ? "image," : ""}${pinned.cid.toV0()}`;
                     })(),
                     `Uploading file (${uploadElement.files[0].name}) to IPFS`
                 );
@@ -91,12 +96,42 @@
 </svelte:head>
 
 {#if $account}
+    <KModal bind:active={showPostPreview}>
+        <form class="preview" on:submit|preventDefault={() => publish().then(() => (showPostPreview = false))}>
+            <b>Preview</b>
+            <div class="fields">
+                <KBoxEffect color="mode" background radius="rounded">
+                    <div class="content-field">
+                        <div class="avatar">
+                            <AvatarOf address={$account} />
+                        </div>
+                        <div class="nickname">
+                            <NicknameOf address={$account} />
+                        </div>
+                        <div class="field k-text-multiline">
+                            {#if titleText}
+                                <div>
+                                    <b>{titleText}</b>
+                                </div>
+                            {/if}
+                            <Content {content} />
+                        </div>
+                    </div>
+                </KBoxEffect>
+            </div>
+            <div class="actions">
+                <input type="submit" style="opacity:0;position:absolute;pointer-events:none;width:0;height:0" />
+                <KButton color="master" radius="rounded" disabled={busy}>Confirm</KButton>
+            </div>
+        </form>
+    </KModal>
+
     <!-- svelte-ignore missing-declaration -->
-    <form on:submit|preventDefault={publish} class="publish-post" class:reply class:empty={!contentText}>
+    <form on:submit|preventDefault={() => (showPostPreview = true)} class="publish-form" class:reply class:empty={!contentText}>
         <KBoxEffect color="mode" background radius="rounded">
             <div class="fields">
                 {#if !reply}
-                    <KTextField bind:value={titleText} size="x-larger" background={false} type="text" name="title" placeholder="Title" />
+                    <KTextField bind:value={titleText} size="x-larger" background={false} placeholder="Title" />
                 {/if}
                 <div class="content-field">
                     <div class="avatar">
@@ -111,7 +146,6 @@
                             compact
                             background={false}
                             type="textarea"
-                            name="content"
                             bind:value={contentText}
                             placeholder={reply ? "Reply..." : "Say something..."}
                         />
@@ -162,7 +196,7 @@
         gap: var(--k-padding);
     }
 
-    form {
+    .publish-form {
         display: grid;
         gap: calc(var(--k-padding) * 2);
         padding: calc(var(--k-padding) * 2);
@@ -171,6 +205,15 @@
     .fields {
         display: grid;
         gap: calc(var(--k-padding) * 2);
+    }
+
+    .preview {
+        display: grid;
+        gap: calc(var(--k-padding) * 2);
+    }
+
+    .preview .fields {
+        padding: calc(var(--k-padding) * 2);
     }
 
     .actions {
