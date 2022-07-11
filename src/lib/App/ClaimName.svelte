@@ -4,7 +4,7 @@
     import { waitContractUntil } from "$/tools/wallet/listen";
     import { utf8AsBytes32 } from "$/utils/bytes";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
-import { globalTaskNotificationManager } from "$lib/kicho-ui/components/KTaskNotification.svelte";
+    import { globalTaskNotificationManager } from "$lib/kicho-ui/components/KTaskNotification.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import { createEventDispatcher } from "svelte";
 
@@ -14,11 +14,16 @@ import { globalTaskNotificationManager } from "$lib/kicho-ui/components/KTaskNot
     let claming = false;
     async function setName() {
         claming = true;
-        try 
-        {
-            await globalTaskNotificationManager.append(profileContract.setProfile(utf8AsBytes32("nickname"), utf8AsBytes32(nickname)), "Awaiting Set Profile Confirmation");
+        try {
+            await globalTaskNotificationManager.append(
+                profileContract.setProfile(utf8AsBytes32("nickname"), utf8AsBytes32(nickname)),
+                "Awaiting Set Profile Confirmation"
+            );
             dispatcher("done");
-            await globalTaskNotificationManager.append(waitContractUntil(profileContract, profileContract.filters.ProfileSet($account, utf8AsBytes32("nickname")), () => true), "Setting Profile");
+            await globalTaskNotificationManager.append(
+                waitContractUntil(profileContract, profileContract.filters.ProfileSet($account, utf8AsBytes32("nickname")), () => true),
+                "Setting Profile"
+            );
         } catch (error) {
             catchContract(error);
         } finally {

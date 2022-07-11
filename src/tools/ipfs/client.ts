@@ -1,8 +1,8 @@
 import { promiseQueue } from '$/utils/common/promiseQueue'
-import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
+import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte"
 import CID from 'cids'
-import { create, type IPFSHTTPClient } from 'ipfs-http-client'
-import { type Readable, readable, writable, type Subscriber, get, type Writable } from 'svelte/store'
+import type { IPFSHTTPClient } from 'ipfs-http-client'
+import { readable, writable, type Readable, type Subscriber, type Writable } from 'svelte/store'
 
 interface Client
 {
@@ -36,7 +36,7 @@ const onIpfsAPIsUpdate = promiseQueue(async (set: Subscriber<Client>, configs: C
     {
         try
         {
-            const api = create({ url: config.api })
+            const api: IPFSHTTPClient = (window as any).IpfsHttpClient.create({ url: config.api })
             await api.version()
             set({
                 api,
