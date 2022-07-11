@@ -21,7 +21,7 @@ interface Config
 export const ipfsConfigs: Writable<Config[]> = writable([
     {
         api: 'http://127.0.0.1:5001',
-        gateway: 'http://127.0.0.1:5002/ipfs/'
+        gateway: 'http://127.0.0.1:8080/ipfs/'
     },
     {
         api: 'https://ipfs.infura.io:5001',
