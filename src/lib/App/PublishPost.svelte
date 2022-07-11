@@ -45,8 +45,11 @@
                 "Awaiting Publish Confirmation"
             );
 
-            titleText = null;
-            contentText = null;
+            showPostPreview = false;
+            setTimeout(() => {
+                titleText = null;
+                contentText = null;
+            }, 500);
 
             await globalTaskNotificationManager.append(
                 waitContractUntil(appContract, appContract.filters.PostPublished(), (x, y, event) => tx.hash === event.transactionHash),
@@ -96,7 +99,7 @@
 
 {#if $account}
     <KModal bind:active={showPostPreview}>
-        <form class="preview" on:submit|preventDefault={() => publish().then(() => (showPostPreview = false))}>
+        <form class="preview" on:submit|preventDefault={publish}>
             <b>Preview</b>
             <div class="fields">
                 <KBoxEffect color="mode" background radius="rounded">
