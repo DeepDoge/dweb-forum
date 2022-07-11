@@ -19,28 +19,22 @@ contract App {
     ==========================
     */
 
-    struct Timeline {
-        uint256 lastBlockPointer;
-        uint256 length;
-    }
-
-    mapping(uint256 => Timeline) public timelines;
+    mapping(uint256 => uint160[]) public timelines;
 
     function getTimelineId(uint96 timelineGroup, uint160 timelineKey) private pure returns (uint256) {
         return (uint256(timelineGroup) << 160) | timelineKey;
     }
 
-    event TimelineAddPost(uint256 indexed timelineId, uint160 postId, address owner, uint256 previousBlockPointer, uint256 timelineLength);
+    function getTimelineLengh(uint256 timelineId) external view returns (uint256) {
+        return timelines[timelineId].length;
+    }
 
-    function addPostToTimeline(
-        uint96 timelineGroup,
-        uint160 timelineKey,
-        uint160 postId
-    ) private {
-        uint256 timelineId = getTimelineId(timelineGroup, timelineKey);
-        Timeline memory timeline = timelines[timelineId];
-        timelines[timelineId] = Timeline(block.number, timeline.length + 1);
-        emit TimelineAddPost(timelineId, postId, msg.sender, timeline.lastBlockPointer, timeline.length + 1);
+    event TimelineAddPost(uint256 indexed timelineId, uint160 postId, address owner, uint256 timelineLength);
+
+    function addPostToTimeline(uint256 timelineId, uint160 postId) private {
+        uint160[] storage timeline = timelines[timelineId];
+        timeline.push() = postId;
+        emit TimelineAddPost(timelineId, postId, msg.sender, timeline.length);
     }
 
     /* 
@@ -89,17 +83,20 @@ contract App {
         emit PostContentPublished(postId, PostContent(title, block.timestamp, mentions, data));
 
         if (timelineGroup != 0 && timelineKey != 0) {
-            addPostToTimeline(timelineGroup, timelineKey, postId);
-            addPostToTimeline(TIMELINE_GROUP_ALL, timelineGroup, postId);
+            addPostToTimeline(getTimelineId(timelineGroup, timelineKey), postId);
+            addPostToTimeline(getTimelineId(TIMELINE_GROUP_ALL, timelineGroup), postId);
         }
 
         addPostToTimeline(
-            timelineGroup == TIMELINE_GROUP_REPLIES ? TIMELINE_GROUP_PROFILE_REPLIES : TIMELINE_GROUP_PROFILE_POSTS,
-            uint160(address(msg.sender)),
+            getTimelineId(
+                timelineGroup == TIMELINE_GROUP_REPLIES ? TIMELINE_GROUP_PROFILE_REPLIES : TIMELINE_GROUP_PROFILE_POSTS,
+                uint160(address(msg.sender))
+            ),
             postId
         );
 
-        for (uint256 i = 0; i < mentions.length; i++) addPostToTimeline(TIMELINE_GROUP_PROFILE_MENTIONS, uint160(address(mentions[i])), postId);
+        for (uint256 i = 0; i < mentions.length; i++)
+            addPostToTimeline(getTimelineId(TIMELINE_GROUP_PROFILE_MENTIONS, uint160(address(mentions[i]))), postId);
     }
 
     modifier onlyPostOwner(uint160 postId) {

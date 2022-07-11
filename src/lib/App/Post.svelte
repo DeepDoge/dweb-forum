@@ -1,6 +1,6 @@
 <script lang="ts">
     import { currentRoute } from "$/routes/_routing.svelte";
-    import { getPostData, getTimelineEvent, PostData, PostId, TimelineGroup, TimelineId } from "$/tools/api/app";
+    import { getPostData, getTimelineInfo, PostData, PostId, TimelineGroup, TimelineId } from "$/tools/api/app";
     import { bigNumberAsUtf8, hexToBytes, hexToUtf8 } from "$/utils/bytes";
     import { decodeContent } from "$/utils/content";
     import { second } from "$/utils/second";
@@ -28,18 +28,21 @@
 
     let repliesTimelineId: TimelineId;
     $: repliesTimelineId = { group: TimelineGroup.Replies, key: postId };
-
-    let repliesTimelineEvent: Awaited<ReturnType<typeof getTimelineEvent>> = null;
+    let repliesTimelineInfo: Awaited<ReturnType<typeof getTimelineInfo>> = null;
+    $: repliesTimelineLength = repliesTimelineInfo?.length;
 
     $: (!$postData || !postId.eq($postData.postId)) && updatePost();
     async function updatePost() {
         postData = null;
-        repliesTimelineEvent = null;
+        repliesTimelineInfo = null;
         parentPostData = null;
+
         if (postId.lte(0)) return;
+
         postData = await getPostData({ postId });
         if ($postData.timelineGroup.eq(TimelineGroup.Replies)) parentPostData = await getPostData({ postId: $postData.timelineKey });
-        repliesTimelineEvent = (await getTimelineEvent({ timelineId: repliesTimelineId }));
+
+        repliesTimelineInfo = await getTimelineInfo({ timelineId: repliesTimelineId });
     }
 
     $: date = $second && ((postData && format(new Date($postData.time.toNumber() * 1000))) ?? null);
@@ -101,7 +104,7 @@
                                 d="M4.79805 3C3.80445 3 2.99805 3.8055 2.99805 4.8V15.6C2.99805 16.5936 3.80445 17.4 4.79805 17.4H7.49805V21L11.098 17.4H19.198C20.1925 17.4 20.998 16.5936 20.998 15.6V4.8C20.998 3.8055 20.1925 3 19.198 3H4.79805Z"
                             />
                         </svg>
-                        {repliesTimelineEvent ? ($repliesTimelineEvent?.args.timelineLength ?? 0) : "..."}
+                        {repliesTimelineInfo ? $repliesTimelineLength ?? 0 : "..."}
                     </div>
                     <div class="date k-text-singleline">{date?.toLocaleString()}</div>
                 </div>
