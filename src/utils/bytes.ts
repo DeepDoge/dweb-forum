@@ -1,3 +1,4 @@
+import CID from "cids"
 import { BigNumber } from "ethers"
 
 export function utf8AsBytes(value: string): Uint8Array
@@ -75,4 +76,14 @@ export function bigNumberAsUtf8(number: BigNumber): string
 {
     if (number.eq(0)) return null
     return bytesToUtf8(bigNumberAsBytes(number))
+}
+
+export function IpfsHashToBytes32(hash: string)
+{
+    return new CID(hash).toV0().multihash.subarray(2)
+}
+
+export function bytes32ToIpfsHash(bytes: Uint8Array)
+{
+    return new CID(new Uint8Array([18, 32, ...bytes])).toString()
 }
