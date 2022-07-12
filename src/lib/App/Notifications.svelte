@@ -1,6 +1,6 @@
 <script lang="ts">
     import { currentRoute } from "$/routes/_routing.svelte";
-    import { getTimeline,Timeline as TImelineType,TimelineGroup } from "$/tools/api/app";
+    import { getTimeline, Timeline as TImelineType, TimelineGroup } from "$/tools/api/app";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
     import Post from "./Post.svelte";
@@ -27,7 +27,7 @@
         </svg>
         <div class="count">{mentionsTimeline ? $newPostCount : "..."}</div>
         {#if mentionsTimeline}
-            <KHoverMenu radius="rounded" color="master" size="normal" background>
+            <KHoverMenu radius="rounded" color="slave" size="normal" blur background>
                 <div class="notifications">
                     <b>Notifications</b>
                     <Timeline timeline={mentionsTimeline} let:postIds>
@@ -75,6 +75,7 @@
         right: 0;
 
         transform: translate(50%, -50%);
+        color: var(--k-color-light);
         background-color: var(--k-color-master);
     }
 </style>

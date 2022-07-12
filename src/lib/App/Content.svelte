@@ -46,8 +46,7 @@
     img {
         min-width: 10rem;
         min-height: 10rem;
-        max-height: 15rem;
-        height: 100%;
+        height: 15rem;
         object-fit: contain;
         object-position: left;
         background-color: var(--k-color-mode);

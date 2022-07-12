@@ -2,7 +2,7 @@
     import { currentRoute } from "$/routes/_routing.svelte";
     import { getPostData, getTimelineInfo, PostData, PostId, TimelineGroup, TimelineId } from "$/tools/api/app";
     import { bigNumberAsUtf8, hexToBytes, hexToUtf8 } from "$/utils/bytes";
-    import { ContentType, decodeContent } from "$/utils/content";
+    import { decodeContent } from "$/utils/content";
     import { second } from "$/utils/second";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KChip from "$lib/kicho-ui/components/KChip.svelte";
@@ -17,11 +17,11 @@
     type BoxProps = KBoxEffect["$$prop_def"];
     interface $$Props extends BoxProps {
         postId: PostId;
-        fullHeight: boolean
+        fullHeight?: boolean;
     }
 
     export let postId: $$Props["postId"];
-    export let fullHeight: $$Props['fullHeight'] = false
+    export let fullHeight: $$Props["fullHeight"] = false;
 
     let postData: Writable<PostData> = null;
     $: postContent = $postData ? decodeContent({ itemsData: hexToBytes($postData.data), mentions: $postData.mentions }) : null;
@@ -123,7 +123,7 @@
         align-content: start;
         gap: calc(var(--k-padding) * 3);
     }
-    
+
     .post {
         transition: var(--k-transition);
         transition-property: transform;

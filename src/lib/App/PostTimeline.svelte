@@ -1,6 +1,6 @@
 <script lang="ts">
     import { currentRoute } from "$/routes/_routing.svelte";
-    import { getPostRoot, getTimeline, PostId, Timeline as TimelineType, TimelineGroup } from "$/tools/api/app";
+    import { getPostRoot,getTimeline,PostId,Timeline as TimelineType,TimelineGroup } from "$/tools/api/app";
     import { bigNumberAsUtf8 } from "$/utils/bytes";
     import { promiseQueue } from "$/utils/common/promiseQueue";
     import Post from "$lib/App/Post.svelte";
@@ -69,7 +69,7 @@
                     bind:this={postElements[timelinePostId.toString()]}
                     class="post root-post"
                 >
-                    <Post postId={timelinePostId}>
+                    <Post postId={timelinePostId} fullHeight={timelinePostId.eq(postId)}>
                         <svelte:fragment slot="before" let:postData>
                             {#if postData?.timelineGroup.eq(TimelineGroup.Topics)}
                                 <div class="topic-button">
