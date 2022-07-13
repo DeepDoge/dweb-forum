@@ -96,7 +96,7 @@
                             </KChip>
                         </a>
                     {:else if $postData?.timelineGroup.eq(TimelineGroup.Topics)}
-                        <a href="#{bigNumberAsUtf8($postData.timelineKey)}#{$postData.postId}">
+                        <a href="#{bigNumberAsUtf8($postData.timelineKey)}">
                             <KChip>#{bigNumberAsUtf8($postData.timelineKey)}</KChip>
                         </a>
                     {/if}
