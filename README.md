@@ -19,9 +19,7 @@ the [198d807](https://github.com/DeepDoge/web3-forum/commit/198d8074b76c85be314b
 - https://dforum.eth.link/
 
 
-Ok so i made chages to use the event logs as store instead of SSTORE or SSTORE2(Contract). <br />
-So instead of storing data on the state or contract, i just use the block. <br />
-Which is right way to do it but im not sure if its the right way for this project. <br />
+I was using event logs to store posts before, but decided its not the right way. Even thought it was spending less GAS
 
 # TODO
 To anyone looking at this I'm having trouble getting ENS names from Ethereum provider using `ethers` -> `JsonRpcProvider` -> `lookupAddress`.
