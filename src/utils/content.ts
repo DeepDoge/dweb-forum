@@ -12,28 +12,22 @@ export const enum ContentType
     IpfsImage
 }
 
-export interface Content
+export interface PostContentData
 {
     mentions: string[]
-    items: ContentItem[]
+    items: PostContentItemData[]
 }
 
-export interface ContentEncoded
-{
-    mentions: string[]
-    itemsData: Uint8Array
-}
-
-export interface ContentItem
+export interface PostContentItemData
 {
     type: ContentType
     data: string
 }
 
-export function encodeContent(content: Content): ContentEncoded
+export function encodePostContentItems(items: PostContentItemData[]): Uint8Array
 {
     let encoded: string[] = []
-    for (const item of content.items)
+    for (const item of items)
     {
         switch (item.type)
         {
@@ -52,17 +46,14 @@ export function encodeContent(content: Content): ContentEncoded
         }
     }
 
-    return { mentions: content.mentions, itemsData: utf8AsBytes(encoded.join(' ')) }
+    return utf8AsBytes(encoded.join(' '))
 }
 
-export function decodeContent(contentEncoded: ContentEncoded): Content
+export function decodePostContentItems(encodedItems: Uint8Array): PostContentItemData[]
 {
-    const content: Content = { mentions: contentEncoded.mentions, items: [] }
-
-    const encodedContentString = bytesToUtf8(contentEncoded.itemsData)
-    if (!encodedContentString) return content
+    const encodedContentString = bytesToUtf8(encodedItems)
     const parts = encodedContentString.split(' ')
-    const items: ContentItem[] = content.items
+    const items: PostContentItemData[] = []
     parts.forEach((part) =>
     {
         const index = part.indexOf(',')
@@ -73,12 +64,12 @@ export function decodeContent(contentEncoded: ContentEncoded): Content
             switch (type)
             {
                 case 'img':
-                    if (get(ipfsClient).validateHash(data))
+                    if (get(ipfsClient).isIpfsHash(data))
                         return items.push({ type: ContentType.IpfsImage, data })
             }
         }
 
-        if (get(ipfsClient).validateHash(part))
+        if (get(ipfsClient).isIpfsHash(part))
             items.push({ type: ContentType.IpfsLink, data: part })
         else if (part.startsWith('0x') && part.length === '0x0'.length)
             items.push({ type: ContentType.Mention, data: parseInt(part, 16).toString() })
@@ -87,14 +78,14 @@ export function decodeContent(contentEncoded: ContentEncoded): Content
         else items.push({ type: ContentType.Text, data: part })
     })
 
-    return content
+    return items
 }
 
-export function parseContent(account: string, contentText: string, mentions: string[] = []): Content
+export function parseContent(account: string, contentText: string, mentions: string[] = []): PostContentData
 {
     contentText = contentText.trim()
-    const parts = contentText.split(/\n/g, /\s/g)
-    const items: ContentItem[] = []
+    const parts = contentText.split(/([\n\s])/g)
+    const items: PostContentItemData[] = []
     parts.forEach((part) =>
     {
         const index = part.indexOf(',')
@@ -105,12 +96,12 @@ export function parseContent(account: string, contentText: string, mentions: str
             switch (type)
             {
                 case 'image':
-                    if (get(ipfsClient).validateHash(data))
+                    if (get(ipfsClient).isIpfsHash(data))
                         return items.push({ type: ContentType.IpfsImage, data })
             }
         }
 
-        if (get(ipfsClient).validateHash(part))
+        if (get(ipfsClient).isIpfsHash(part))
             items.push({ type: ContentType.IpfsLink, data: part })
         else if (ethers.utils.isAddress(part))
         {
@@ -120,9 +111,19 @@ export function parseContent(account: string, contentText: string, mentions: str
             else items.push({ type: ContentType.Mention, data: (mentions.push(address) - 1).toString() })
         }
         else if (items.length > 0 && items[items.length - 1].type === ContentType.Text)
-            items[items.length - 1].data += ` ${part}`
+            items[items.length - 1].data += `${part}`
         else items.push({ type: ContentType.Text, data: part })
     })
 
     return { mentions, items }
+}
+
+export async function addPostContentItemsDataToIpfs(items: PostContentItemData[]): Promise<string>
+{
+    return (await get(ipfsClient).api.add(encodePostContentItems(items), { pin: true })).cid.toString()
+}
+
+export async function getPostContentItemsDataFromIpfs(hash: string): Promise<PostContentItemData[]>
+{
+    return decodePostContentItems(new Uint8Array(await (await fetch(get(ipfsClient).toURL(hash))).arrayBuffer()))
 }

@@ -1,8 +1,9 @@
 <script lang="ts">
     import { currentRoute } from "$/routes/_routing.svelte";
     import { getPostData, getTimelineInfo, PostData, PostId, TimelineGroup, TimelineId } from "$/tools/api/app";
-    import { bigNumberAsUtf8, hexToBytes, hexToUtf8 } from "$/utils/bytes";
-    import { decodeContent } from "$/utils/content";
+    import { bigNumberAsUtf8, bytes32ToIpfsHash, hexToBytes, hexToUtf8 } from "$/utils/bytes";
+    import { promiseQueue } from "$/utils/common/promiseQueue";
+    import { decodePostContentItems, getPostContentItemsDataFromIpfs, PostContentData } from "$/utils/content";
     import { second } from "$/utils/second";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KChip from "$lib/kicho-ui/components/KChip.svelte";
@@ -24,7 +25,7 @@
     export let fullHeight: $$Props["fullHeight"] = false;
 
     let postData: Writable<PostData> = null;
-    $: postContent = $postData ? decodeContent({ itemsData: hexToBytes($postData.data), mentions: $postData.mentions }) : null;
+    let postContent: PostContentData = null;
 
     let parentPostData: Writable<PostData> = null;
 
@@ -34,22 +35,41 @@
     $: repliesTimelineLength = repliesTimelineInfo?.length;
 
     $: (!$postData || !postId.eq($postData.postId)) && updatePost();
-    async function updatePost() {
+    const updatePost = promiseQueue(async () => {
         postData = null;
         repliesTimelineInfo = null;
         parentPostData = null;
 
-        if (postId.lte(0)) return;
+        if (postId.lt(0)) return;
 
-        postData = await getPostData({ postId });
-        if ($postData.timelineGroup.eq(TimelineGroup.Replies)) parentPostData = await getPostData({ postId: $postData.timelineKey });
-
-        repliesTimelineInfo = await getTimelineInfo({ timelineId: repliesTimelineId });
-    }
+        await Promise.all([
+            (async () => {
+                postData = await getPostData({ postId });
+                await Promise.all([
+                    (async () => {
+                        const contentBytes = hexToBytes($postData.data);
+                        postContent = $postData
+                            ? {
+                                  items:
+                                      contentBytes[0] === 0
+                                          ? await getPostContentItemsDataFromIpfs(bytes32ToIpfsHash(contentBytes.subarray(1)))
+                                          : decodePostContentItems(contentBytes),
+                                  mentions: $postData.mentions,
+                              }
+                            : null;
+                    })(),
+                    (async () => {
+                        if ($postData.timelineGroup.eq(TimelineGroup.Replies)) parentPostData = await getPostData({ postId: $postData.timelineKey });
+                    })(),
+                ]);
+            })(),
+            (async () => (repliesTimelineInfo = await getTimelineInfo({ timelineId: repliesTimelineId })))(),
+        ]);
+    });
 
     $: date = $second && ((postData && format(new Date($postData.time.toNumber() * 1000))) ?? null);
     $: title = (postData && hexToUtf8($postData.title)) ?? null;
-    $: loading = postId && !postData;
+    $: loading = postId && !postContent;
     $: selected = /[0-9]/.test($currentRoute.hash) && postId?.eq($currentRoute.hash);
 </script>
 
@@ -91,7 +111,7 @@
                     </div>
                 {/if}
                 <div class="content k-text-multiline">
-                    {#if $postData}
+                    {#if postContent}
                         <Content content={postContent} />
                     {:else}
                         ...

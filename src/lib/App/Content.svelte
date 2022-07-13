@@ -1,13 +1,13 @@
 <script lang="ts">
     import { ipfsClient } from "$/tools/ipfs/client";
-    import type { Content } from "$/utils/content";
+    import type { PostContentData } from "$/utils/content";
     import { ContentType } from "$/utils/content";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
     import AvatarOf from "./AvatarOf.svelte";
     import NicknameOf from "./NicknameOf.svelte";
     import ProfileMiniCard from "./ProfileMiniCard.svelte";
 
-    export let content: Content;
+    export let content: PostContentData;
 </script>
 
 {#each content?.items ?? [] as item, i (i)}

@@ -9,7 +9,7 @@ interface Client
     api: IPFSHTTPClient
     config: Config
     toURL(hash: string): string
-    validateHash(hash: string): boolean
+    isIpfsHash(hash: string): boolean
 }
 
 interface Config
@@ -46,18 +46,13 @@ const onIpfsAPIsUpdate = promiseQueue(async (set: Subscriber<Client>, configs: C
                     hash = new CID(hash).toV0().toString()
                     return `${config.gateway}${hash}`
                 },
-                validateHash(hash)
+                isIpfsHash(hash)
                 {
-                    try
-                    {
-                        if (typeof hash !== 'string') throw ""
-                        new CID(hash)
-                        return true
-                    }
-                    catch
-                    {
-                        return false
-                    }
+                    return /[A-Za-z0-9]/.test(hash) &&
+                        (
+                            hash.startsWith('Qm') ? hash.length === 46 :
+                                hash.startsWith('bafy') ? hash.length === 59 : false
+                        )
                 },
             })
             console.log(`Using IPFS API ${config.api}`)

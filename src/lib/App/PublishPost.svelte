@@ -3,8 +3,8 @@
     import { ipfsClient } from "$/tools/ipfs/client";
     import { account, appContract } from "$/tools/wallet";
     import { waitContractUntil } from "$/tools/wallet/listen";
-    import { utf8AsBytes32 } from "$/utils/bytes";
-    import { encodeContent, parseContent } from "$/utils/content";
+    import { IpfsHashToBytes32, utf8AsBytes32 } from "$/utils/bytes";
+    import { addPostContentItemsDataToIpfs, encodePostContentItems, parseContent } from "$/utils/content";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
@@ -23,25 +23,32 @@
     let titleText: string;
     let contentText: string;
     $: content = contentText?.length > 0 ? parseContent($account, contentText) : null;
-    $: encodedContent = content ? encodeContent(content) : null;
-    $: length = encodedContent?.itemsData.length ?? 0;
+    $: encodedContent = content ? encodePostContentItems(content.items) : null;
+    $: length = encodedContent?.length ?? 0;
 
-    async function publish() {
+    async function publish(perma = false) {
         try {
-            const content = encodeContent(
-                parseContent(
-                    $account,
-                    contentText,
-                    BigNumber.from(timelineId.group).eq(TimelineGroup.Replies)
-                        ? [get(await getPostData({ postId: BigNumber.from(timelineId.key) })).owner].filter(
-                              (mention) => mention.toLowerCase() !== $account
-                          )
-                        : []
-                )
+            const content = parseContent(
+                $account,
+                contentText,
+                BigNumber.from(timelineId.group).eq(TimelineGroup.Replies)
+                    ? [get(await getPostData({ postId: BigNumber.from(timelineId.key) })).owner].filter(
+                          (mention) => mention.toLowerCase() !== $account
+                      )
+                    : []
             );
 
+            const contentData = perma
+                ? encodePostContentItems(content.items)
+                : new Uint8Array([
+                      0,
+                      ...IpfsHashToBytes32(
+                          await globalTaskNotificationManager.append(addPostContentItemsDataToIpfs(content.items), "Adding post content to IPFS")
+                      ),
+                  ]);
+
             const tx = await globalTaskNotificationManager.append(
-                appContract.publishPost(timelineId.group, timelineId.key, utf8AsBytes32(titleText?.trim()), content.itemsData, content.mentions),
+                appContract.publishPost(timelineId.group, timelineId.key, utf8AsBytes32(titleText?.trim()), contentData, content.mentions),
                 "Awaiting Publish Confirmation"
             );
 
@@ -103,7 +110,7 @@
 
 {#if $account}
     <KModal bind:active={showPostPreview}>
-        <form class="preview" on:submit|preventDefault={publish}>
+        <form class="preview" on:submit|preventDefault>
             <b>Preview</b>
             <div class="fields">
                 <KBoxEffect color="mode" background radius="rounded">
@@ -127,7 +134,8 @@
             </div>
             <div class="actions">
                 <input type="submit" style="opacity:0;position:absolute;pointer-events:none;width:0;height:0" />
-                <KButton color="master" radius="rounded" disabled={busy}>Confirm</KButton>
+                <KButton color="slave" radius="rounded" disabled={busy} on:click={() => publish(true)}>Perma Post</KButton>
+                <KButton color="master" radius="rounded" disabled={busy} on:click={() => publish()}>Post</KButton>
             </div>
         </form>
     </KModal>

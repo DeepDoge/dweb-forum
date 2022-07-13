@@ -47,6 +47,7 @@ export const getPostData = cachedPromise<{ postId: PostId }, Writable<PostData>>
     {
         const _postData = await appContract.getPostData(params.postId, [])
         const postData: PostData = {
+            postId: _postData.postId,
             ..._postData.post,
             ..._postData.postContent
         } as any
@@ -136,10 +137,12 @@ export async function getTimeline(params: { timelineId: TimelineId })
                 {
                     const _postData = await appContract.getPostDataFromTimeline(timelineIdPacked, pivot, [])
                     const postData: PostData = {
+                        postId: _postData.postId,
                         ..._postData.post,
                         ..._postData.postContent
                     } as any
 
+                    console.log(postData)
                     setPostCache({ postId: postData.postId, postData })
 
                     return postData.postId
