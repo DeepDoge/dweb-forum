@@ -15,7 +15,8 @@ the [198d807](https://github.com/DeepDoge/web3-forum/commit/198d8074b76c85be314b
 - https://bafybeifwinosyf44ofl32jzxdr6bx6tz7emnnomprsnbtzyrt66iqbykee.ipfs.cf-ipfs.com
 
 **IPNS** <br />
-ipns://dforum.eth <br /> <br />
+- ipns://dforum.eth <br /> <br />
+- https://dforum.eth.link/
 
 
 Ok so i made chages to use the event logs as store instead of SSTORE or SSTORE2(Contract). <br />
