@@ -20,7 +20,6 @@
     export let timelineId: TimelineId;
     $: reply = timelineId.group === TimelineGroup.Replies;
 
-    let titleText: string;
     let contentText: string;
     $: content = contentText?.length > 0 ? parseContent($account, contentText) : null;
     $: encodedContent = content ? encodePostContentItems(content.items) : null;
@@ -38,6 +37,7 @@
                     : []
             );
 
+            uploadingFile = true;
             const contentData = perma
                 ? encodePostContentItems(content.items)
                 : new Uint8Array([
@@ -46,15 +46,15 @@
                           await globalTaskNotificationManager.append(addPostContentItemsDataToIpfs(content.items), "Adding post content to IPFS")
                       ),
                   ]);
+            uploadingFile = false;
 
             const tx = await globalTaskNotificationManager.append(
-                appContract.publishPost(timelineId.group, timelineId.key, utf8AsBytes32(titleText?.trim()), contentData, content.mentions),
+                appContract.publishPost(timelineId.group, timelineId.key, contentData, content.mentions),
                 "Awaiting Publish Confirmation"
             );
 
             showPostPreview = false;
             setTimeout(() => {
-                titleText = null;
                 contentText = null;
             }, 500);
 
@@ -122,15 +122,13 @@
                             <NicknameOf address={$account} />
                         </div>
                         <div class="field k-text-multiline">
-                            {#if titleText}
-                                <div>
-                                    <b>{titleText}</b>
-                                </div>
-                            {/if}
                             <Content {content} />
                         </div>
                     </div>
                 </KBoxEffect>
+            </div>
+            <div class="byte-size">
+                {length} bytes
             </div>
             <div class="actions">
                 <input type="submit" style="opacity:0;position:absolute;pointer-events:none;width:0;height:0" />
@@ -144,9 +142,6 @@
     <form on:submit|preventDefault={() => (showPostPreview = true)} class="publish-form" class:reply class:empty={!contentText}>
         <KBoxEffect color="mode" background radius="rounded">
             <div class="fields">
-                {#if !reply}
-                    <KTextField bind:value={titleText} size="x-larger" background={false} placeholder="Title" />
-                {/if}
                 <div class="content-field">
                     <div class="avatar">
                         <AvatarOf address={$account} />
@@ -229,7 +224,7 @@
     .preview .fields {
         padding: calc(var(--k-padding) * 2);
     }
-
+    
     .actions {
         display: grid;
         justify-content: end;

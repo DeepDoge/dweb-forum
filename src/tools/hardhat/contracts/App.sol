@@ -51,7 +51,6 @@ contract App {
     }
 
     struct PostContent {
-        bytes32 title;
         uint256 time;
         address[] mentions;
         bytes data;
@@ -63,14 +62,13 @@ contract App {
     function publishPost(
         uint96 timelineGroup,
         uint160 timelineKey,
-        bytes32 title,
         bytes calldata data,
         address[] calldata mentions
     ) external {
         require(timelineGroup > LAST_INTERNAL_TIMELINE_GROUP, "Can't post on internal timeline group.");
 
         uint160 postId = postCounter++;
-        address contentPointer = SSTORE2.write(abi.encode(PostContent(title, block.timestamp, mentions, data)));
+        address contentPointer = SSTORE2.write(abi.encode(PostContent(block.timestamp, mentions, data)));
         posts[postId] = Post(timelineGroup, timelineKey, msg.sender, contentPointer);
 
         if (timelineGroup != 0 && timelineKey != 0) {
@@ -104,13 +102,12 @@ contract App {
 
     function editPost(
         uint160 postId,
-        bytes32 title,
         bytes calldata data,
         address[] calldata mentions
     ) external onlyPostOwner(postId) {
         Post storage post = posts[postId];
         postContentHistory[postId].push(post.contentPointer);
-        post.contentPointer = SSTORE2.write(abi.encode(PostContent(title, block.timestamp, mentions, data)));
+        post.contentPointer = SSTORE2.write(abi.encode(PostContent(block.timestamp, mentions, data)));
     }
 
      /* 

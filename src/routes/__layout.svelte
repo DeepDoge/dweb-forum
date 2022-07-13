@@ -41,8 +41,9 @@
                                     <ClaimName on:done={() => history.back()} />
                                 </KModalHashRoute>
 
-                                <KTaskNotification taskNotificationManager={globalTaskNotificationManager} />
                                 <KDialog dialogManager={globalDialogManager} />
+
+                                <KTaskNotification taskNotificationManager={globalTaskNotificationManager} />
                             </main>
                         {:else}
                             Waiting for IPFS Client...

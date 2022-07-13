@@ -68,7 +68,6 @@
     });
 
     $: date = $second && ((postData && format(new Date($postData.time.toNumber() * 1000))) ?? null);
-    $: title = (postData && hexToUtf8($postData.title)) ?? null;
     $: loading = postId && !postContent;
     $: selected = /[0-9]/.test($currentRoute.hash) && postId?.eq($currentRoute.hash);
 </script>
@@ -105,11 +104,6 @@
                     </div>
                 </div>
 
-                {#if title}
-                    <div class="title">
-                        {title}
-                    </div>
-                {/if}
                 <div class="content k-text-multiline">
                     {#if postContent}
                         <Content content={postContent} />
@@ -186,12 +180,6 @@
         grid-auto-flow: column;
         align-items: center;
         gap: 0.5ch;
-    }
-
-    .title {
-        grid-area: title;
-        font-weight: bold;
-        font-size: var(--k-font-x-larger);
     }
 
     .content {
