@@ -14,7 +14,7 @@ the [198d807](https://github.com/DeepDoge/web3-forum/commit/198d8074b76c85be314b
 - https://bafybeifwinosyf44ofl32jzxdr6bx6tz7emnnomprsnbtzyrt66iqbykee.ipfs.dweb.link
 - https://bafybeifwinosyf44ofl32jzxdr6bx6tz7emnnomprsnbtzyrt66iqbykee.ipfs.cf-ipfs.com
 
-**LTS** <br />
+**IPNS** <br />
 ipns://dforum.eth <br /> <br />
 
 
