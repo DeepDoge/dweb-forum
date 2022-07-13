@@ -51,7 +51,7 @@
         gap: calc(var(--k-padding) * 2);
         position: sticky;
         top: 0;
-        z-index: var(--k-z-index-sticky);
+        z-index: var(--k-z-index-overlay);
     }
 
     .account-info {
