@@ -9,9 +9,11 @@
     import { currentRoute } from "./_routing.svelte";
 
     let height: number = 0;
+
+    $: document.body.style.setProperty('--header-height', `${height}px`)
 </script>
 
-<header style:--height={height} bind:clientHeight={height}>
+<header style:--height={height} bind:offsetHeight={height}>
     <KBoxEffect color="mode" blur size="smaller" background radius="tile">
         {#if $account}
             <div class="account-info">
@@ -47,8 +49,9 @@
         justify-items: start;
         padding: calc(var(--k-padding) * 2);
         gap: calc(var(--k-padding) * 2);
-
-        /* scroll-padding-top: var(--height); */
+        position: sticky;
+        top: 0;
+        z-index: 1;
     }
 
     .account-info {

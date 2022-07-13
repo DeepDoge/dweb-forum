@@ -82,6 +82,8 @@
         padding: calc(var(--k-padding) * 2);
         background-attachment: fixed;
         background-color: var(--k-color-mode-body);
+
+        filter: opacity(.9);
     }
 
     .timeline,
@@ -91,19 +93,20 @@
 
     .sticky {
         position: sticky;
-        top: 0;
+        top: var(--header-height);
         z-index: 1;
     }
 
     .post .sticky {
         display: grid;
         grid-template-rows: auto 1fr;
-        height: 100vh;
+        height: calc(100vh - var(--header-height));
     }
 
     .post.fixed {
         position: fixed;
         inset: 0;
+        top: var(--header-height);
         background-color: var(--k-color-mode-body);
         z-index: 1;
     }
