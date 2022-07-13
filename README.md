@@ -28,3 +28,4 @@ To anyone looking at this I'm having trouble getting ENS names from Ethereum pro
 It only works with `Web3Provider` aka the web3 wallet like metamask. I need to get ENS name directly from `JsonRpcProvider` maybe via making the raw request myself but not sure how atm. It would be cool if anyone can help :)
 
 - Also in the final product there will be a settings page to change, add readonly json rpc providers. So users can choose to use different providers or their own local node etc.
+- IMPORTANT, client side AI with TensorFlow.js or similar, classify images. maybe texk later too. And blur the nsfw content based on the user configuration. 
