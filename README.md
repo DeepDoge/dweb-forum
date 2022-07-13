@@ -8,11 +8,11 @@ This is a Web3 + IPFS based forum, or social media, or how ever you wanna call i
 # How to use it?
 It's still in early stages. <br />
 But if you wanna try it, 
-the [aa1dfad](https://github.com/DeepDoge/web3-forum/commit/aa1dfad08986ffb90da88f6958b4df9c1180b078) version is live on Polygon Network at: <br /> 
-- ipfs://bafybeic65ryu4sdhfm667l6bydhz6vxqbxojw3ztrn3wdrfeiyyopmxrte
-- https://bafybeic65ryu4sdhfm667l6bydhz6vxqbxojw3ztrn3wdrfeiyyopmxrte.ipfs.infura-ipfs.io/
-- https://bafybeic65ryu4sdhfm667l6bydhz6vxqbxojw3ztrn3wdrfeiyyopmxrte.ipfs.dweb.link
-- https://bafybeic65ryu4sdhfm667l6bydhz6vxqbxojw3ztrn3wdrfeiyyopmxrte.ipfs.cf-ipfs.com
+the [198d807](https://github.com/DeepDoge/web3-forum/commit/198d8074b76c85be314b81093c4e27fc144fa73d) version is live on Polygon Network at: <br /> 
+- ipfs://bafybeifwinosyf44ofl32jzxdr6bx6tz7emnnomprsnbtzyrt66iqbykee
+- https://bafybeifwinosyf44ofl32jzxdr6bx6tz7emnnomprsnbtzyrt66iqbykee.ipfs.infura-ipfs.io/
+- https://bafybeifwinosyf44ofl32jzxdr6bx6tz7emnnomprsnbtzyrt66iqbykee.ipfs.dweb.link
+- https://bafybeifwinosyf44ofl32jzxdr6bx6tz7emnnomprsnbtzyrt66iqbykee.ipfs.cf-ipfs.com
  <br />
 Ok so i made chages to use the event logs as store instead of SSTORE or SSTORE2(Contract). <br />
 So instead of storing data on the state or contract, i just use the block. <br />
