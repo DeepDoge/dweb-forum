@@ -125,5 +125,5 @@ export async function addPostContentItemsDataToIpfs(items: PostContentItemData[]
 
 export async function getPostContentItemsDataFromIpfs(hash: string): Promise<PostContentItemData[]>
 {
-    return decodePostContentItems(new Uint8Array(await (await fetch(get(ipfsClient).toURL(hash))).arrayBuffer()))
+    return decodePostContentItems(await get(ipfsClient).getBytes(hash))
 }

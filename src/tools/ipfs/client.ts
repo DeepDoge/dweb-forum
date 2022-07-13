@@ -1,3 +1,4 @@
+import { cacheRecord } from '$/utils/common/cacheRecord'
 import { promiseQueue } from '$/utils/common/promiseQueue'
 import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte"
 import CID from 'cids'
@@ -9,6 +10,7 @@ interface Client
     api: IPFSHTTPClient
     config: Config
     toURL(hash: string): string
+    getBytes(hash: string): Promise<Uint8Array>
     isIpfsHash(hash: string): boolean
 }
 
@@ -30,6 +32,7 @@ export const ipfsConfigs: Writable<Config[]> = writable([
 ])
 export const ipfsClient: Readable<Client> = readable(null, (set) => ipfsConfigs.subscribe((configs) => onIpfsAPIsUpdate(set, configs)))
 
+const cache = cacheRecord<Uint8Array>() 
 const onIpfsAPIsUpdate = promiseQueue(async (set: Subscriber<Client>, configs: Config[]) => 
 {
     for (const config of configs)
@@ -45,6 +48,12 @@ const onIpfsAPIsUpdate = promiseQueue(async (set: Subscriber<Client>, configs: C
                 {
                     hash = new CID(hash).toV0().toString()
                     return `${config.gateway}${hash}`
+                },
+                async getBytes(hash)
+                {
+                    if (cache.has(hash)) return cache.get(hash)
+                    cache.set(hash, new Uint8Array(await (await fetch((this as Client).toURL(hash))).arrayBuffer()))
+                    return cache.get(hash)
                 },
                 isIpfsHash(hash)
                 {
