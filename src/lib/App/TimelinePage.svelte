@@ -94,7 +94,7 @@
     .sticky {
         position: sticky;
         top: var(--header-height);
-        z-index: var(--k-z-index-content);
+        z-index: var(--k-z-index-sticky);
     }
 
     .post .sticky {
@@ -108,7 +108,7 @@
         inset: 0;
         top: var(--header-height);
         background-color: var(--k-color-mode-body);
-        z-index: var(--k-z-index-content);
+        z-index: var(--k-z-index-sticky);
     }
 
     .post header {
