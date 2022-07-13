@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { getPostData, TimelineGroup, TimelineId } from "$/tools/api/app";
+    import { getPostData, packTimelineId, TimelineGroup, TimelineId } from "$/tools/api/app";
     import { ipfsClient } from "$/tools/ipfs/client";
     import { account, appContract } from "$/tools/wallet";
     import { waitContractUntil } from "$/tools/wallet/listen";
@@ -52,7 +52,11 @@
             }, 500);
 
             await globalTaskNotificationManager.append(
-                waitContractUntil(appContract, appContract.filters.PostPublished(), (x, y, event) => tx.hash === event.transactionHash),
+                waitContractUntil(
+                    appContract,
+                    appContract.filters.TimelineAddPost(packTimelineId(timelineId)),
+                    (x, y, z, w, event) => tx.hash === event.transactionHash
+                ),
                 "Publishing Post"
             );
         } catch (error) {

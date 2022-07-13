@@ -1,6 +1,8 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity 0.8.15;
 
+import "./SSTORE2.sol";
+
 contract App {
     /* INTERNAL TIMELINE GROUPS */
     uint96 public constant TIMELINE_GROUP_PROFILE_POSTS = 0;
@@ -18,7 +20,6 @@ contract App {
     Timeline
     ==========================
     */
-
     mapping(uint256 => uint160[]) public timelines;
 
     function getTimelineId(uint96 timelineGroup, uint160 timelineKey) private pure returns (uint256) {
@@ -42,16 +43,11 @@ contract App {
     Post
     ==========================
     */
-
-    struct PostInfo {
-        uint256 postBlockPointer;
-        uint256 postContentBlockPointer;
-        address owner;
-    }
-
     struct Post {
         uint96 timelineGroup;
         uint160 timelineKey;
+        address owner;
+        address contentPointer;
     }
 
     struct PostContent {
@@ -61,12 +57,9 @@ contract App {
         bytes data;
     }
 
-    event PostPublished(uint160 indexed postId, Post post);
-    event PostContentPublished(uint160 indexed postId, PostContent postContent);
-
-    mapping(uint160 => PostInfo) public postInfos;
-    uint160 public postCounter = 1;
-
+    mapping(uint160 => Post) public posts;
+    uint160 postCounter;
+    
     function publishPost(
         uint96 timelineGroup,
         uint160 timelineKey,
@@ -77,10 +70,8 @@ contract App {
         require(timelineGroup > LAST_INTERNAL_TIMELINE_GROUP, "Can't post on internal timeline group.");
 
         uint160 postId = postCounter++;
-        postInfos[postId] = PostInfo(block.number, block.number, msg.sender);
-
-        emit PostPublished(postId, Post(timelineGroup, timelineKey));
-        emit PostContentPublished(postId, PostContent(title, block.timestamp, mentions, data));
+        address contentPointer = SSTORE2.write(abi.encode(PostContent(title, block.timestamp, mentions, data)));
+        posts[postId] = Post(timelineGroup, timelineKey, msg.sender, contentPointer);
 
         if (timelineGroup != 0 && timelineKey != 0) {
             addPostToTimeline(getTimelineId(timelineGroup, timelineKey), postId);
@@ -100,7 +91,7 @@ contract App {
     }
 
     modifier onlyPostOwner(uint160 postId) {
-        require(postInfos[postId].owner == msg.sender, "You don't own this post.");
+        require(posts[postId].owner == msg.sender, "You don't own this post.");
         _;
     }
 
@@ -109,7 +100,7 @@ contract App {
     Post Edit
     ==========================
     */
-    mapping(uint160 => uint256[]) public postContentHistory;
+    mapping(uint160 => address[]) public postContentHistory;
 
     function editPost(
         uint160 postId,
@@ -117,11 +108,46 @@ contract App {
         bytes calldata data,
         address[] calldata mentions
     ) external onlyPostOwner(postId) {
-        PostInfo storage postInfo = postInfos[postId];
-        postContentHistory[postId].push(postInfo.postContentBlockPointer);
+        Post storage post = posts[postId];
+        postContentHistory[postId].push(post.contentPointer);
+        post.contentPointer = SSTORE2.write(abi.encode(PostContent(title, block.timestamp, mentions, data)));
+    }
 
-        postInfo.postContentBlockPointer = block.number;
-        emit PostContentPublished(postId, PostContent(title, block.timestamp, mentions, data));
+     /* 
+    ==========================
+    Get PostData
+    ==========================
+    */
+    struct PostData
+    {
+        uint160 postId;
+        Post post;
+        PostContent postContent;
+        bytes32[][] metadata;
+    }
+
+    function getPostData(uint160 postId, bytes32[][] memory metadata) external view returns (PostData memory)
+    {
+        for (uint256 i = 0; i < metadata.length; i++)
+            metadata[i][1] = postMetadatas[postId][metadata[i][0]];
+
+        Post memory post = posts[postId];
+        PostData memory postData = PostData(postId, post, abi.decode(SSTORE2.read(post.contentPointer), (PostContent)), metadata);
+
+        return postData;
+    }
+
+    function getPostDataFromTimeline(uint256 timelineId, uint256 postIndex, bytes32[][] memory metadata) external view returns (PostData memory)
+    {
+        uint160 postId = timelines[timelineId][postIndex];
+
+        for (uint256 i = 0; i < metadata.length; i++)
+            metadata[i][1] = postMetadatas[postId][metadata[i][0]];
+
+        Post memory post = posts[postId];
+        PostData memory postData = PostData(postId, post, abi.decode(SSTORE2.read(post.contentPointer), (PostContent)), metadata);
+
+        return postData;
     }
 
     /* 

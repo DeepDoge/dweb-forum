@@ -19,11 +19,6 @@ export const enum TimelineGroup
 }
 
 export type Timeline = Awaited<ReturnType<typeof getTimeline>>
-export type TimelineId = { group: BigNumberish, key: BigNumberish }
-export type PostId = BigNumber
-
-
-
 export type PostData =
     Omit<App.PostContentStructOutput, Exclude<keyof App.PostContentStructOutput, keyof App.PostContentStruct>> &
     Omit<App.PostStructOutput, Exclude<keyof App.PostStructOutput, keyof App.PostStruct>> &
@@ -31,6 +26,9 @@ export type PostData =
         postId: PostId
         owner: string
     }
+
+export type TimelineId = { group: BigNumberish, key: BigNumberish }
+export type PostId = BigNumber
 
 export interface TimelineInfo
 {
@@ -47,26 +45,19 @@ export const getPostData = cachedPromise<{ postId: PostId }, Writable<PostData>>
     (params) => params.postId.toString(),
     async ({ params }) =>
     {
-        const postInfo = await appContract.postInfos(params.postId)
-        const [post, postContent] = (await Promise.all(
-            [
-                appContract.queryFilter(appContract.filters.PostPublished(params.postId), postInfo.postBlockPointer.toNumber(), postInfo.postBlockPointer.add(1).toNumber()),
-                appContract.queryFilter(appContract.filters.PostContentPublished(params.postId), postInfo.postContentBlockPointer.toNumber(), postInfo.postContentBlockPointer.add(1).toNumber())
-            ]
-        ))
-
-        return writable<PostData>({
-            postId: params.postId,
-            owner: postInfo.owner,
-            timelineGroup: post[0].args[1].timelineGroup,
-            timelineKey: post[0].args[1].timelineKey,
-            title: postContent[0].args[1].title,
-            data: postContent[0].args[1].data,
-            mentions: postContent[0].args[1].mentions,
-            time: postContent[0].args[1].time
-        })
+        const _postData = await appContract.getPostData(params.postId, [])
+        const postData: PostData = {
+            ..._postData.post,
+            ..._postData.postContent
+        } as any
+        return writable(postData)
     }
 )
+
+function setPostCache(params: { postId: PostId, postData: PostData })
+{
+    return getPostData._cacheRecord.set(params.postId.toString(), writable(params.postData))
+}
 
 export const getTimelineInfo = cachedPromise<{ timelineId: TimelineId }, {
     lastEvent: Readable<TimelineAddPostEvent>
@@ -141,7 +132,18 @@ export async function getTimeline(params: { timelineId: TimelineId })
             const promises: Promise<BigNumber>[] = []
             for (let i = 0; i < 64; i++)
             {
-                promises.push(appContract.timelines(timelineIdPacked, pivot))
+                promises.push((async () =>
+                {
+                    const _postData = await appContract.getPostDataFromTimeline(timelineIdPacked, pivot, [])
+                    const postData: PostData = {
+                        ..._postData.post,
+                        ..._postData.postContent
+                    } as any
+
+                    setPostCache({ postId: postData.postId, postData })
+
+                    return postData.postId
+                })())
                 pivot = pivot.sub(1)
                 placeholderPostIds.push(BigNumber.from((i + 1) * -1))
                 if (pivot.lt(0)) break

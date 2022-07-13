@@ -93,7 +93,7 @@ export function decodeContent(contentEncoded: ContentEncoded): Content
 export function parseContent(account: string, contentText: string, mentions: string[] = []): Content
 {
     contentText = contentText.trim()
-    const parts = contentText.split(' ')
+    const parts = contentText.split(/\n/g, /\s/g)
     const items: ContentItem[] = []
     parts.forEach((part) =>
     {
