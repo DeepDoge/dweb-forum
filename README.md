@@ -17,6 +17,7 @@ the [198d807](https://github.com/DeepDoge/web3-forum/commit/198d8074b76c85be314b
 **IPNS**
 - ipns://dforum.eth
 - https://dforum.eth.link/
+- https://dforum-eth.ipns.dweb.link/
 
 
 I was using event logs to store posts before, but decided its not the right way. Even thought it was spending less GAS
