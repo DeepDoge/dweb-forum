@@ -1,6 +1,7 @@
 # What is this?
 This is a Web3 + IPFS based forum, or social media, or how ever you wanna call it, idk. <br />
- that has no admins, stake holders, or dao, it just exists
+ that has no admins, stake holders, or dao, it just exists <br />
+ just works on browser like any other site
 
 [![forthebadge](https://forthebadge.com/images/badges/0-percent-optimized.svg)](https://forthebadge.com) <br />
 [![forthebadge](https://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg)](https://forthebadge.com) <br />
