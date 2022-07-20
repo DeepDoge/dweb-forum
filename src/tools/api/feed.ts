@@ -1,5 +1,5 @@
 import { account, appContract, provider } from "$/tools/wallet"
-import { cachePromiseResult, createPermaStore, createTempStore, storePromiseResult } from "$/utils/common/store"
+import { cachePromiseResult, createPermaStore, createTempStore } from "$/utils/common/store"
 import { BigNumber, type BigNumberish } from "ethers"
 import { get, writable, type Writable } from "svelte/store"
 import type { App } from "../hardhat/typechain-types"
@@ -19,17 +19,31 @@ export type PostData =
         owner: string
     }
 
-const postDataCacheStore = createTempStore(get(provider).network.chainId.toString(), 'posts')
-export async function getPostData(postId: PostId)
+function deserializeBigNumbers(thing: object)
 {
-    return await cachePromiseResult(postId.toString(), async () =>
+    return Object.fromEntries(
+        Object.entries(thing)
+            .map(([key, value]) => [key, BigNumber.isBigNumber(value) ? BigNumber.from(value) : value])
+    )
+}
+
+const postDataCacheStore = createTempStore(get(provider).network.chainId.toString(), 'posts')
+export async function getPostData(postId: PostId): Promise<Writable<PostData>>
+{
+    return await cachePromiseResult(postId._hex, async () =>
     {
+        const cache = await postDataCacheStore.get(postId._hex)
+        if (cache) return writable(deserializeBigNumbers(cache) as PostData)
+
         const response = await appContract.getPostData(postId, [])
         const postData: PostData = {
             postId: response.postId,
             ...response.post,
             ...response.postContent
         } as any
+
+        await postDataCacheStore.put(postId._hex, postData)
+
         return writable(postData)
     })
 }
@@ -80,40 +94,56 @@ export function packTimelineId(timelineId: TimelineId)
 const timelinePostStore = createTempStore(get(provider).network.chainId.toString(), 'timelines')
 export async function getTimelinePost(timelineId: TimelineId, postIndex: BigNumber)
 {
-    const key = `${timelineId.group}:${timelineId.key}:${postIndex}`
+    const key = `${BigNumber.from(timelineId.group)._hex}:${BigNumber.from(timelineId.key)._hex}:${postIndex._hex}`
     return await cachePromiseResult(key, async () =>
     {
+        const cache = await timelinePostStore.get(key)
+        if (cache) return await getPostData(BigNumber.from(cache))
+
         const timelineIdPacked = packTimelineId(timelineId)
         const respose = await appContract.getPostDataFromTimeline(timelineIdPacked, postIndex, [])
-        const postData: PostData = { postId: respose.postId, ...respose.post, ...respose.postContent }
-        console.log
-        postDataCacheStore.put(respose.postId.toString(), {
-            postId: respose.postId,
-            postData
-        })
 
-        return postData
+        await timelinePostStore.put(key, respose.postId)
+
+        const postData: PostData = { postId: respose.postId, ...respose.post, ...respose.postContent }
+
+        await postDataCacheStore.put(respose.postId._hex, postData)
+
+        return await getPostData(postData.postId)
     })
+}
+
+export type TimelineInfo = Awaited<ReturnType<typeof getTimelineInfo>>
+export async function getTimelineInfo(timelineId: TimelineId)
+{
+    const length = writable(await appContract.getTimelineLengh(packTimelineId(timelineId)))
+    return {
+        length
+    }
 }
 
 export async function getFeed(timelineIds: TimelineId[])
 {
     const timelines: Record<string, {
+        info: TimelineInfo
         pivot: BigNumber
         done: boolean,
         waitingPostIds: PostId[]
     }> = {}
-    const getTimelineKey = (timelineId: TimelineId) => `${timelineId.group}:${timelineId.key}`
+    const getTimelineKey = (timelineId: TimelineId) => `${BigNumber.from(timelineId.group)._hex}:${BigNumber.from(timelineId.key)._hex}`
 
     const postIds: Writable<PostId[]> = writable([])
     const loading: Writable<boolean> = writable(false)
+    const newPostCount = writable(BigNumber.from(0))
 
     await Promise.all(
         timelineIds.map(async (timelineId) =>
         {
             const timelineIdKey = getTimelineKey(timelineId)
+            const info = await getTimelineInfo(timelineId)
             timelines[timelineIdKey] = {
-                pivot: (await appContract.getTimelineLengh(packTimelineId(timelineId))).sub(1),
+                info,
+                pivot: get(info.length).sub(1),
                 done: false,
                 waitingPostIds: []
             }
@@ -128,34 +158,34 @@ export async function getFeed(timelineIds: TimelineId[])
         loading.set(true)
 
         const timelinePromises = timelineIds.map(async (timelineId) =>
-            {
-                const timelineIdKey = getTimelineKey(timelineId)
-                const timeline = timelines[timelineIdKey]
+        {
+            const timelineIdKey = getTimelineKey(timelineId)
+            const timeline = timelines[timelineIdKey]
 
-                if (timeline.waitingPostIds.length >= LOAD_CHUNK_SIZE)
-                    return timeline.done
-
-                if (timeline.done)
-                    return timeline.done
-
-                const postPromises: Promise<PostId>[] = []
-
-                for (let i = 0; i < LOAD_CHUNK_SIZE; i++)
-                {
-                    if (timeline.pivot.lt(0)) break
-
-                    postPromises.push((async () => (await getTimelinePost(timelineId, timeline.pivot)).postId)())
-
-                    timeline.pivot = timeline.pivot.sub(1)
-                }
-
-                timeline.waitingPostIds.push(...await Promise.all(postPromises))
-
-                if (timeline.pivot.lt(0) && timeline.waitingPostIds.length === 0)
-                    timeline.done = true
-
+            if (timeline.waitingPostIds.length >= LOAD_CHUNK_SIZE)
                 return timeline.done
-            })
+
+            if (timeline.done)
+                return timeline.done
+
+            const postPromises: Promise<PostId>[] = []
+
+            for (let i = 0; i < LOAD_CHUNK_SIZE; i++)
+            {
+                if (timeline.pivot.lt(0)) break
+
+                postPromises.push((async () => get(await getTimelinePost(timelineId, timeline.pivot)).postId)())
+
+                timeline.pivot = timeline.pivot.sub(1)
+            }
+
+            timeline.waitingPostIds.push(...await Promise.all(postPromises))
+
+            if (timeline.pivot.lt(0) && timeline.waitingPostIds.length === 0)
+                timeline.done = true
+
+            return timeline.done
+        })
 
         const results = await Promise.all(timelinePromises)
         const done = results.some((result) => result === false) ? false : true
@@ -188,7 +218,7 @@ export async function getFeed(timelineIds: TimelineId[])
         timelineIds,
         postIds,
         loadMore,
-        loading
-        /* loadMore: async () => (await promiseTask<{}, { done: boolean }>(() => '', async () => ({ done: await loadMore() }))({})).done */
+        loading,
+        newPostCount
     }
 }

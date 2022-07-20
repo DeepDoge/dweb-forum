@@ -7,7 +7,8 @@
     import { Feed, TimelineGroup } from "$/tools/api/feed";
 
     export let account: string;
-    let mentionsTimeline: Feed = null;
+    let mentionsFeed: Feed = null;
+    $: newPostCount = mentionsFeed?.newPostCount;
 </script>
 
 <KButton text radius="rounded">
@@ -18,21 +19,19 @@
                 fill="currentColor"
             />
         </svg>
-        <div class="count">{mentionsTimeline ? "$newPostCount" : "..."}</div>
-        {#if mentionsTimeline}
-            <KHoverMenu radius="rounded" color="slave" size="normal" blur background>
-                <div class="notifications">
-                    <b>Notifications</b>
-                    <Timeline timelineId={{ group: TimelineGroup.ProfileMentions, key: account }} let:postIds>
-                        {#each postIds as postId (postId)}
-                            <a href="#{$currentRoute.path}#{postId}">
-                                <Post {postId} />
-                            </a>
-                        {/each}
-                    </Timeline>
-                </div>
-            </KHoverMenu>
-        {/if}
+        <div class="count">{mentionsFeed ? $newPostCount : "..."}</div>
+        <KHoverMenu radius="rounded" color="slave" size="normal" blur background>
+            <div class="notifications">
+                <b>Notifications</b>
+                <Timeline bind:feed={mentionsFeed} timelineId={{ group: TimelineGroup.ProfileMentions, key: account }} let:postIds>
+                    {#each postIds as postId (postId)}
+                        <a href="#{$currentRoute.path}#{postId}">
+                            <Post {postId} />
+                        </a>
+                    {/each}
+                </Timeline>
+            </div>
+        </KHoverMenu>
     </div>
 </KButton>
 

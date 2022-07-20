@@ -4,14 +4,20 @@
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KIntersectionObserver from "$lib/kicho-ui/components/KIntersectionObserver.svelte";
     import { BigNumber } from "ethers";
-    import { writable } from "svelte/store";
 
     export let timelineIds: TimelineId[];
     let feed: Feed = null;
     $: postIds = feed?.postIds;
+    $: newPostCount = feed?.newPostCount;
+
+    let _feed: typeof feed = null
+    $: _feed = feed
+    export { _feed as feed }
 
     async function refresh() {
+        feed = null;
         feed = await getFeed(timelineIds);
+        done = false;
     }
 
     $: timelineIds, onTimelineIdChange();
@@ -32,8 +38,6 @@
         }
         active = false;
     }
-
-    $: newPostCount = /* feed?.newPostCount */ writable(BigNumber.from(0));
 </script>
 
 <div class="feed">
