@@ -138,21 +138,18 @@ export async function getFeed(timelineIds: TimelineId[])
                 if (timeline.done)
                     return timeline.done
 
-                const postPromises: Promise<void>[] = []
+                const postPromises: Promise<PostId>[] = []
 
                 for (let i = 0; i < LOAD_CHUNK_SIZE; i++)
                 {
                     if (timeline.pivot.lt(0)) break
 
-                    postPromises.push((async () =>
-                    {
-                        timeline.waitingPostIds.push((await getTimelinePost(timelineId, timeline.pivot)).postId)
-                    })())
+                    postPromises.push((async () => (await getTimelinePost(timelineId, timeline.pivot)).postId)())
 
                     timeline.pivot = timeline.pivot.sub(1)
                 }
 
-                await Promise.all(postPromises)
+                timeline.waitingPostIds.push(...await Promise.all(postPromises))
 
                 if (timeline.pivot.lt(0) && timeline.waitingPostIds.length === 0)
                     timeline.done = true
@@ -160,7 +157,7 @@ export async function getFeed(timelineIds: TimelineId[])
                 return timeline.done
             })
 
-        const results = await Promise.all(await timelinePromises)
+        const results = await Promise.all(timelinePromises)
         const done = results.some((result) => result === false) ? false : true
 
         const postIdsOfThisChunk: PostId[] = []
@@ -175,7 +172,6 @@ export async function getFeed(timelineIds: TimelineId[])
                     newestFrom = key
             }
 
-            console.log(newestFrom)
             if (newestFrom === null) break
 
             const newestPostId = timelines[newestFrom].waitingPostIds.shift()
