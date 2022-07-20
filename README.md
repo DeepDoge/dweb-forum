@@ -11,7 +11,7 @@ This is a Web3 + IPFS based forum, or social media, or how ever you wanna call i
 It's still in early stages. <br />
 But if you wanna try it, 
 the latest published version is live on Polygon Network at: <br /> 
-**IPNS**
+**IPNS:**
 - ipns://dforum.eth
 - https://dforum.eth.link
 - https://dforum-eth.ipns.dweb.link
