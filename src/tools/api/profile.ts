@@ -1,7 +1,7 @@
 import { profileContract } from "$/tools/wallet"
 import { listenContract } from "$/tools/wallet/listen"
 import { hexToUtf8, utf8AsBytes32 } from "$/utils/bytes"
-import { createPromiseResultCacher } from "$/utils/common/store"
+import { createPromiseResultCacher, createTempStore } from "$/utils/common/store"
 import { getDefaultProvider } from "ethers"
 import { writable, type Writable } from "svelte/store"
 
@@ -48,8 +48,18 @@ export async function getProfileData(address: string, key: string)
     })
 }
 
+const ensNameStore = createTempStore<{ ensName: string }>('ens-name', 1000 * 60 * 60)
 const ensNameCacher = createPromiseResultCacher()
 export async function ensNameOf(address: string)
 {
-    return await ensNameCacher.cache(address.toLowerCase(), async () => await (getDefaultProvider()).lookupAddress(address))
+    const key = address.toLowerCase()
+    return await ensNameCacher.cache(key, async () => 
+    {
+        const cache = await ensNameStore.get(key)
+        if (cache) return cache.ensName
+
+        const response = await (getDefaultProvider()).lookupAddress(address)
+        if (response) await ensNameStore.put(key, { ensName: response })
+        return response
+    })
 }
