@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { getPostData, packTimelineId, TimelineGroup, TimelineId } from "$/tools/api/app";
+import { getPostData, packTimelineId, TimelineGroup, TimelineId } from "$/tools/api/feed";
+
     import { ipfsClient } from "$/tools/ipfs/client";
     import { account, appContract } from "$/tools/wallet";
     import { waitContractUntil } from "$/tools/wallet/listen";
@@ -31,7 +32,7 @@
                 $account,
                 contentText,
                 BigNumber.from(timelineId.group).eq(TimelineGroup.Replies)
-                    ? [get(await getPostData({ postId: BigNumber.from(timelineId.key) })).owner].filter(
+                    ? [get(await getPostData(BigNumber.from(timelineId.key))).owner].filter(
                           (mention) => mention.toLowerCase() !== $account
                       )
                     : []

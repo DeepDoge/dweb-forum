@@ -1,9 +1,8 @@
 import { profileContract } from "$/tools/wallet"
 import { listenContract } from "$/tools/wallet/listen"
 import { hexToUtf8, utf8AsBytes32 } from "$/utils/bytes"
-import { cachedPromise } from "$/utils/common/cachedPromise"
-import type { Writable } from "svelte/store"
-import { writable } from "svelte/store"
+import { cachePromiseResult } from "$/utils/common/store"
+import { writable, type Writable } from "svelte/store"
 
 export interface ProfileInfo
 {
@@ -13,37 +12,36 @@ export interface ProfileInfo
 }
 
 const listeners: Record<string, { count: number, unlisten: () => void }> = {}
-export const getProfileData = cachedPromise<
-    { address: string, key: string }, ProfileInfo>(
-        ({ address, key }) => `${address}:${key}`,
-        async ({ params }) =>
+export async function getProfileData(address: string, key: string)
+{
+    const uniqueKey = `${address}:${key}`
+    return await cachePromiseResult(uniqueKey, async () =>
+    {
+        const result = writable(hexToUtf8(await profileContract.profiles(address, utf8AsBytes32(key))))
+
+        function listen()
         {
-            const result = writable(hexToUtf8(await profileContract.profiles(params.address, utf8AsBytes32(params.key))))
-            const listenerKey = `${params.address}:${params.key}`
-
-            function listen()
-            {
-                if (listeners[listenerKey]) listeners[listenerKey].count++
-                else listeners[listenerKey] = {
-                    count: 0, unlisten: listenContract(
-                        profileContract, profileContract.filters.ProfileSet(params.address, utf8AsBytes32(params.key)),
-                        async (owner, key, value: string, timestamp) =>
-                        {
-                            result.set(hexToUtf8(value))
-                        })
-                }
-            }
-
-            function unlisten()
-            {
-                const listener = listeners[listenerKey]
-                if (--listener.count <= 0) listener.unlisten()
-            }
-
-            return {
-                value: result,
-                listen,
-                unlisten,
+            if (listeners[uniqueKey]) listeners[uniqueKey].count++
+            else listeners[uniqueKey] = {
+                count: 0, unlisten: listenContract(
+                    profileContract, profileContract.filters.ProfileSet(address, utf8AsBytes32(key)),
+                    async (owner, key, value: string, timestamp) =>
+                    {
+                        result.set(hexToUtf8(value))
+                    })
             }
         }
-    )
+
+        function unlisten()
+        {
+            const listener = listeners[uniqueKey]
+            if (--listener.count <= 0) listener.unlisten()
+        }
+
+        return {
+            value: result,
+            listen,
+            unlisten,
+        }
+    })
+}

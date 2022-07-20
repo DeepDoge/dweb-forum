@@ -1,16 +1,16 @@
 <script lang="ts">
     import { currentRoute } from "$/routes/_routing.svelte";
-    import { getPostRoot,getTimeline,PostId,Timeline as TimelineType,TimelineGroup } from "$/tools/api/app";
     import { bigNumberAsUtf8 } from "$/utils/bytes";
     import { promiseQueue } from "$/utils/common/promiseQueue";
     import Post from "$lib/App/Post.svelte";
     import Timeline from "$lib/App/Timeline.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import { BigNumber } from "ethers";
+    import { Feed, getFeed, getPostRoot, PostId, TimelineGroup } from "$/tools/api/feed";
 
     export let postId: PostId;
 
-    let repliesTimeline: TimelineType = null;
+    let repliesTimeline: Feed = null;
     $: repliesTimelineLoading = repliesTimeline?.loading;
     let prefixPostIds: PostId[] = [];
 
@@ -26,10 +26,10 @@
 
         const [root, timeline] = await Promise.all([
             await getPostRoot({ postId }),
-            await getTimeline({ timelineId: { group: TimelineGroup.Replies, key: postId } }),
+            await getFeed([ { group: TimelineGroup.Replies, key: postId } ]),
         ]);
 
-        await timeline.loadOlder();
+        await timeline.loadMore();
 
         prefixPostIds = [...root, postId];
         repliesTimeline = timeline;
@@ -84,7 +84,7 @@
                 </a>
             {/each}
             <b>Replies{$repliesTimelineLoading ? "..." : ":"}</b>
-            <Timeline publish timeline={repliesTimeline} let:postIds>
+            <Timeline timelineId={{ group: TimelineGroup.Replies, key: postId }} let:postIds>
                 {#each postIds as timelinePostId (timelinePostId.toString())}
                     <a
                         href={timelinePostId ? `#${$currentRoute.path}#${timelinePostId}` : null}

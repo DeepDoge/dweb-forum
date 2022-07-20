@@ -4,9 +4,8 @@
 
     export let address: string = null;
     let nameInfo: ProfileInfo = null;
-    $: name = nameInfo?.value;
     let ensName: string = null;
-    // $: address && $ethereumJsonRpcProvider.lookupAddress(address).then((value) => ensName = value) || (ensName = null)
+    $: name = nameInfo?.value;
 
     $: address, onAddressChange();
     async function onAddressChange() {
@@ -14,7 +13,7 @@
 
         if (address) {
             nameInfo?.unlisten?.call(null);
-            nameInfo = await getProfileData({ address, key: "nickname" });
+            nameInfo = await getProfileData(address, "nickname");
             nameInfo.listen();
         }
     }

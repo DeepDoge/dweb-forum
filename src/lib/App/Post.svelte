@@ -1,7 +1,7 @@
 <script lang="ts">
     import { currentRoute } from "$/routes/_routing.svelte";
-    import { getPostData, getTimelineInfo, PostData, PostId, TimelineGroup, TimelineId } from "$/tools/api/app";
-    import { bigNumberAsUtf8, bytes32ToIpfsHash, hexToBytes, hexToUtf8 } from "$/utils/bytes";
+import { getPostData, PostData, PostId, TimelineGroup, TimelineId } from "$/tools/api/feed";
+    import { bigNumberAsUtf8, bytes32ToIpfsHash, hexToBytes } from "$/utils/bytes";
     import { promiseQueue } from "$/utils/common/promiseQueue";
     import { decodePostContentItems, getPostContentItemsDataFromIpfs, PostContentData } from "$/utils/content";
     import { second } from "$/utils/second";
@@ -31,20 +31,17 @@
 
     let repliesTimelineId: TimelineId;
     $: repliesTimelineId = { group: TimelineGroup.Replies, key: postId };
-    let repliesTimelineInfo: Awaited<ReturnType<typeof getTimelineInfo>> = null;
-    $: repliesTimelineLength = repliesTimelineInfo?.length;
 
     $: (!$postData || !postId.eq($postData.postId)) && updatePost();
     const updatePost = promiseQueue(async () => {
         postData = null;
-        repliesTimelineInfo = null;
         parentPostData = null;
 
         if (postId.lt(0)) return;
 
         await Promise.all([
             (async () => {
-                postData = await getPostData({ postId });
+                postData = await getPostData(postId);
                 await Promise.all([
                     (async () => {
                         const contentBytes = hexToBytes($postData.data);
@@ -59,11 +56,10 @@
                             : null;
                     })(),
                     (async () => {
-                        if ($postData.timelineGroup.eq(TimelineGroup.Replies)) parentPostData = await getPostData({ postId: $postData.timelineKey });
+                        if ($postData.timelineGroup.eq(TimelineGroup.Replies)) parentPostData = await getPostData($postData.timelineKey);
                     })(),
                 ]);
-            })(),
-            (async () => (repliesTimelineInfo = await getTimelineInfo({ timelineId: repliesTimelineId })))(),
+            })()
         ]);
     });
 
@@ -120,7 +116,7 @@
                                 d="M4.79805 3C3.80445 3 2.99805 3.8055 2.99805 4.8V15.6C2.99805 16.5936 3.80445 17.4 4.79805 17.4H7.49805V21L11.098 17.4H19.198C20.1925 17.4 20.998 16.5936 20.998 15.6V4.8C20.998 3.8055 20.1925 3 19.198 3H4.79805Z"
                             />
                         </svg>
-                        {repliesTimelineInfo ? $repliesTimelineLength ?? 0 : "..."}
+                        <!-- {repliesTimelineInfo ? $repliesTimelineLength ?? 0 : "..."} -->
                     </div>
                     <div class="date k-text-singleline">{date?.toLocaleString()}</div>
                 </div>

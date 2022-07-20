@@ -1,20 +1,13 @@
 <script lang="ts">
     import { currentRoute } from "$/routes/_routing.svelte";
-    import { getTimeline, Timeline as TImelineType, TimelineGroup } from "$/tools/api/app";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
     import Post from "./Post.svelte";
-    import Timeline from "./Timeline.svelte";
+    import Timeline from "$lib/App/Timeline.svelte";
+    import { Feed, TimelineGroup } from "$/tools/api/feed";
 
     export let account: string;
-    let mentionsTimeline: TImelineType = null;
-    $: newPostCount = mentionsTimeline?.newPostCount;
-
-    $: account, onAccountChange();
-    async function onAccountChange() {
-        mentionsTimeline = null;
-        mentionsTimeline = await getTimeline({ timelineId: { group: TimelineGroup.ProfileMentions, key: account } });
-    }
+    let mentionsTimeline: Feed = null;
 </script>
 
 <KButton text radius="rounded">
@@ -25,12 +18,12 @@
                 fill="currentColor"
             />
         </svg>
-        <div class="count">{mentionsTimeline ? $newPostCount : "..."}</div>
+        <div class="count">{mentionsTimeline ? "$newPostCount" : "..."}</div>
         {#if mentionsTimeline}
             <KHoverMenu radius="rounded" color="slave" size="normal" blur background>
                 <div class="notifications">
                     <b>Notifications</b>
-                    <Timeline timeline={mentionsTimeline} let:postIds>
+                    <Timeline timelineId={{ group: TimelineGroup.ProfileMentions, key: account }} let:postIds>
                         {#each postIds as postId (postId)}
                             <a href="#{$currentRoute.path}#{postId}">
                                 <Post {postId} />

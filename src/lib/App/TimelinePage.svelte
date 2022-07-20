@@ -1,21 +1,13 @@
 <script lang="ts">
     import { currentRoute } from "$/routes/_routing.svelte";
-    import { getTimeline, PostId, Timeline as TimelineType, TimelineId } from "$/tools/api/app";
+    import type { PostId, TimelineId } from "$/tools/api/feed";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import { BigNumber } from "ethers";
     import Post from "./Post.svelte";
     import PostTimeline from "./PostTimeline.svelte";
-    import Timeline from "./Timeline.svelte";
+    import Timeline from "$lib/App/Timeline.svelte";
 
     export let timelineId: TimelineId;
-    let timeline: TimelineType = null;
-
-    $: timelineId, onTimelineIdChange();
-    async function onTimelineIdChange() {
-        timeline = null;
-        if (!timelineId) return;
-        timeline = await getTimeline({ timelineId });
-    }
 
     let selectedPostId: PostId = null;
     $: selectedPostId = $currentRoute.hash ? (/[0-9]/.test($currentRoute.hash) ? BigNumber.from($currentRoute.hash) : selectedPostId) : null;
@@ -35,7 +27,7 @@
         <header class="sticky">
             <slot name="timeline-header" />
         </header>
-        <Timeline publish {timeline} let:postIds>
+        <Timeline {timelineId} let:postIds>
             {#each postIds as postId (postId.toString())}
                 <a href={postId ? `#${$currentRoute.path}#${postId}` : null}>
                     <Post {postId} />
@@ -83,7 +75,7 @@
         background-attachment: fixed;
         background-color: var(--k-color-mode-body);
 
-        filter: opacity(.9);
+        filter: opacity(0.9);
     }
 
     .timeline,
@@ -124,6 +116,6 @@
     .post .posts::after {
         content: "";
         display: block;
-        height: 100%;
+        height: 75%;
     }
 </style>

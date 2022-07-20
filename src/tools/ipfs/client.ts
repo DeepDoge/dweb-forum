@@ -1,5 +1,5 @@
-import { cacheRecord } from '$/utils/common/cacheRecord'
 import { promiseQueue } from '$/utils/common/promiseQueue'
+import { weakRecord } from '$/utils/common/weakRecord'
 import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte"
 import CID from 'cids'
 import type { IPFSHTTPClient } from 'ipfs-http-client'
@@ -32,7 +32,7 @@ export const ipfsConfigs: Writable<Config[]> = writable([
 ])
 export const ipfsClient: Readable<Client> = readable(null, (set) => ipfsConfigs.subscribe((configs) => onIpfsAPIsUpdate(set, configs)))
 
-const cache = cacheRecord<Uint8Array>() 
+const cache = weakRecord<Uint8Array>()
 const onIpfsAPIsUpdate = promiseQueue(async (set: Subscriber<Client>, configs: Config[]) => 
 {
     for (const config of configs)
