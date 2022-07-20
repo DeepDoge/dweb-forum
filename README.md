@@ -10,8 +10,7 @@ This is a Web3 + IPFS based forum, or social media, or how ever you wanna call i
 # How to use it?
 It's still in early stages. <br />
 But if you wanna try it, 
-the [6db3d85](https://github.com/DeepDoge/web3-forum/commit/6db3d85b70f364b33eef58934f035a609d2077af) version is live on Polygon Network at: <br /> 
-
+the latest published version is live on Polygon Network at: <br /> 
 **IPNS**
 - ipns://dforum.eth
 - https://dforum.eth.link
