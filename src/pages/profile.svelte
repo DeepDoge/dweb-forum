@@ -13,6 +13,7 @@
 <script lang="ts">
     import { currentRoute } from "$/routes/_routing.svelte";
     import { TimelineGroup } from "$/tools/api/feed";
+    import { pageTitle } from "$/utils/pageTitle";
     import AddressOf from "$lib/App/AddressOf.svelte";
     import AvatarOf from "$lib/App/AvatarOf.svelte";
     import NicknameOf from "$lib/App/NicknameOf.svelte";
@@ -24,6 +25,10 @@
 
     $: mode = profilePageTabs[modeKey].mode;
 </script>
+
+<svelte:head>
+    <title>{pageTitle(address)}</title>
+</svelte:head>
 
 <div class="profile-page">
     <div class="profile">
