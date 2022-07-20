@@ -19,3 +19,10 @@
         <slot {postIds} />
     </Feed>
 </div>
+
+<style>
+    .timeline {
+        display: grid;
+        gap: calc(var(--k-padding) * 4)
+    }
+</style>

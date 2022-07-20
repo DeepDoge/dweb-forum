@@ -3,6 +3,7 @@ import CID from "cids"
 import { ethers } from "ethers"
 import { get } from "svelte/store"
 import { bytesToUtf8, utf8AsBytes } from "./bytes"
+import { createPromiseResultCacher, createTempStore } from "./common/store"
 
 export const enum ContentType
 {
@@ -123,7 +124,17 @@ export async function addPostContentItemsDataToIpfs(items: PostContentItemData[]
     return (await get(ipfsClient).api.add(encodePostContentItems(items), { pin: true })).cid.toString()
 }
 
+const ipfsBytesStore = createTempStore<number[]>("ipfs-bytes")
+const ipfsBytesCacher = createPromiseResultCacher()
 export async function getPostContentItemsDataFromIpfs(hash: string): Promise<PostContentItemData[]>
 {
-    return decodePostContentItems(await get(ipfsClient).getBytes(hash))
+    return ipfsBytesCacher.cache(hash, async () => {
+        const cache = await ipfsBytesStore.get(hash)
+        if (cache) return decodePostContentItems(Uint8Array.from(cache))
+
+        const bytes = await get(ipfsClient).getBytes(hash)
+        await ipfsBytesStore.put(hash, [...bytes])
+
+        return decodePostContentItems(bytes)
+    })
 }

@@ -7,32 +7,25 @@
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import { BigNumber } from "ethers";
     import { Feed, getFeed, getPostRoot, PostId, TimelineGroup } from "$/tools/api/feed";
+import { get } from "svelte/store";
 
     export let postId: PostId;
 
-    let repliesTimeline: Feed = null;
-    $: repliesTimelineLoading = repliesTimeline?.loading;
+    let repliesFeed: Feed = null;
     let prefixPostIds: PostId[] = [];
 
     let loading = false;
-    let _loading = loading;
-    $: _loading = loading;
-    export { _loading as loading };
 
-    $: postId && updateReplies(postId);
+    $: postId, updateReplies(postId);
     const updateReplies = promiseQueue(async (postId: PostId) => {
         if (loading) return;
         loading = true;
 
-        const [root, timeline] = await Promise.all([
-            await getPostRoot({ postId }),
-            await getFeed([ { group: TimelineGroup.Replies, key: postId } ]),
-        ]);
+        const root = await getPostRoot({ postId });
 
-        await timeline.loadMore();
+        while (get(repliesFeed.loading)) await new Promise((r) => setTimeout(r, 100))
 
         prefixPostIds = [...root, postId];
-        repliesTimeline = timeline;
 
         loading = false;
     });
@@ -43,17 +36,13 @@
         if (target.getBoundingClientRect().top < 0) target.scrollIntoView();
     }
 
-    function scrollToPost() {
-        scrollIntoViewIfNeeded(postElements[postId.toString()]);
-    }
-
     const postElements: Record<string, HTMLElement> = {};
-    $: currentPostsElement = postElements[postId.toString()];
+    $: currentPostsElement = postElements[postId._hex];
     let cache = null;
     $: (() => {
         if (cache === currentPostsElement) return;
         cache = currentPostsElement;
-        scrollToPost();
+        scrollIntoViewIfNeeded(currentPostsElement);
     })();
 </script>
 
@@ -62,40 +51,34 @@
         {#if loading && prefixPostIds.length === 0}
             <Post postId={BigNumber.from(-1)} />
         {/if}
-        {#if repliesTimeline}
-            {#each prefixPostIds as timelinePostId (timelinePostId.toString())}
-                <a
-                    href={timelinePostId ? `#${$currentRoute.path}#${timelinePostId}` : null}
-                    bind:this={postElements[timelinePostId.toString()]}
-                    class="post root-post"
-                >
-                    <Post postId={timelinePostId} fullHeight={timelinePostId.eq(postId)}>
-                        <svelte:fragment slot="before" let:postData>
-                            {#if postData?.timelineGroup.eq(TimelineGroup.Topics)}
-                                <div class="topic-button">
-                                    <KButton size="normal" color="master" href="#{bigNumberAsUtf8(postData.timelineKey)}">
-                                        #{bigNumberAsUtf8(postData.timelineKey)}
-                                    </KButton>
-                                    <div>⌄</div>
-                                </div>
-                            {/if}
-                        </svelte:fragment>
-                    </Post>
+        {#each prefixPostIds as timelinePostId (timelinePostId._hex)}
+            <a
+                href={timelinePostId ? `#${$currentRoute.path}#${timelinePostId}` : null}
+                bind:this={postElements[timelinePostId._hex]}
+                class="post root-post"
+            >
+                <Post postId={timelinePostId} fullHeight={timelinePostId.eq(postId)}>
+                    <svelte:fragment slot="before" let:postData>
+                        {#if postData?.timelineGroup.eq(TimelineGroup.Topics)}
+                            <div class="topic-button">
+                                <KButton size="normal" color="master" href="#{bigNumberAsUtf8(postData.timelineKey)}">
+                                    #{bigNumberAsUtf8(postData.timelineKey)}
+                                </KButton>
+                                <div>⌄</div>
+                            </div>
+                        {/if}
+                    </svelte:fragment>
+                </Post>
+            </a>
+        {/each}
+        <b>Replies:</b>
+        <Timeline bind:feed={repliesFeed} timelineId={{ group: TimelineGroup.Replies, key: postId }} let:postIds>
+            {#each postIds as timelinePostId (timelinePostId._hex)}
+                <a href={timelinePostId ? `#${$currentRoute.path}#${timelinePostId}` : null} class="post">
+                    <Post postId={timelinePostId} />
                 </a>
             {/each}
-            <b>Replies{$repliesTimelineLoading ? "..." : ":"}</b>
-            <Timeline timelineId={{ group: TimelineGroup.Replies, key: postId }} let:postIds>
-                {#each postIds as timelinePostId (timelinePostId.toString())}
-                    <a
-                        href={timelinePostId ? `#${$currentRoute.path}#${timelinePostId}` : null}
-                        class="post"
-                        bind:this={postElements[timelinePostId.toString()]}
-                    >
-                        <Post postId={timelinePostId} />
-                    </a>
-                {/each}
-            </Timeline>
-        {/if}
+        </Timeline>
     </div>
 </div>
 

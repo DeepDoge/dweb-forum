@@ -72,6 +72,7 @@
         align-items: center;
         gap: calc(var(--k-padding) * 2);
         padding: calc(var(--k-padding) * 2);
+        padding-bottom: calc(var(--k-padding) * 4);
         background-attachment: fixed;
         background-color: var(--k-color-mode-body);
 

@@ -1,7 +1,7 @@
 import { profileContract } from "$/tools/wallet"
 import { listenContract } from "$/tools/wallet/listen"
 import { hexToUtf8, utf8AsBytes32 } from "$/utils/bytes"
-import { cachePromiseResult } from "$/utils/common/store"
+import { createPromiseResultCacher } from "$/utils/common/store"
 import { writable, type Writable } from "svelte/store"
 
 export interface ProfileInfo
@@ -12,10 +12,11 @@ export interface ProfileInfo
 }
 
 const listeners: Record<string, { count: number, unlisten: () => void }> = {}
+const profileDataCacher = createPromiseResultCacher()
 export async function getProfileData(address: string, key: string)
 {
     const uniqueKey = `${address}:${key}`
-    return await cachePromiseResult(uniqueKey, async () =>
+    return await profileDataCacher.cache(uniqueKey, async () =>
     {
         const result = writable(hexToUtf8(await profileContract.profiles(address, utf8AsBytes32(key))))
 
