@@ -3,6 +3,8 @@ import { createPermaStore, createPromiseResultCacher, createTempStore } from "$/
 import { BigNumber, type BigNumberish } from "ethers"
 import { get, writable, type Writable } from "svelte/store"
 import type { App } from "../hardhat/typechain-types"
+import type { TimelineAddPostEvent, TimelineAddPostEventObject } from "../hardhat/typechain-types/App"
+import { listenContract } from "../wallet/listen"
 
 const followedTopics = createPermaStore<{ topic: string }>(`${get(provider).network.chainId}:followed`)
 export async function followTopic(topic: string)
@@ -28,7 +30,7 @@ function deserializeBigNumbers(thing: object)
 }
 
 const postDataStore = createTempStore(`${get(provider).network.chainId}:posts`)
-const postDataCacher = createPromiseResultCacher() 
+const postDataCacher = createPromiseResultCacher()
 export async function getPostData(postId: PostId): Promise<Writable<PostData>>
 {
     return await postDataCacher.cache(postId._hex, async () =>
@@ -117,13 +119,44 @@ export async function getTimelinePost(timelineId: TimelineId, postIndex: BigNumb
 
 export type TimelineInfo = Awaited<ReturnType<typeof getTimelineInfo>>
 const timelineInfoCacher = createPromiseResultCacher()
+const timelineInfoListeners: Record<string, { count: number, unlisten: () => void }> = {}
 export async function getTimelineInfo(timelineId: TimelineId)
 {
-    return await timelineInfoCacher.cache(`${BigNumber.from(timelineId.group)._hex}:${BigNumber.from(timelineId.key)}`, async () =>
+    const uniqueKey = `${BigNumber.from(timelineId.group)._hex}:${BigNumber.from(timelineId.key)}`
+    const timelineIdPacked = packTimelineId(timelineId)
+    return await timelineInfoCacher.cache(uniqueKey, async () =>
     {
-        const length = writable(await appContract.getTimelineLengh(packTimelineId(timelineId)))
+        const length = writable(await appContract.getTimelineLengh(timelineIdPacked))
+        const lastEvent: Writable<TimelineAddPostEvent> = writable(null)
+
+        function listen()
+        {
+            if (timelineInfoListeners[uniqueKey]) timelineInfoListeners[uniqueKey].count++
+            else timelineInfoListeners[uniqueKey] = {
+                count: 1, unlisten: listenContract(
+                    appContract, appContract.filters.TimelineAddPost(timelineIdPacked
+                    ),
+                    async (timelineIdPacked, postId, owner, timelineLength, event) =>
+                    {
+                        if (get(length) >= timelineLength) return
+                        length.set(timelineLength)
+                        lastEvent.set(event)
+                    })
+            }
+        }
+
+        function unlisten()
+        {
+            const listener = timelineInfoListeners[uniqueKey]
+            if (--listener.count === 0) listener.unlisten()
+            if (listener.count < 0) throw "Listener count is lower than 0, this is not suppose to happen."
+        }
+
         return {
-            length
+            length,
+            listen,
+            unlisten,
+            lastEvent
         }
     })
 
@@ -140,8 +173,15 @@ export function getFeed(timelineIds: TimelineId[])
     const getTimelineKey = (timelineId: TimelineId) => `${BigNumber.from(timelineId.group)._hex}:${BigNumber.from(timelineId.key)._hex}`
 
     const postIds: Writable<PostId[]> = writable([])
+    const loadedPostIds: PostId[] = []
+    const loadedByCurrentSessionPostIds: PostId[] = []
     const loading: Writable<boolean> = writable(false)
     const newPostCount = writable(BigNumber.from(0))
+
+    function refreshPostIds()
+    {
+        postIds.set([...loadedByCurrentSessionPostIds, ...loadedPostIds])
+    }
 
     const LOAD_CHUNK_SIZE = 64
 
@@ -161,6 +201,22 @@ export function getFeed(timelineIds: TimelineId[])
                     done: false,
                     waitingPostIds: []
                 }
+
+                let first = true
+                info.lastEvent.subscribe((event) =>
+                {
+                    if (first) return first = false
+                    if (event.args.owner.toLowerCase() === get(account)?.toLowerCase())
+                    {
+                        loadedByCurrentSessionPostIds.unshift(event.args.postId)
+                        refreshPostIds()
+                    }
+                    else
+                    {
+                        console.log('add 1')
+                        newPostCount.update((value) => value.add(1))
+                    }
+                })
             })
         )
 
@@ -215,17 +271,38 @@ export function getFeed(timelineIds: TimelineId[])
             postIdsOfThisChunk.push(newestPostId)
         }
 
-        postIds.update((postIds) => [...postIdsOfThisChunk, ...postIds])
+        loadedPostIds.push(...postIdsOfThisChunk)
+        refreshPostIds()
 
         loading.set(false)
         return done
     }
+
+    let listenReady = true
+    async function listen()
+    {
+        listenReady = false
+        while (!timelines[getTimelineKey(timelineIds[0])]) await new Promise((r) => setTimeout(r, 100))
+        for (const [key, timeline] of Object.entries(timelines))
+            timeline.info.listen()
+        listenReady = true
+    }
+
+    async function unlisten()
+    {
+        while (!listenReady) await new Promise((r) => setTimeout(r, 100))
+        for (const [key, timeline] of Object.entries(timelines))
+            timeline.info.unlisten()
+    }
+
 
     return {
         timelineIds,
         postIds,
         loadMore,
         loading,
-        newPostCount
+        newPostCount,
+        listen,
+        unlisten
     }
 }

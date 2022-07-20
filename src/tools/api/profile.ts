@@ -25,7 +25,7 @@ export async function getProfileData(address: string, key: string)
         {
             if (listeners[uniqueKey]) listeners[uniqueKey].count++
             else listeners[uniqueKey] = {
-                count: 0, unlisten: listenContract(
+                count: 1, unlisten: listenContract(
                     profileContract, profileContract.filters.ProfileSet(address, utf8AsBytes32(key)),
                     async (owner, key, value: string, timestamp) =>
                     {
@@ -37,7 +37,8 @@ export async function getProfileData(address: string, key: string)
         function unlisten()
         {
             const listener = listeners[uniqueKey]
-            if (--listener.count <= 0) listener.unlisten()
+            if (listener && --listener.count === 0) listener.unlisten()
+            if (listener?.count < 0) throw "Listener count is lower than 0, this is not suppose to happen."
         }
 
         return {
@@ -50,6 +51,7 @@ export async function getProfileData(address: string, key: string)
 
 const ensNameStore = createTempStore<{ ensName: string }>('ens-name', 1000 * 60 * 5)
 const ensNameCacher = createPromiseResultCacher()
+const ensProvider = getDefaultProvider()
 export async function ensNameOf(address: string)
 {
     const key = address.toLowerCase()
@@ -58,7 +60,7 @@ export async function ensNameOf(address: string)
         const cache = await ensNameStore.get(key)
         if (cache) return cache.ensName
 
-        const response = await (getDefaultProvider()).lookupAddress(address)
+        const response = await ensProvider.lookupAddress(address)
         if (response) await ensNameStore.put(key, { ensName: response })
         return response
     })

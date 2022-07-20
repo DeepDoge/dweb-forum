@@ -71,7 +71,7 @@ contract App {
         address contentPointer = SSTORE2.write(abi.encode(PostContent(block.timestamp, mentions, data)));
         posts[postId] = Post(timelineGroup, timelineKey, msg.sender, contentPointer);
 
-        if (timelineGroup != 0 && timelineKey != 0) {
+        if (!(timelineGroup == 0 && timelineKey == 0)) {
             addPostToTimeline(getTimelineId(timelineGroup, timelineKey), postId);
             addPostToTimeline(getTimelineId(TIMELINE_GROUP_ALL, timelineGroup), postId);
         }

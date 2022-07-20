@@ -11,9 +11,8 @@
     async function onAddressChange() {
         nameInfo = null;
         ensName = null
-
+        nameInfo?.unlisten();
         if (address) {
-            nameInfo?.unlisten?.call(null);
             await Promise.all([
                 getProfileData(address, "nickname").then((value) => nameInfo = value),
                 ensNameOf(address).then((value) => ensName = value)
@@ -22,7 +21,7 @@
         }
     }
 
-    onDestroy(() => nameInfo?.unlisten?.call(null));
+    onDestroy(() => nameInfo?.unlisten());
 </script>
 
 <span class="k-text-singleline" title={(name && $name?.trim()) || (ensName ?? "Nameless")}>

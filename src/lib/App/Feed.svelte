@@ -3,20 +3,26 @@
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KIntersectionObserver from "$lib/kicho-ui/components/KIntersectionObserver.svelte";
     import KSpinner from "$lib/kicho-ui/components/KSpinner.svelte";
+    import { onDestroy } from "svelte";
 
     export let timelineIds: TimelineId[];
     let feed: Feed;
-    let postIds: Feed['postIds']
-    let newPostCount: Feed['newPostCount']
+    let postIds: Feed["postIds"];
+    let newPostCount: Feed["newPostCount"];
 
     $: timelineIds, onTimelineIdsChange();
     function onTimelineIdsChange() {
-        feed = getFeed(timelineIds)
+        feed?.unlisten();
+
+        feed = getFeed(timelineIds);
         postIds = feed.postIds;
         newPostCount = feed.newPostCount;
         done = false;
-        active = false
+        active = false;
+
+        feed.listen();
     }
+    onDestroy(() => feed?.unlisten());
 
     $: isReady = done || $postIds?.length > 0;
 
@@ -38,11 +44,11 @@
 
         while (!done && intersecting) {
             const result = await feedCache.loadMore();
-            if (feedCache !== feed) return
-            done = result
-            
+            if (feedCache !== feed) return;
+            done = result;
+
             await new Promise((r) => setTimeout(r, 100));
-            if (feedCache !== feed) return
+            if (feedCache !== feed) return;
         }
 
         active = false;
@@ -51,15 +57,17 @@
 
 <div class="feed">
     <div class="refresh-button">
-        <KButton title="Refresh" on:click={refresh} background={feed && !$newPostCount.eq(0)} color="mode-pop">
-            {#if !isReady}
-                <KSpinner />
-            {:else if $newPostCount.eq(0)}
-                Up to date
-            {:else}
-                Refresh ({$newPostCount.toString()} new)
-            {/if}
-        </KButton>
+        {#key feed}
+            <KButton title="Refresh" on:click={refresh} background={feed && !$newPostCount.eq(0)} color="mode-pop">
+                {#if !isReady}
+                    <KSpinner />
+                {:else if $newPostCount.eq(0)}
+                    Up to date
+                {:else}
+                    Refresh ({$newPostCount.toString()} new)
+                {/if}
+            </KButton>
+        {/key}
     </div>
     {#if feed}
         <slot postIds={$postIds} />

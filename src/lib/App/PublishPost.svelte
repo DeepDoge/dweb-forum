@@ -63,7 +63,11 @@ import { getPostData, packTimelineId, TimelineGroup, TimelineId } from "$/tools/
                 waitContractUntil(
                     appContract,
                     appContract.filters.TimelineAddPost(packTimelineId(timelineId)),
-                    (x, y, z, w, event) => tx.hash === event.transactionHash
+                    (x, y, z, w, event) => 
+                    {
+                        console.log(tx.hash, event.transactionHash)
+                        return tx.hash === event.transactionHash
+                    }
                 ),
                 "Publishing Post"
             );
