@@ -4,19 +4,14 @@
 
     export let address: string = null;
     let nameInfo: ProfileInfo = null;
-    let ensName: string = null;
     $: name = nameInfo?.value;
 
     $: address, onAddressChange();
     async function onAddressChange() {
         nameInfo = null;
-        ensName = null
         nameInfo?.unlisten();
         if (address) {
-            await Promise.all([
-                getProfileData(address, "nickname").then((value) => nameInfo = value),
-                ensNameOf(address).then((value) => ensName = value)
-            ])
+            await getProfileData(address, "nickname").then((value) => nameInfo = value)
             nameInfo.listen();
         }
     }
@@ -24,8 +19,8 @@
     onDestroy(() => nameInfo?.unlisten());
 </script>
 
-<span class="k-text-singleline" title={(name && $name?.trim()) || (ensName ?? "Nameless")}>
-    {(name && $name?.trim()) || (ensName ?? "Nameless")}
+<span class="k-text-singleline">
+    {(name && $name?.trim()) || "Nameless"}
 </span>
 
 <style>

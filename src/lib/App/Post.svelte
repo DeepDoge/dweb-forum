@@ -11,6 +11,7 @@
     import type { BigNumber } from "ethers";
     import type { Writable } from "svelte/store";
     import { format } from "timeago.js";
+import AddressOf from "./AddressOf.svelte";
     import AvatarOf from "./AvatarOf.svelte";
     import Content from "./Content.svelte";
     import NicknameOf from "./NicknameOf.svelte";
@@ -74,15 +75,21 @@
     <div class="post" class:limit-height={!fullHeight}>
         <KBoxEffect color="mode" radius="rounded" background {loading} hideContent={loading} glow={selected ? "master" : false} {...$$props}>
             <div class="inner">
-                <div class="avatar">
-                    <AvatarOf address={$postData?.owner} />
+                <div class="profile">
+                    <div class="avatar">
+                        <AvatarOf address={$postData?.owner} />
+                    </div>
+                    <a href="#{$postData?.owner}" class="nickname">
+                        <NicknameOf address={$postData?.owner} />
+                        <KHoverMenu background>
+                            <ProfileMiniCard address={$postData?.owner} />
+                        </KHoverMenu>
+                    </a>
+                    <div class="address">
+                        <AddressOf address={$postData?.owner} />
+                    </div>
                 </div>
-                <a href="#{$postData?.owner}" class="nickname">
-                    <NicknameOf address={$postData?.owner} />
-                    <KHoverMenu background>
-                        <ProfileMiniCard address={$postData?.owner} />
-                    </KHoverMenu>
-                </a>
+                
                 <div class="chip">
                     {#if parentPostData}
                         <a href="#{$currentRoute.path}#{$parentPostData.postId}">
@@ -151,15 +158,26 @@
 
     .post .inner {
         display: grid;
-        grid-template-columns: 2ch auto 1fr auto;
+        grid-template-columns: auto 1fr auto;
         align-items: center;
         grid-template-areas:
-            "avatar nickname . chip"
-            "title title title title"
-            "content content content content"
-            "footer footer footer footer";
+            "profile . chip"
+            "profile . chip"
+            "title title title"
+            "content content content"
+            "footer footer footer";
         gap: calc(var(--k-padding) * 1.25);
         padding: calc(var(--k-padding) * 2) calc(var(--k-padding) * 3);
+    }
+
+    .profile {
+        grid-area: profile;
+        display: grid;
+        grid-template-columns: 2.25ch var(--k-padding) auto;
+        align-items: center;
+        grid-template-areas:
+            "avatar . nickname"
+            "avatar . address";
     }
 
     .avatar {
@@ -169,6 +187,12 @@
     .nickname {
         grid-area: nickname;
         font-size: var(--k-font-x-smaller);
+        font-weight: bold;
+    }
+
+    .address {
+        grid-area: address;
+        font-size: var(--k-font-xx-smaller);
     }
 
     .chip {

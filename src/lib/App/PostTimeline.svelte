@@ -7,7 +7,7 @@
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import { BigNumber } from "ethers";
     import { Feed, getFeed, getPostRoot, PostId, TimelineGroup } from "$/tools/api/feed";
-import { get } from "svelte/store";
+    import { get } from "svelte/store";
 
     export let postId: PostId;
 
@@ -23,7 +23,7 @@ import { get } from "svelte/store";
 
         const root = await getPostRoot({ postId });
 
-        while (get(repliesFeed.loading)) await new Promise((r) => setTimeout(r, 100))
+        while (get(repliesFeed.loading)) await new Promise((r) => setTimeout(r, 100));
 
         prefixPostIds = [...root, postId];
 
@@ -53,6 +53,7 @@ import { get } from "svelte/store";
         {/if}
         {#each prefixPostIds as timelinePostId (timelinePostId._hex)}
             <a
+                draggable="false"
                 href={timelinePostId ? `#${$currentRoute.path}#${timelinePostId}` : null}
                 bind:this={postElements[timelinePostId._hex]}
                 class="post root-post"
@@ -74,7 +75,7 @@ import { get } from "svelte/store";
         <b>Replies:</b>
         <Timeline bind:feed={repliesFeed} timelineId={{ group: TimelineGroup.Replies, key: postId }} let:postIds>
             {#each postIds as timelinePostId (timelinePostId._hex)}
-                <a href={timelinePostId ? `#${$currentRoute.path}#${timelinePostId}` : null} class="post">
+                <a draggable="false" href={timelinePostId ? `#${$currentRoute.path}#${timelinePostId}` : null} class="post">
                     <Post postId={timelinePostId} />
                 </a>
             {/each}

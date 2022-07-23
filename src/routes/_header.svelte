@@ -10,7 +10,7 @@
 
     let height: number = 0;
 
-    $: document.body.style.setProperty('--header-height', `${height}px`)
+    $: document.body.style.setProperty("--header-height", `${height}px`);
 </script>
 
 <header style:--height={height} bind:offsetHeight={height}>
@@ -20,13 +20,13 @@
                 <div class="avatar">
                     <AvatarOf address={$account} />
                 </div>
-                <div class="nickname"><NicknameOf address={$account} /></div>
-                <div class="address">
-                    <KButton text href="#{$currentRoute.path}#claim-name" title="Claim name for: {$account}">
-                        <div>
-                            <AddressOf address={$account} />
-                        </div>
+                <div class="nickname">
+                    <KButton text href="#{$currentRoute.path}#claim-name" title="Claim Nickname">
+                        <NicknameOf address={$account} />
                     </KButton>
+                </div>
+                <div class="address">
+                    <AddressOf address={$account} />
                 </div>
             </div>
         {:else}

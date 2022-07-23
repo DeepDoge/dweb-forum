@@ -29,7 +29,7 @@
         </header>
         <Timeline {timelineId} let:postIds>
             {#each postIds as postId (postId.toString())}
-                <a href={postId ? `#${$currentRoute.path}#${postId}` : null}>
+                <a draggable="false" href={postId ? `#${$currentRoute.path}#${postId}` : null}>
                     <Post {postId} />
                 </a>
             {/each}
