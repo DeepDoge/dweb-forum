@@ -1,12 +1,3 @@
-# What is this?
-This is a Web3 + IPFS based forum, or social media, or how ever you wanna call it, idk. <br />
- that has no admins, stake holders, or dao, it just exists <br />
- just works on browser like any other site
-
-[![forthebadge](https://forthebadge.com/images/badges/0-percent-optimized.svg)](https://forthebadge.com) <br />
-[![forthebadge](https://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg)](https://forthebadge.com) <br />
-[![forthebadge](https://forthebadge.com/images/badges/powered-by-black-magic.svg)](https://forthebadge.com)
-
 # How to use it?
 It's still in early stages. <br />
 But if you wanna try it, 
@@ -17,6 +8,14 @@ the latest published version is live on Polygon Network at: <br />
 - https://dforum-eth.ipns.dweb.link
 - https://dforum-eth.ipns.cf-ipfs.com
 
+# What is this?
+This is a Web3 + IPFS based forum, or social media, or how ever you wanna call it, idk. <br />
+ that has no admins, stake holders, or dao, it just exists <br />
+ just works on browser like any other site
+
+[![forthebadge](https://forthebadge.com/images/badges/0-percent-optimized.svg)](https://forthebadge.com) <br />
+[![forthebadge](https://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg)](https://forthebadge.com) <br />
+[![forthebadge](https://forthebadge.com/images/badges/powered-by-black-magic.svg)](https://forthebadge.com)
 
 I was using event logs to store posts before, but decided its not the right way. Even thought it was spending less GAS
 
