@@ -63,7 +63,7 @@
         display: grid;
         grid-auto-flow: row;
         grid-template-columns: 1fr;
-        gap: 0.5em;
+        gap: calc(var(--k-padding) * 1);
     }
 
     .tabs {
@@ -72,25 +72,40 @@
         gap: calc(var(--k-padding) * 2);
     }
     .profile {
-        display: flex;
-        gap: 0.5em;
+        display: grid;
+        grid-template-columns: 6em auto;
+        grid-template-areas:
+            "avatar ."
+            "avatar nickname"
+            "avatar address"
+            "avatar .";
+        justify-content: start;
+        justify-items: start;
         align-items: center;
-        flex-direction: column;
+
+        gap: calc(var(--k-padding) * 2);
+
         padding: var(--k-page-padding);
-        padding-top: 0;
-        padding-bottom: 0;
+        padding-top: calc(var(--k-padding) * 10);
+        padding-bottom: calc(var(--k-padding) * 10);
     }
 
     .avatar {
-        width: min(10em, 100% - 1em);
+        grid-area: avatar;
+        width: 100%;
         aspect-ratio: 1 / 1;
         background-color: var(--k-color-master);
-        border-radius: 10000%;
+        border-radius: var(--k-border-radius-fab);
     }
 
     .name {
+        grid-area: nickname;
         display: grid;
         font-weight: bold;
-        font-size: 2rem;
+        font-size: var(--k-font-larger);
+    }
+
+    .address {
+        grid-area: address;
     }
 </style>
