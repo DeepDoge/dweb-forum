@@ -5,8 +5,9 @@ import { get, writable, type Writable } from "svelte/store"
 import type { App } from "../hardhat/typechain-types"
 import type { TimelineAddPostEvent, TimelineAddPostEventObject } from "../hardhat/typechain-types/App"
 import { listenContract } from "../wallet/listen"
+import deployed from '$/tools/hardhat/scripts/deployed.json'
 
-const followedTopics = createPermaStore<{ topic: string }>(`${get(provider).network.chainId}:followed`)
+const followedTopics = createPermaStore<{ topic: string }>(`${deployed[get(provider).network.chainId]?.['App']}:followed`)
 export async function followTopic(topic: string)
 {
     await followedTopics.put(get(account), { topic })
@@ -29,7 +30,7 @@ function deserializeBigNumbers(thing: object)
     )
 }
 
-const postDataStore = createTempStore(`${get(provider).network.chainId}:posts`)
+const postDataStore = createTempStore(`${deployed[get(provider).network.chainId]?.['App']}:posts`)
 const postDataCacher = createPromiseResultCacher()
 export async function getPostData(postId: PostId): Promise<Writable<PostData>>
 {
@@ -94,7 +95,7 @@ export function packTimelineId(timelineId: TimelineId)
     return BigNumber.from(timelineId.group).shl(160).or(timelineId.key)
 }
 
-const timelinePostStore = createTempStore(`${get(provider).network.chainId}:timelines`)
+const timelinePostStore = createTempStore(`${deployed[get(provider).network.chainId]?.['App']}:timelines`)
 const timelinePostCacher = createPromiseResultCacher()
 export async function getTimelinePost(timelineId: TimelineId, postIndex: BigNumber)
 {
