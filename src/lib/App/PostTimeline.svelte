@@ -52,12 +52,7 @@
             <Post postId={BigNumber.from(-1)} />
         {/if}
         {#each prefixPostIds as timelinePostId (timelinePostId._hex)}
-            <a
-                draggable="false"
-                href={timelinePostId ? `#${$currentRoute.path}#${timelinePostId}` : null}
-                bind:this={postElements[timelinePostId._hex]}
-                class="post root-post"
-            >
+            <div bind:this={postElements[timelinePostId._hex]} class="post root-post">
                 <Post postId={timelinePostId} fullHeight={timelinePostId.eq(postId)}>
                     <svelte:fragment slot="before" let:postData>
                         {#if postData?.timelineGroup.eq(TimelineGroup.Topics)}
@@ -70,14 +65,14 @@
                         {/if}
                     </svelte:fragment>
                 </Post>
-            </a>
+            </div>
         {/each}
         <b>Replies:</b>
         <Timeline bind:feed={repliesFeed} timelineId={{ group: TimelineGroup.Replies, key: postId }} let:postIds>
             {#each postIds as timelinePostId (timelinePostId._hex)}
-                <a draggable="false" href={timelinePostId ? `#${$currentRoute.path}#${timelinePostId}` : null} class="post">
+                <div class="post">
                     <Post postId={timelinePostId} />
-                </a>
+                </div>
             {/each}
         </Timeline>
     </div>

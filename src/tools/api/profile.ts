@@ -49,7 +49,7 @@ export async function getProfileData(address: string, key: string)
     })
 }
 
-const ensNameStore = createTempStore<{ ensName: string }>('ens-name', 1000 * 60 * 5)
+const ensNameStore = createTempStore<{ ensName: string }>('ens-name', 1000 * 60 * 10)
 const ensNameCacher = createPromiseResultCacher()
 const ensProvider = getDefaultProvider()
 export async function ensNameOf(address: string)

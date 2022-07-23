@@ -11,7 +11,7 @@
     import type { BigNumber } from "ethers";
     import type { Writable } from "svelte/store";
     import { format } from "timeago.js";
-import AddressOf from "./AddressOf.svelte";
+    import AddressOf from "./AddressOf.svelte";
     import AvatarOf from "./AvatarOf.svelte";
     import Content from "./Content.svelte";
     import NicknameOf from "./NicknameOf.svelte";
@@ -89,7 +89,7 @@ import AddressOf from "./AddressOf.svelte";
                         <AddressOf address={$postData?.owner} />
                     </div>
                 </div>
-                
+
                 <div class="chip">
                     {#if parentPostData}
                         <a href="#{$currentRoute.path}#{$parentPostData.postId}">
@@ -107,14 +107,13 @@ import AddressOf from "./AddressOf.svelte";
                         <KChip color="mode-pop">@{$postData?.postId}</KChip>
                     </div>
                 </div>
-
-                <div class="content k-text-multiline">
+                <a class="content k-text-multiline" draggable="false" href={postId ? `#${$currentRoute.path}#${postId}` : null}>
                     {#if postContent}
                         <Content content={postContent} />
                     {:else}
                         ...
                     {/if}
-                </div>
+                </a>
 
                 <div class="footer">
                     <div class="reply-counter">
