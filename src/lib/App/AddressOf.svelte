@@ -11,8 +11,8 @@ import { promiseQueue } from "$/utils/common/promiseQueue";
     $: address, addressChange(address)
     const addressChange = promiseQueue(async (value: string) => {
         ensName = null
-        if (address !== value) return
-        ensName = await ensNameOf(address)
+        if (address !== value || !value) return
+        ensName = await ensNameOf(value)
     })
 
     $: start = ensName ? ensName.substring(0, ensName.length - '.eth'.length) : address?.substring(0, 39)
