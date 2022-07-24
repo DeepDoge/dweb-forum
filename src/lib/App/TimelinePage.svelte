@@ -1,11 +1,11 @@
 <script lang="ts">
     import { currentRoute } from "$/routes/_routing.svelte";
     import type { PostId, TimelineId } from "$/tools/api/feed";
+    import Timeline from "$lib/App/Timeline.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import { BigNumber } from "ethers";
     import Post from "./Post.svelte";
     import PostTimeline from "./PostTimeline.svelte";
-    import Timeline from "$lib/App/Timeline.svelte";
 
     export let timelineId: TimelineId;
 

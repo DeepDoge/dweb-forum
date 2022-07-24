@@ -1,22 +1,22 @@
 <script lang="ts">
-import { ensNameOf } from "$/tools/api/profile";
+    import { ensNameOf } from "$/tools/api/profile";
 
-import { promiseQueue } from "$/utils/common/promiseQueue";
+    import { promiseQueue } from "$/utils/common/promiseQueue";
 
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import { globalEventNotificationManager } from "$lib/kicho-ui/components/KEventNotification.svelte";
     export let address: string;
-    let ensName: string = null
+    let ensName: string = null;
 
-    $: address, addressChange(address)
+    $: address, addressChange(address);
     const addressChange = promiseQueue(async (value: string) => {
-        ensName = null
-        if (address !== value || !value) return
-        ensName = await ensNameOf(value)
-    })
+        ensName = null;
+        if (address !== value || !value) return;
+        ensName = await ensNameOf(value);
+    });
 
-    $: start = ensName ? ensName.substring(0, ensName.length - '.eth'.length) : address?.substring(0, 39)
-    $: end = ensName ? '.eth' : address?.substring(39)
+    $: start = ensName ? ensName.substring(0, ensName.length - ".eth".length) : address?.substring(0, 39);
+    $: end = ensName ? ".eth" : address?.substring(39);
 </script>
 
 <KButton

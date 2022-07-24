@@ -1,10 +1,10 @@
 <script lang="ts">
     import { currentRoute } from "$/routes/_routing.svelte";
+    import { Feed,TimelineGroup } from "$/tools/api/feed";
+    import Timeline from "$lib/App/Timeline.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
     import Post from "./Post.svelte";
-    import Timeline from "$lib/App/Timeline.svelte";
-    import { Feed, TimelineGroup } from "$/tools/api/feed";
 
     export let account: string;
     let mentionsFeed: Feed = null;

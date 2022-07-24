@@ -1,12 +1,11 @@
 <script lang="ts">
-    import { currentRoute } from "$/routes/_routing.svelte";
+    import { Feed, getPostRoot, PostId, TimelineGroup } from "$/tools/api/feed";
     import { bigNumberAsUtf8 } from "$/utils/bytes";
     import { promiseQueue } from "$/utils/common/promiseQueue";
     import Post from "$lib/App/Post.svelte";
     import Timeline from "$lib/App/Timeline.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import { BigNumber } from "ethers";
-    import { Feed, getFeed, getPostRoot, PostId, TimelineGroup } from "$/tools/api/feed";
     import { get } from "svelte/store";
 
     export let postId: PostId;

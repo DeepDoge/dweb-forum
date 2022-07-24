@@ -58,7 +58,7 @@ contract App {
 
     mapping(uint160 => Post) public posts;
     uint160 postCounter;
-    
+
     function publishPost(
         uint96 timelineGroup,
         uint160 timelineKey,
@@ -110,23 +110,20 @@ contract App {
         post.contentPointer = SSTORE2.write(abi.encode(PostContent(block.timestamp, mentions, data)));
     }
 
-     /* 
+    /* 
     ==========================
     Get PostData
     ==========================
     */
-    struct PostData
-    {
+    struct PostData {
         uint160 postId;
         Post post;
         PostContent postContent;
         bytes32[][] metadata;
     }
 
-    function getPostData(uint160 postId, bytes32[][] memory metadata) external view returns (PostData memory)
-    {
-        for (uint256 i = 0; i < metadata.length; i++)
-            metadata[i][1] = postMetadatas[postId][metadata[i][0]];
+    function getPostData(uint160 postId, bytes32[][] memory metadata) external view returns (PostData memory) {
+        for (uint256 i = 0; i < metadata.length; i++) metadata[i][1] = postMetadatas[postId][metadata[i][0]];
 
         Post memory post = posts[postId];
         PostData memory postData = PostData(postId, post, abi.decode(SSTORE2.read(post.contentPointer), (PostContent)), metadata);
@@ -134,12 +131,14 @@ contract App {
         return postData;
     }
 
-    function getPostDataFromTimeline(uint256 timelineId, uint256 postIndex, bytes32[][] memory metadata) external view returns (PostData memory)
-    {
+    function getPostDataFromTimeline(
+        uint256 timelineId,
+        uint256 postIndex,
+        bytes32[][] memory metadata
+    ) external view returns (PostData memory) {
         uint160 postId = timelines[timelineId][postIndex];
 
-        for (uint256 i = 0; i < metadata.length; i++)
-            metadata[i][1] = postMetadatas[postId][metadata[i][0]];
+        for (uint256 i = 0; i < metadata.length; i++) metadata[i][1] = postMetadatas[postId][metadata[i][0]];
 
         Post memory post = posts[postId];
         PostData memory postData = PostData(postId, post, abi.decode(SSTORE2.read(post.contentPointer), (PostContent)), metadata);

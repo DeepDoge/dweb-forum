@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { account, provider } from "$/tools/wallet";
+    import { account,provider } from "$/tools/wallet";
     import { ethers } from "ethers";
 
     let balance: string;

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { ensNameOf, getProfileData, ProfileInfo } from "$/tools/api/profile";
+    import { getProfileData, ProfileInfo } from "$/tools/api/profile";
     import { onDestroy } from "svelte";
 
     export let address: string = null;
@@ -11,7 +11,7 @@
         nameInfo = null;
         nameInfo?.unlisten();
         if (address) {
-            await getProfileData(address, "nickname").then((value) => nameInfo = value)
+            await getProfileData(address, "nickname").then((value) => (nameInfo = value));
             nameInfo.listen();
         }
     }

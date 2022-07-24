@@ -1,11 +1,11 @@
+import deployed from '$/tools/hardhat/scripts/deployed.json'
 import { account, appContract, provider } from "$/tools/wallet"
 import { createPermaStore, createPromiseResultCacher, createTempStore } from "$/utils/common/store"
 import { BigNumber, type BigNumberish } from "ethers"
 import { get, writable, type Writable } from "svelte/store"
 import type { App } from "../hardhat/typechain-types"
-import type { TimelineAddPostEvent, TimelineAddPostEventObject } from "../hardhat/typechain-types/App"
+import type { TimelineAddPostEvent } from "../hardhat/typechain-types/App"
 import { listenContract } from "../wallet/listen"
-import deployed from '$/tools/hardhat/scripts/deployed.json'
 
 const followedTopics = createPermaStore<{ topic: string }>(`${deployed[get(provider).network.chainId]?.['App']}:followed`)
 export async function followTopic(topic: string)

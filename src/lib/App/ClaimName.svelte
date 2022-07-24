@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { account, profileContract } from "$/tools/wallet";
+    import { account,profileContract } from "$/tools/wallet";
     import { catchContract } from "$/tools/wallet/catch";
     import { waitContractUntil } from "$/tools/wallet/listen";
     import { utf8AsBytes32 } from "$/utils/bytes";

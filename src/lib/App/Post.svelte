@@ -1,13 +1,12 @@
 <script lang="ts">
     import { currentRoute } from "$/routes/_routing.svelte";
-    import { getPostData, getTimelineInfo, PostData, PostId, TimelineGroup } from "$/tools/api/feed";
-    import { bigNumberAsUtf8, bytes32ToIpfsHash, hexToBytes } from "$/utils/bytes";
+    import { getPostData,getTimelineInfo,PostData,PostId,TimelineGroup } from "$/tools/api/feed";
+    import { bigNumberAsUtf8,bytes32ToIpfsHash,hexToBytes } from "$/utils/bytes";
     import { promiseQueue } from "$/utils/common/promiseQueue";
-    import { decodePostContentItems, getPostContentItemsDataFromIpfs, PostContentData } from "$/utils/content";
+    import { decodePostContentItems,getPostContentItemsDataFromIpfs,PostContentData } from "$/utils/content";
     import { second } from "$/utils/second";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KChip from "$lib/kicho-ui/components/KChip.svelte";
-    import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
     import type { BigNumber } from "ethers";
     import type { Writable } from "svelte/store";
     import { format } from "timeago.js";
@@ -15,7 +14,6 @@
     import AvatarOf from "./AvatarOf.svelte";
     import Content from "./Content.svelte";
     import NicknameOf from "./NicknameOf.svelte";
-    import ProfileMiniCard from "./ProfileMiniCard.svelte";
 
     type BoxProps = KBoxEffect["$$prop_def"];
     interface $$Props extends BoxProps {

@@ -128,7 +128,8 @@ const ipfsBytesStore = createTempStore<number[]>("ipfs-bytes")
 const ipfsBytesCacher = createPromiseResultCacher()
 export async function getPostContentItemsDataFromIpfs(hash: string): Promise<PostContentItemData[]>
 {
-    return ipfsBytesCacher.cache(hash, async () => {
+    return ipfsBytesCacher.cache(hash, async () =>
+    {
         const cache = await ipfsBytesStore.get(hash)
         if (cache) return decodePostContentItems(Uint8Array.from(cache))
 

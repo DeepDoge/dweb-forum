@@ -1,11 +1,11 @@
 <script lang="ts">
-import { getPostData, packTimelineId, TimelineGroup, TimelineId } from "$/tools/api/feed";
+import { getPostData,packTimelineId,TimelineGroup,TimelineId } from "$/tools/api/feed";
 
     import { ipfsClient } from "$/tools/ipfs/client";
-    import { account, appContract } from "$/tools/wallet";
+    import { account,appContract } from "$/tools/wallet";
     import { waitContractUntil } from "$/tools/wallet/listen";
-    import { IpfsHashToBytes32, utf8AsBytes32 } from "$/utils/bytes";
-    import { addPostContentItemsDataToIpfs, encodePostContentItems, parseContent } from "$/utils/content";
+    import { IpfsHashToBytes32 } from "$/utils/bytes";
+    import { addPostContentItemsDataToIpfs,encodePostContentItems,parseContent } from "$/utils/content";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
