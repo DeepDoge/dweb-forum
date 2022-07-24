@@ -81,9 +81,9 @@
                     </div>
                     <a href="#{$postData?.owner}" class="nickname">
                         <NicknameOf address={$postData?.owner} />
-                        <KHoverMenu background>
+<!--                         <KHoverMenu background>
                             <ProfileMiniCard address={$postData?.owner} />
-                        </KHoverMenu>
+                        </KHoverMenu> -->
                     </a>
                     <div class="address">
                         <AddressOf address={$postData?.owner} />
@@ -107,7 +107,7 @@
                         <KChip color="mode-pop">@{$postData?.postId}</KChip>
                     </div>
                 </div>
-                <a class="content k-text-multiline" draggable="false" href={postId ? `#${$currentRoute.path}#${postId}` : null}>
+                <a class="content k-text-multiline" draggable={selected ? 'false' : 'true'} href={postId ? `#${$currentRoute.path}#${postId}` : null}>
                     {#if postContent}
                         <Content content={postContent} />
                     {:else}
