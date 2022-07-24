@@ -12,12 +12,12 @@
     let selectedPostId: PostId = null;
     $: selectedPostId = $currentRoute.hash ? (/[0-9]/.test($currentRoute.hash) ? BigNumber.from($currentRoute.hash) : selectedPostId) : null;
 
-    let fixed = false;
-    async function updateFixed() {
-        fixed = selectedPostId && window.innerWidth <= 800;
-        document.body.style.overflow = fixed ? "hidden" : null;
+    let fixedPostTimeline = false;
+    $: selectedPostId, updateFixed();
+    function updateFixed() {
+        fixedPostTimeline = selectedPostId && window.innerWidth <= 800;
+        document.body.style.overflow = fixedPostTimeline ? "hidden" : null;
     }
-    $: updateFixed() && selectedPostId;
 </script>
 
 <svelte:window on:resize={updateFixed} />
@@ -34,7 +34,7 @@
         </Timeline>
     </div>
     {#if selectedPostId}
-        <div class="post" class:fixed>
+        <div class="post" class:fixed={fixedPostTimeline}>
             <div class="sticky">
                 <header>
                     <slot name="post-header">

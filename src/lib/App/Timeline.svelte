@@ -5,9 +5,10 @@
     import PublishPost from "./PublishPost.svelte";
 
     export let timelineId: TimelineId;
-    let _feed: FeedType = null
-    let feed: typeof _feed = null
-    $: feed = _feed
+    let feed: FeedType = null
+
+    let _feed: typeof feed = null
+    $: _feed = feed
     export { _feed as feed }
 </script>
 
@@ -15,7 +16,7 @@
     {#if timelineId.group > TimelineGroup.LastInternal}
         <PublishPost {timelineId} />
     {/if}
-    <Feed bind:feed={_feed} timelineIds={[timelineId]} let:postIds>
+    <Feed bind:feed timelineIds={[timelineId]} let:postIds>
         <slot {postIds} />
     </Feed>
 </div>
