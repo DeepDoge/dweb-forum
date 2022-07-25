@@ -16,18 +16,13 @@
 		{
 			ready = true
 			appStatusElement.textContent = 'App is loaded'
+			appStatusElement.style.display = 'none'
 		})
 		addEventListener('load', () => setTimeout(() =>
 		{
-			if (ready)
-			{
-				appStatusElement.style.display = 'none'
-			}
-			else
-			{
-				appStatusElement.textContent = 'App is not loaded correctly. Reloading...'
-				setTimeout(() => location.reload(), 3000)
-			}
+			if (ready) return
+			appStatusElement.textContent = 'App is not loaded correctly. Reloading...'
+			setTimeout(() => location.reload(), 3000)
 		}, 1500))
 	</script>
 	<meta charset="utf-8" />

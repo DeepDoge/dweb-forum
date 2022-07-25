@@ -16,15 +16,13 @@
     let loading = false;
 
     $: postId, updateReplies(postId);
-    const updateReplies = promiseQueue(async (postId: PostId) => {
-        if (loading) return;
+    const updateReplies = promiseQueue(async (value: PostId) => {
+        if (!value.eq(postId)) return
         loading = true;
 
-        const root = await getPostRoot({ postId });
-
-        while (get(repliesFeed.loading)) await new Promise((r) => setTimeout(r, 100));
-
-        prefixPostIds = [...root, postId];
+        const root = await getPostRoot({ postId: value });
+        if (!value.eq(postId)) return
+        prefixPostIds = [...root, value];
 
         loading = false;
     });
@@ -36,13 +34,7 @@
     }
 
     const postElements: Record<string, HTMLElement> = {};
-    $: currentPostsElement = postElements[postId._hex];
-    let cache = null;
-    $: (() => {
-        if (cache === currentPostsElement) return;
-        cache = currentPostsElement;
-        scrollIntoViewIfNeeded(currentPostsElement);
-    })();
+    $:  setTimeout(() => scrollIntoViewIfNeeded(postElements[postId._hex]));
 </script>
 
 <div class:loading class="post-reply-timeline">
