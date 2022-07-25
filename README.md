@@ -16,8 +16,7 @@ This is a Web3 + IPFS based forum, or social media, or how ever you wanna call i
 [![forthebadge](https://forthebadge.com/images/badges/0-percent-optimized.svg)](https://forthebadge.com) <br />
 [![forthebadge](https://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg)](https://forthebadge.com) <br />
 [![forthebadge](https://forthebadge.com/images/badges/powered-by-black-magic.svg)](https://forthebadge.com) <br />
-![](https://bafybeib7nnvsb6xn5xaqmic75ud6efvdxuct77zl254e3wbkj2xxzgklku.ipfs.infura-ipfs.io) <br />
-![](https://bafybeianwhltwmo4uccrysicrsaswaod46bwqpur5a43tyd5etwk2efwiu.ipfs.infura-ipfs.io)
+![](https://bafybeib7nnvsb6xn5xaqmic75ud6efvdxuct77zl254e3wbkj2xxzgklku.ipfs.infura-ipfs.io) 
 
 I was using event logs to store posts before, but decided its not the right way. Even thought it was spending less GAS
 
