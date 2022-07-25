@@ -29,11 +29,9 @@
                     <AddressOf address={wallet.account} />
                 </div>
             </div>
+            <Notifications account={wallet.account} />
         {:else}
             <KButton color="gradient" glow="gradient" glowMultiplier={0.5} on:click={() => connectWallet()}>Connect Wallet</KButton>
-        {/if}
-        {#if wallet.account}
-            <Notifications account={wallet.account} />
         {/if}
         <KButton radius="fab" color={$currentRoute.path || $currentRoute.hash ? "mode-pop" : "master"} href="#">Home</KButton>
         <!-- <div class="account-balance k-text-singleline">Balance: <b><Balance /></b></div> -->
