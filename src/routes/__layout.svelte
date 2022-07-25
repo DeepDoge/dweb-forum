@@ -13,7 +13,7 @@
             {#key wallet.provider.network.chainId}
                 {#if $ipfsClient}
                     {#await import("./_layout.svelte")}
-                        Loading...
+                        Loading App...
                     {:then Layout}
                         <svelte:component this={Layout.default} />
                     {/await}
@@ -22,21 +22,21 @@
                 {/if}
             {/key}
         {:else if $walletState === "wrongNetwork"}
-            Wrong Network
+            Wrong Wallet Network
             <span>
                 <KButton color="master" on:click={() => updateWalletNetwork()}>
                     Switch to {currentProviderInfo.chainName} Network
                 </KButton>
             </span>
         {:else if $walletState === "notConnected"}
-            Not Connected
+            No Wallet Connected
             <span>
                 <KButton color="master" on:click={() => connectWallet()}>Connect Wallet</KButton>
             </span>
         {:else if $walletState === "connecting"}
-            Connecting...
+            Connecting Wallet...
         {:else if $walletState === "loading"}
-            Getting Contracts
+            Getting Contracts...
         {/if}
     </layout>
 </KApp>
