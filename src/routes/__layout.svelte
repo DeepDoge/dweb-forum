@@ -6,9 +6,6 @@
 
     $: walletState = wallet.state;
 
-    const LayoutPromise = import("./_layout.svelte");
-    LayoutPromise.catch(() => setTimeout(() => location.reload(), 3000))
-
     window.dispatchEvent(new Event("_app-ready"));
 </script>
 
@@ -16,12 +13,13 @@
     <layout>
         {#if $walletState === "ready"}
             {#if $ipfsClient}
-                {#await LayoutPromise}
+                {#await import("./_layout.svelte")}
                     Loading App Layout...
                 {:then Layout}
                     <svelte:component this={Layout.default} />
                 {:catch}
                     Failed to Load App Layout. Reloading...
+                    {(() => setTimeout(() => location.reload(), 3000) && '')()}
                 {/await}
             {:else}
                 Waiting for IPFS Client...
