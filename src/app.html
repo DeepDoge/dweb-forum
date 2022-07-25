@@ -2,6 +2,31 @@
 <html lang="en">
 
 <head>
+	<style>
+		html,
+		body {
+			background-color: #000;
+			color: #fff;
+		}
+	</style>
+	<script type="module">
+		let ready = false
+		const appStatusElement = document.querySelector('#app-status')
+		addEventListener('_app-ready', () => ready = true)
+		addEventListener('load', () => setTimeout(() =>
+		{
+			if (ready)
+			{
+				appStatusElement.textContent = 'Ready'
+				appStatusElement.style.display = 'none'
+			}
+			else
+			{
+				appStatusElement.textContent = 'App is not loaded correctly. Reloading...'
+				setTimeout(() => location.reload, 3000)
+			}
+		}, 1500))
+	</script>
 	<meta charset="utf-8" />
 	<link rel="manifest" href="/manifest.webmanifest">
 	<link rel="icon" href="%svelte.assets%/favicon.png" />
@@ -11,6 +36,7 @@
 </head>
 
 <body>
+	<div id="app-status">App is loading...</div>
 	<div id="svelte">%svelte.body%</div>
 </body>
 

@@ -5,16 +5,23 @@
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
 
     $: walletState = wallet.state;
+
+    const LayoutPromise = import("./_layout.svelte");
+    LayoutPromise.catch(() => setTimeout(() => location.reload(), 3000))
+
+    window.dispatchEvent(new Event("_app-ready"));
 </script>
 
 <KApp>
     <layout>
         {#if $walletState === "ready"}
             {#if $ipfsClient}
-                {#await import("./_layout.svelte")}
-                    Loading App...
+                {#await LayoutPromise}
+                    Loading App Layout...
                 {:then Layout}
                     <svelte:component this={Layout.default} />
+                {:catch}
+                    Failed to Load App Layout. Reloading...
                 {/await}
             {:else}
                 Waiting for IPFS Client...
