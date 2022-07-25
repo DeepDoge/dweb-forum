@@ -1,16 +1,16 @@
 import deployed from '$/tools/hardhat/scripts/deployed.json'
-import { account, appContract, provider } from "$/tools/wallet"
 import { createPermaStore, createPromiseResultCacher, createTempStore } from "$/utils/common/store"
 import { BigNumber, type BigNumberish } from "ethers"
 import { get, writable, type Writable } from "svelte/store"
 import type { App } from "../hardhat/typechain-types"
 import type { TimelineAddPostEvent } from "../hardhat/typechain-types/App"
+import { appContract, wallet } from '../wallet'
 import { listenContract } from "../wallet/listen"
 
-const followedTopics = createPermaStore<{ topic: string }>(`${deployed[get(provider).network.chainId]?.['App']}:followed`)
+const followedTopics = createPermaStore<{ topic: string }>(`${deployed[wallet.provider.network.chainId]['App']}:followed`)
 export async function followTopic(topic: string)
 {
-    await followedTopics.put(get(account), { topic })
+    await followedTopics.put(wallet.account, { topic })
 }
 
 export type PostId = BigNumber
@@ -30,7 +30,7 @@ function deserializeBigNumbers(thing: object)
     )
 }
 
-const postDataStore = createTempStore(`${deployed[get(provider).network.chainId]?.['App']}:posts`)
+const postDataStore = createTempStore(`${deployed[wallet.provider.network.chainId]?.['App']}:posts`)
 const postDataCacher = createPromiseResultCacher()
 export async function getPostData(postId: PostId): Promise<Writable<PostData>>
 {
@@ -95,7 +95,7 @@ export function packTimelineId(timelineId: TimelineId)
     return BigNumber.from(timelineId.group).shl(160).or(timelineId.key)
 }
 
-const timelinePostStore = createTempStore(`${deployed[get(provider).network.chainId]?.['App']}:timelines`)
+const timelinePostStore = createTempStore(`${deployed[wallet.provider.network.chainId]?.['App']}:timelines`)
 const timelinePostCacher = createPromiseResultCacher()
 export async function getTimelinePost(timelineId: TimelineId, postIndex: BigNumber)
 {
@@ -207,7 +207,7 @@ export function getFeed(timelineIds: TimelineId[])
                 info.lastEvent.subscribe((event) =>
                 {
                     if (first) return first = false
-                    if (event.args.owner.toLowerCase() === get(account)?.toLowerCase())
+                    if (event.args.owner.toLowerCase() === wallet.account?.toLowerCase())
                     {
                         loadedByCurrentSessionPostIds.unshift(event.args.postId)
                         refreshPostIds()

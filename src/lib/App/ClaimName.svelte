@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { account,profileContract } from "$/tools/wallet";
+    import { profileContract, wallet } from "$/tools/wallet";
     import { catchContract } from "$/tools/wallet/catch";
     import { waitContractUntil } from "$/tools/wallet/listen";
     import { utf8AsBytes32 } from "$/utils/bytes";
@@ -21,7 +21,7 @@
             );
             dispatcher("done");
             await globalTaskNotificationManager.append(
-                waitContractUntil(profileContract, profileContract.filters.ProfileSet($account, utf8AsBytes32("nickname")), () => true),
+                waitContractUntil(profileContract, profileContract.filters.ProfileSet(wallet.account, utf8AsBytes32("nickname")), () => true),
                 "Setting Profile"
             );
         } catch (error) {

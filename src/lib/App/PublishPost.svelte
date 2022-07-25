@@ -2,7 +2,7 @@
 import { getPostData,packTimelineId,TimelineGroup,TimelineId } from "$/tools/api/feed";
 
     import { ipfsClient } from "$/tools/ipfs/client";
-    import { account,appContract } from "$/tools/wallet";
+    import { appContract, wallet } from "$/tools/wallet";
     import { waitContractUntil } from "$/tools/wallet/listen";
     import { IpfsHashToBytes32 } from "$/utils/bytes";
     import { addPostContentItemsDataToIpfs,encodePostContentItems,parseContent } from "$/utils/content";
@@ -22,18 +22,18 @@ import { getPostData,packTimelineId,TimelineGroup,TimelineId } from "$/tools/api
     $: reply = timelineId.group === TimelineGroup.Replies;
 
     let contentText: string;
-    $: content = contentText?.length > 0 ? parseContent($account, contentText) : null;
+    $: content = contentText?.length > 0 ? parseContent(wallet.account, contentText) : null;
     $: encodedContent = content ? encodePostContentItems(content.items) : null;
     $: length = encodedContent?.length ?? 0;
 
     async function publish(perma = false) {
         try {
             const content = parseContent(
-                $account,
+                wallet.account,
                 contentText,
                 BigNumber.from(timelineId.group).eq(TimelineGroup.Replies)
                     ? [get(await getPostData(BigNumber.from(timelineId.key))).owner].filter(
-                          (mention) => mention.toLowerCase() !== $account
+                          (mention) => mention.toLowerCase() !== wallet.account
                       )
                     : []
             );
@@ -113,7 +113,7 @@ import { getPostData,packTimelineId,TimelineGroup,TimelineId } from "$/tools/api
     />
 </svelte:head>
 
-{#if $account}
+{#if wallet.account}
     <KModal bind:active={showPostPreview}>
         <form class="preview" on:submit|preventDefault>
             <b>Preview</b>
@@ -121,10 +121,10 @@ import { getPostData,packTimelineId,TimelineGroup,TimelineId } from "$/tools/api
                 <KBoxEffect color="mode" background radius="rounded">
                     <div class="content-field">
                         <div class="avatar">
-                            <AvatarOf address={$account} />
+                            <AvatarOf address={wallet.account} />
                         </div>
                         <div class="nickname">
-                            <NicknameOf address={$account} />
+                            <NicknameOf address={wallet.account} />
                         </div>
                         <div class="field k-text-multiline">
                             <Content {content} />
@@ -149,10 +149,10 @@ import { getPostData,packTimelineId,TimelineGroup,TimelineId } from "$/tools/api
             <div class="fields">
                 <div class="content-field">
                     <div class="avatar">
-                        <AvatarOf address={$account} />
+                        <AvatarOf address={wallet.account} />
                     </div>
                     <div class="nickname">
-                        <NicknameOf address={$account} />
+                        <NicknameOf address={wallet.account} />
                     </div>
                     <div class="field">
                         <!-- {encodedContent && bytesToUtf8(encodedContent.itemsData)} -->

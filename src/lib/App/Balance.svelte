@@ -1,15 +1,16 @@
 <script lang="ts">
-    import { account,provider } from "$/tools/wallet";
+import { wallet } from "$/tools/wallet";
+
     import { ethers } from "ethers";
 
     let balance: string;
 
     async function updateBalance(address: string) {
-        if (address && $provider) balance = ethers.utils.formatEther(await $provider.getBalance(address));
+        if (address && wallet.provider) balance = ethers.utils.formatEther(await wallet.provider.getBalance(address));
         else balance = null;
     }
 
-    $: updateBalance($account);
+    $: updateBalance(wallet.account);
 </script>
 
 {balance?.split(".")[0] ?? "..."}

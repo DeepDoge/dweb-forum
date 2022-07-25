@@ -1,6 +1,6 @@
 <script lang="ts">
     import KBoxEffect from "$/lib/kicho-ui/components/effects/KBoxEffect.svelte";
-    import { account, connectWallet } from "$/tools/wallet";
+    import { connectWallet, wallet } from "$/tools/wallet";
     import AddressOf from "$lib/App/AddressOf.svelte";
     import AvatarOf from "$lib/App/AvatarOf.svelte";
     import NicknameOf from "$lib/App/NicknameOf.svelte";
@@ -15,25 +15,25 @@
 
 <header style:--height={height} bind:offsetHeight={height}>
     <KBoxEffect color="mode" blur size="smaller" background radius="tile">
-        {#if $account}
+        {#if wallet.account}
             <div class="account-info">
                 <div class="avatar">
-                    <AvatarOf address={$account} />
+                    <AvatarOf address={wallet.account} />
                 </div>
                 <div class="nickname">
                     <KButton text href="#{$currentRoute.path}#claim-name" title="Claim Nickname">
-                        <NicknameOf address={$account} />
+                        <NicknameOf address={wallet.account} />
                     </KButton>
                 </div>
                 <div class="address">
-                    <AddressOf address={$account} />
+                    <AddressOf address={wallet.account} />
                 </div>
             </div>
         {:else}
             <KButton color="gradient" glow="gradient" glowMultiplier={0.5} on:click={() => connectWallet()}>Connect Wallet</KButton>
         {/if}
-        {#if $account}
-            <Notifications account={$account} />
+        {#if wallet.account}
+            <Notifications account={wallet.account} />
         {/if}
         <KButton radius="fab" color={$currentRoute.path || $currentRoute.hash ? "mode-pop" : "master"} href="#">Home</KButton>
         <!-- <div class="account-balance k-text-singleline">Balance: <b><Balance /></b></div> -->
