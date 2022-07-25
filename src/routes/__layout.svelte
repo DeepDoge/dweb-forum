@@ -10,17 +10,15 @@
 <KApp>
     <layout>
         {#if $walletState === "ready"}
-            {#key wallet.provider.network.chainId}
-                {#if $ipfsClient}
-                    {#await import("./_layout.svelte")}
-                        Loading App...
-                    {:then Layout}
-                        <svelte:component this={Layout.default} />
-                    {/await}
-                {:else}
-                    Waiting for IPFS Client...
-                {/if}
-            {/key}
+            {#if $ipfsClient}
+                {#await import("./_layout.svelte")}
+                    Loading App...
+                {:then Layout}
+                    <svelte:component this={Layout.default} />
+                {/await}
+            {:else}
+                Waiting for IPFS Client...
+            {/if}
         {:else if $walletState === "wrongNetwork"}
             Wrong Wallet Network
             <span>
