@@ -12,12 +12,15 @@
 	<script type="module">
 		let ready = false
 		const appStatusElement = document.querySelector('#app-status')
-		addEventListener('_app-ready', () => ready = true)
+		addEventListener('_app-ready', () => 
+		{
+			ready = true
+			appStatusElement.textContent = 'App is loaded'
+		})
 		addEventListener('load', () => setTimeout(() =>
 		{
 			if (ready)
 			{
-				appStatusElement.textContent = 'Ready'
 				appStatusElement.style.display = 'none'
 			}
 			else
