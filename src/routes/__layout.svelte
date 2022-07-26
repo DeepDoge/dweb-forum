@@ -17,9 +17,13 @@
                     Loading App Layout...
                 {:then Layout}
                     <svelte:component this={Layout.default} />
-                {:catch}
+                {:catch err}
                     Failed to Load App Layout. Reloading...
-                    {(() => setTimeout(() => location.reload(), 3000) && '')()}
+                    {(() => {
+                        setTimeout(() => location.reload(), 3000) 
+                        console.error(err)
+                        return ''
+                    })()}
                 {/await}
             {:else}
                 Waiting for IPFS Client...

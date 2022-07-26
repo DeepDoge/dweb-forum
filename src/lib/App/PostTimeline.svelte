@@ -1,28 +1,28 @@
 <script lang="ts">
-    import { Feed, getPostRoot, PostId, TimelineGroup } from "$/tools/api/feed";
+    import { Feed,getPostRoot,PostId,TimelineGroup } from "$/tools/api/feed";
     import { bigNumberAsUtf8 } from "$/utils/bytes";
     import { promiseQueue } from "$/utils/common/promiseQueue";
     import Post from "$lib/App/Post.svelte";
     import Timeline from "$lib/App/Timeline.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import { BigNumber } from "ethers";
-    import { get } from "svelte/store";
 
     export let postId: PostId;
 
     let repliesFeed: Feed = null;
-    let prefixPostIds: PostId[] = [];
+    let rootPostIds: PostId[] = [];
 
     let loading = false;
 
-    $: postId, updateReplies(postId);
+    $: postId === repliesFeed?.timelineIds[0].key && updateReplies(postId);
     const updateReplies = promiseQueue(async (value: PostId) => {
         if (!value.eq(postId)) return
         loading = true;
 
         const root = await getPostRoot({ postId: value });
+        await repliesFeed.ready
         if (!value.eq(postId)) return
-        prefixPostIds = [...root, value];
+        rootPostIds = [...root, value];
 
         loading = false;
     });
@@ -33,17 +33,17 @@
         if (target.getBoundingClientRect().top < 0) target.scrollIntoView();
     }
 
-    const postElements: Record<string, HTMLElement> = {};
-    $:  setTimeout(() => scrollIntoViewIfNeeded(postElements[postId._hex]));
+    const rootPostElements: Record<string, HTMLElement> = {};
+    $:  setTimeout(() => scrollIntoViewIfNeeded(rootPostElements[postId._hex]));
 </script>
 
 <div class:loading class="post-reply-timeline">
     <div class="posts">
-        {#if loading && prefixPostIds.length === 0}
+        {#if loading && rootPostIds.length === 0}
             <Post postId={BigNumber.from(-1)} />
         {/if}
-        {#each prefixPostIds as timelinePostId (timelinePostId._hex)}
-            <div bind:this={postElements[timelinePostId._hex]} class="post root-post">
+        {#each rootPostIds as timelinePostId (timelinePostId._hex)}
+            <div bind:this={rootPostElements[timelinePostId._hex]} class="post root-post">
                 <Post postId={timelinePostId} fullHeight={timelinePostId.eq(postId)}>
                     <svelte:fragment slot="before" let:postData>
                         {#if postData?.timelineGroup.eq(TimelineGroup.Topics)}

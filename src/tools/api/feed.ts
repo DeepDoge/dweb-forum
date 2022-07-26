@@ -176,12 +176,16 @@ export function getFeed(timelineIds: TimelineId[])
     const postIds: Writable<PostId[]> = writable([])
     const loadedPostIds: PostId[] = []
     const loadedByCurrentSessionPostIds: PostId[] = []
+    let setAsReady: () => void = null
+    const ready = new Promise<void>((resolve) => setAsReady = resolve)
     const loading: Writable<boolean> = writable(false)
     const newPostCount = writable(BigNumber.from(0))
 
     function refreshPostIds()
     {
-        postIds.set([...loadedByCurrentSessionPostIds, ...loadedPostIds])
+        const value = [...loadedByCurrentSessionPostIds, ...loadedPostIds]
+        if (get(postIds).length === 0 && value.length === 0) return
+        postIds.set(value)
     }
 
     const LOAD_CHUNK_SIZE = 64
@@ -191,35 +195,38 @@ export function getFeed(timelineIds: TimelineId[])
         if (get(loading)) throw `Tried to loadMore while loading`
         loading.set(true)
 
-        if (!timelines[getTimelineKey(timelineIds[0])]) await Promise.all(
-            timelineIds.map(async (timelineId) =>
-            {
-                const timelineIdKey = getTimelineKey(timelineId)
-                const info = await getTimelineInfo(timelineId)
-                timelines[timelineIdKey] = {
-                    info,
-                    pivot: get(info.length).sub(1),
-                    done: false,
-                    waitingPostIds: []
-                }
-
-                let first = true
-                info.lastEvent.subscribe((event) =>
+        if (!timelines[getTimelineKey(timelineIds[0])]) 
+        {
+            await Promise.all(
+                timelineIds.map(async (timelineId) =>
                 {
-                    if (first) return first = false
-                    if (event.args.owner.toLowerCase() === wallet.account?.toLowerCase())
-                    {
-                        loadedByCurrentSessionPostIds.unshift(event.args.postId)
-                        refreshPostIds()
+                    const timelineIdKey = getTimelineKey(timelineId)
+                    const info = await getTimelineInfo(timelineId)
+                    timelines[timelineIdKey] = {
+                        info,
+                        pivot: get(info.length).sub(1),
+                        done: false,
+                        waitingPostIds: []
                     }
-                    else
+
+                    let first = true
+                    info.lastEvent.subscribe((event) =>
                     {
-                        console.log('add 1')
-                        newPostCount.update((value) => value.add(1))
-                    }
+                        if (first) return first = false
+                        if (event.args.owner.toLowerCase() === wallet.account?.toLowerCase())
+                        {
+                            loadedByCurrentSessionPostIds.unshift(event.args.postId)
+                            refreshPostIds()
+                        }
+                        else
+                        {
+                            console.log('add 1')
+                            newPostCount.update((value) => value.add(1))
+                        }
+                    })
                 })
-            })
-        )
+            )
+        }
 
         const timelinePromises = timelineIds.map(async (timelineId) =>
         {
@@ -276,6 +283,7 @@ export function getFeed(timelineIds: TimelineId[])
         refreshPostIds()
 
         loading.set(false)
+        setAsReady()
         return done
     }
 
@@ -302,6 +310,7 @@ export function getFeed(timelineIds: TimelineId[])
         postIds,
         loadMore,
         loading,
+        ready,
         newPostCount,
         listen,
         unlisten
