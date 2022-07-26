@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Feed,getPostRoot,PostId,TimelineGroup } from "$/tools/api/feed";
+    import { Feed, getPostRoot, PostId, TimelineGroup } from "$/tools/api/feed";
     import { bigNumberAsUtf8 } from "$/utils/bytes";
     import { promiseQueue } from "$/utils/common/promiseQueue";
     import Post from "$lib/App/Post.svelte";
@@ -16,25 +16,22 @@
 
     $: postId === repliesFeed?.timelineIds[0].key && updateReplies(postId);
     const updateReplies = promiseQueue(async (value: PostId) => {
-        if (!value.eq(postId)) return
+        if (!value.eq(postId)) return;
         loading = true;
 
         const root = await getPostRoot({ postId: value });
-        await repliesFeed.ready
-        if (!value.eq(postId)) return
+        if (!value.eq(postId)) return;
         rootPostIds = [...root, value];
+        setTimeout(() => setTimeout(() => rootPostElements[postId._hex].scrollIntoView({ block: "nearest", inline: "nearest" })));
+
+        await repliesFeed.ready;
+        if (!value.eq(postId)) return;
+        setTimeout(() => rootPostElements[postId._hex].scrollIntoView({ block: "nearest", inline: "nearest" }));
 
         loading = false;
     });
 
-    function scrollIntoViewIfNeeded(target: HTMLElement) {
-        if (!target) return;
-        if (target.getBoundingClientRect().bottom > window.innerHeight) target.scrollIntoView(false);
-        if (target.getBoundingClientRect().top < 0) target.scrollIntoView();
-    }
-
     const rootPostElements: Record<string, HTMLElement> = {};
-    $:  setTimeout(() => scrollIntoViewIfNeeded(rootPostElements[postId._hex]));
 </script>
 
 <div class:loading class="post-reply-timeline">
