@@ -2,12 +2,13 @@
     import { chainOptionsByChainId, changeNetwork } from "$/tools/wallet";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
 
+    export let disabled = false
     export let chainId: string;
     $: chainOption = chainOptionsByChainId[chainId];
 </script>
 
 <div class="outer" style:--k-color-master={chainOption.themeColor}>
-    <KButton background radius="normal" color="master" on:click={() => changeNetwork(chainId)}>
+    <KButton background radius="normal" color="master" on:click={() => !disabled && changeNetwork(chainId)}>
         <div class="inner" style:--icon="url({chainOption.iconSrc})">
             {chainOption.chainName}
         </div>

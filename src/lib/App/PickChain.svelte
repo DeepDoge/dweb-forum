@@ -5,7 +5,7 @@
 </script>
 
 <div class="pick-chain">
-    <ChangeChain chainId={currentChainOption.chainId} />
+    <ChangeChain disabled chainId={currentChainOption.chainId} />
     <KHoverMenu size="normal">
         <div class="menu">
             {#each chainOptions as chainOption (chainOption.chainId)}
