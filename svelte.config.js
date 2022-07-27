@@ -20,19 +20,11 @@ const config = {
 			plugins: [
 
 			],
-			server: {
-				fs: {
-					allow: [
-						path.resolve('./modules'),
-					]
-				}
-			},
 			resolve:
 			{
 				alias:
 				{
 					"$": path.resolve('./src'),
-					"$modules": path.resolve('./modules')
 				}
 			}
 		}
