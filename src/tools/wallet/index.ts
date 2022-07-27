@@ -1,8 +1,8 @@
 import deployed from '$/tools/hardhat/scripts/deployed.json'
-import { App__factory, Profile__factory, type App, type Profile } from '$/tools/hardhat/typechain-types'
+import { App__factory, DefaultReverseResolver__factory, Profile__factory, ReverseRegistrar__factory, type App, type Profile } from '$/tools/hardhat/typechain-types'
 import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte"
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers"
-import { ethers, type Signer } from "ethers"
+import { ethers } from "ethers"
 import type { Writable } from 'svelte/store'
 import { get, readable, writable } from 'svelte/store'
 import { jsonProviders, jsonProvidersByChainId } from './providers'
@@ -28,8 +28,19 @@ export const wallet = {
     state: readable(get(state), (set) => state.subscribe((value) => set(value)))
 }
 
+export const ethProvider = new ethers.providers.JsonRpcProvider(
+    jsonProviders.Ethereum.rpcUrls[0],
+    {
+        chainId: parseInt(jsonProviders.Ethereum.chainId, 16),
+        name: jsonProviders.Ethereum.chainName
+    }
+)
+export const ethSigner = ethProvider.getSigner("0x0000000000000000000000000000000000000000")
+
 export let appContract: App = null
 export let profileContract: Profile = null
+export let ensReverseRecord = ReverseRegistrar__factory.connect('0x084b1c3C81545d370f3634392De611CaaBFf8148', ethSigner)
+export let ensReverseResolver = DefaultReverseResolver__factory.connect('0xA2C122BE93b0074270ebeE7f6b7292C7deB45047', ethSigner)
 
 if (web3Provider)
 {

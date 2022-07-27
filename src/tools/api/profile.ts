@@ -1,4 +1,4 @@
-import { profileContract } from "$/tools/wallet"
+import { ensReverseRecord, ensReverseResolver, profileContract } from "$/tools/wallet"
 import { listenContract } from "$/tools/wallet/listen"
 import { hexToUtf8, utf8AsBytes32 } from "$/utils/bytes"
 import { createPromiseResultCacher, createTempStore } from "$/utils/common/store"
@@ -51,7 +51,6 @@ export async function getProfileData(address: string, key: string)
 
 const ensNameStore = createTempStore<{ ensName: string }>('ens-name', 1000 * 60 * 10)
 const ensNameCacher = createPromiseResultCacher()
-const ensProvider = getDefaultProvider()
 export async function ensNameOf(address: string)
 {
     const key = address.toLowerCase()
@@ -60,7 +59,7 @@ export async function ensNameOf(address: string)
         const cache = await ensNameStore.get(key)
         if (cache) return cache.ensName
 
-        const response = await ensProvider.lookupAddress(address)
+        const response = await ensReverseResolver.name(await ensReverseRecord.node(address))
         if (response) await ensNameStore.put(key, { ensName: response })
         return response
     })
