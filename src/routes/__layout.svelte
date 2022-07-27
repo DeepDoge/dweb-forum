@@ -1,10 +1,10 @@
 <script lang="ts">
     import { ipfsClient } from "$/tools/ipfs/client";
-    import { chainOptionsByChainId, connectWallet,currentChainOption,wallet } from "$/tools/wallet";
+    import { chainOptionsByChainId, connectWallet, currentChainOption, wallet } from "$/tools/wallet";
     import ChangeChain from "$lib/App/ChangeChain.svelte";
     import KApp from "$lib/kicho-ui/components/KApp.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
-    import { BigNumber } from "ethers";
+    import { ethers } from "ethers";
 
     $: walletState = wallet.state;
 
@@ -12,7 +12,7 @@
 </script>
 
 <KApp>
-    <layout>
+    <layout class:not-ready={$walletState !== "ready"}>
         {#if $walletState === "ready"}
             {#if $ipfsClient}
                 {#await import("./_layout.svelte")}
@@ -32,14 +32,14 @@
             {/if}
         {:else if $walletState === "wrongNetwork"}
             Wrong Wallet Network
-            <div>
-                Switch to
+            <div class="change-chain">
+                <span>Switch to</span>
                 <ChangeChain chainId={currentChainOption.chainId} />
             </div>
-            {#if wallet.web3Provider && chainOptionsByChainId[BigNumber.from(wallet.web3Provider.network.chainId)._hex]}
-                <div>
-                    Or use
-                    <ChangeChain chainId={BigNumber.from(wallet.web3Provider.network.chainId)._hex} />
+            {#if wallet.web3Provider && chainOptionsByChainId[ethers.utils.hexValue(wallet.web3Provider.network.chainId)]}
+                <div class="change-chain">
+                    <span>Or use</span>
+                    <ChangeChain chainId={ethers.utils.hexValue(wallet.web3Provider.network.chainId)} />
                 </div>
             {/if}
         {:else if $walletState === "notConnected"}
@@ -78,5 +78,18 @@
         background-size: cover;
         background-image: linear-gradient(to left bottom, var(--k-color-master), var(--k-color-slave));
         filter: opacity(0.01);
+    }
+
+    layout.not-ready {
+        display: grid;
+        gap: var(--k-padding);
+    }
+
+    .change-chain {
+        display: grid;
+        grid-auto-flow: column;
+        gap: 1ch;
+        align-items: center;
+        justify-content: start;
     }
 </style>
