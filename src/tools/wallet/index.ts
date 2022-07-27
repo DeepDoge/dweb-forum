@@ -1,3 +1,4 @@
+import { currentRoute } from '$/routes/_routing'
 import deployed from '$/tools/hardhat/scripts/deployed.json'
 import { App__factory, DefaultReverseResolver__factory, Profile__factory, ReverseRegistrar__factory, type App, type Profile } from '$/tools/hardhat/typechain-types'
 import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte"
@@ -24,7 +25,12 @@ export const chainOptionsByChainId = Object.freeze(
 const state: Writable<'ready' | 'loading' | 'connecting' | 'notConnected' | 'wrongNetwork'> = writable('notConnected')
 
 const defaultChainId = defaultChainOptions.Polygon.chainId
-export const currentChainOption = chainOptionsByChainId[JSON.parse(localStorage.getItem('wallet_chain-id-hex')) ?? defaultChainId] ?? chainOptionsByChainId[defaultChainId]
+if (!get(currentRoute).chainId) 
+{
+    location.replace(`#${parseInt(defaultChainId, 16)}`)
+    location.reload()
+}
+export const currentChainOption = chainOptionsByChainId[ethers.utils.hexValue(get(currentRoute).chainId) ?? defaultChainId] ?? chainOptionsByChainId[defaultChainId]
 
 let account: string = null
 let provider: Web3Provider | JsonRpcProvider = null
@@ -110,7 +116,7 @@ export async function connectWallet()
     }
 }
 
-export async function changeNetwork(chainId: string)
+export async function changeWalletChain(chainId: string)
 {
     if (account)
     {
@@ -134,9 +140,10 @@ export async function changeNetwork(chainId: string)
             else throw ""
         }
     }
+}
 
+export function changeChain(chainId: string)
+{
     if (!chainOptionsByChainId[chainId]) throw `No option for chain ${chainId} found.`
-    localStorage.setItem('wallet_chain-id-hex', JSON.stringify(chainId))
-
-    location.reload()
+    location.assign(`#${parseInt(chainId, 16)}`)
 }

@@ -11,7 +11,7 @@
 </script>
 
 <script lang="ts">
-    import { currentRoute } from "$/routes/_routing.svelte";
+    import { currentRoute } from "$/routes/_routing";
     import { TimelineGroup } from "$/tools/api/feed";
     import { pageTitle } from "$/utils/pageTitle";
     import AddressOf from "$lib/App/AddressOf.svelte";
@@ -49,7 +49,7 @@
                 <svelte:fragment slot="timeline-header">
                     <div class="tabs">
                         {#each tabsEntries as [path, tab] (path)}
-                            <KButton href="#{address}/{path}#{$currentRoute.hash}" color="master" background={tab.mode === mode}>{tab.name}</KButton>
+                            <KButton href="#{$currentRoute.chainId}#{address}/{path}#{$currentRoute.hash}" color="master" background={tab.mode === mode}>{tab.name}</KButton>
                         {/each}
                     </div>
                 </svelte:fragment>

@@ -1,4 +1,6 @@
 <script lang="ts">
+import { currentRoute } from "$/routes/_routing";
+
     import { blankImageData } from "$/utils/common/blankImage";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KChip from "$lib/kicho-ui/components/KChip.svelte";
@@ -16,7 +18,7 @@
         : blankImageData;
 </script>
 
-<a href={address ? `#${address}` : null} class="avatar-container">
+<a href={address ? `#${$currentRoute.chainId}#${address}` : null} class="avatar-container">
     <div class="avatar">
         <KBoxEffect color="mode-pop" radius="fab" background {loading} hideContent={loading}>
             <img alt={address} src={jazziconDataURL} />

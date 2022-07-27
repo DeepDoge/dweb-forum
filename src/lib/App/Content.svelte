@@ -1,4 +1,6 @@
 <script lang="ts">
+import { currentRoute } from "$/routes/_routing";
+
     import { ipfsClient } from "$/tools/ipfs/client";
     import type { PostContentData } from "$/utils/content";
     import { ContentType } from "$/utils/content";
@@ -13,7 +15,7 @@
 {#each content?.items ?? [] as item, i (i)}
     {" "}
     {#if item.type === ContentType.Mention}
-        <a data-address={content.mentions[item.data]} class="profile-inline" href="#{content.mentions[item.data]}">
+        <a data-address={content.mentions[item.data]} class="profile-inline" href="#{$currentRoute.chainId}#{content.mentions[item.data]}">
             <AvatarOf address={content.mentions[item.data]} />
             <div class="no-select">
                 <NicknameOf address={content.mentions[item.data]} />

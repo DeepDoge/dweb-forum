@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { currentRoute } from "$/routes/_routing.svelte";
+    import { currentRoute } from "$/routes/_routing";
     import type { PostId, TimelineId } from "$/tools/api/feed";
     import Timeline from "$lib/App/Timeline.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
@@ -10,7 +10,7 @@
     export let timelineId: TimelineId;
 
     let selectedPostId: PostId = null;
-    $: selectedPostId = $currentRoute.hash ? (/[0-9]/.test($currentRoute.hash) ? BigNumber.from($currentRoute.hash) : selectedPostId) : null;
+    $: selectedPostId = $currentRoute.hash ? (/^[0-9]+$/.test($currentRoute.hash) ? BigNumber.from($currentRoute.hash) : selectedPostId) : null;
 
     let fixedPostTimeline = false;
     $: selectedPostId, updateFixed();
@@ -39,7 +39,7 @@
                 <header>
                     <slot name="post-header">
                         {#if $currentRoute.path != null}
-                            <KButton size="smaller" color="mode-pop" href="#{$currentRoute.path}">
+                            <KButton size="smaller" color="mode-pop" href="#{$currentRoute.chainId}#{$currentRoute.path}">
                                 {"← Back"}
                             </KButton>
                         {/if}

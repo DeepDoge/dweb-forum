@@ -1,16 +1,13 @@
 <script lang="ts">
     import KBoxEffect from "$/lib/kicho-ui/components/effects/KBoxEffect.svelte";
-    import { connectWallet, currentChainOption, wallet } from "$/tools/wallet";
-    import { defaultChainOptions } from "$/tools/wallet/chains";
+    import { connectWallet, wallet } from "$/tools/wallet";
     import AddressOf from "$lib/App/AddressOf.svelte";
     import AvatarOf from "$lib/App/AvatarOf.svelte";
-    import ChangeChain from "$lib/App/ChangeChain.svelte";
     import NicknameOf from "$lib/App/NicknameOf.svelte";
     import Notifications from "$lib/App/Notifications.svelte";
-    import PickChain from "$lib/App/PickChain.svelte";
+    import ChainPicker from "$lib/App/ChainPicker.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
-    import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
-    import { currentRoute } from "./_routing.svelte";
+    import { currentRoute } from "./_routing";
 
     let height: number = 0;
 
@@ -25,7 +22,7 @@
                     <AvatarOf address={wallet.account} />
                 </div>
                 <div class="nickname">
-                    <KButton text href="#{$currentRoute.path}#claim-name" title="Claim Nickname">
+                    <KButton text href="#{$currentRoute.chainId}#{$currentRoute.path}#claim-name" title="Claim Nickname">
                         <NicknameOf address={wallet.account} />
                     </KButton>
                 </div>
@@ -36,11 +33,11 @@
         {:else}
             <KButton color="gradient" glow="gradient" glowMultiplier={0.5} on:click={() => connectWallet()}>Connect Wallet</KButton>
         {/if}
-        <PickChain />
+        <ChainPicker />
         {#if wallet.account}
             <Notifications account={wallet.account} />
         {/if}
-        <KButton radius="fab" color={$currentRoute.path || $currentRoute.hash ? "mode-pop" : "master"} href="#">Home</KButton>
+        <KButton radius="fab" color={$currentRoute.path || $currentRoute.hash ? "mode-pop" : "master"} href="#{$currentRoute.chainId}#">Home</KButton>
         <!-- <div class="account-balance k-text-singleline">Balance: <b><Balance /></b></div> -->
     </KBoxEffect>
 </header>

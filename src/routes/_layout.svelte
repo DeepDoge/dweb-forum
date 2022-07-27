@@ -11,7 +11,8 @@
     import { ethers } from "ethers";
 
     import Header from "./_header.svelte";
-    import Routing, { currentRoute } from "./_routing.svelte";
+    import { currentRoute } from "./_routing";
+    import Routing from "./_routing.svelte";
 
     let searchInput: string;
     async function search() {

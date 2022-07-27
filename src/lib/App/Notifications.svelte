@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { currentRoute } from "$/routes/_routing.svelte";
+    import { currentRoute } from "$/routes/_routing";
     import { Feed,TimelineGroup } from "$/tools/api/feed";
     import Timeline from "$lib/App/Timeline.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
@@ -25,7 +25,7 @@
                 <b>Notifications</b>
                 <Timeline bind:feed={mentionsFeed} timelineId={{ group: TimelineGroup.ProfileMentions, key: account }} let:postIds>
                     {#each postIds as postId (postId)}
-                        <a href="#{$currentRoute.path}#{postId}">
+                        <a href="#{$currentRoute.chainId}#{$currentRoute.path}#{postId}">
                             <Post {postId} />
                         </a>
                     {/each}

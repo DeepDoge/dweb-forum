@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { currentRoute } from "$/routes/_routing.svelte";
+import { currentRoute } from "$/routes/_routing";
+
     import { getPostData,getTimelineInfo,PostData,PostId,TimelineGroup } from "$/tools/api/feed";
     import { bigNumberAsUtf8,bytes32ToIpfsHash,hexToBytes } from "$/utils/bytes";
     import { promiseQueue } from "$/utils/common/promiseQueue";
@@ -65,7 +66,7 @@
 
     $: date = $second && ((postData && format(new Date($postData.time.toNumber() * 1000))) ?? null);
     $: loading = postId && !postContent;
-    $: selected = /[0-9]/.test($currentRoute.hash) && postId?.eq($currentRoute.hash);
+    $: selected = /^[0-9]+$/.test($currentRoute.hash) && postId?.eq($currentRoute.hash);
 </script>
 
 <slot name="before" postData={$postData} />
@@ -77,7 +78,7 @@
                     <div class="avatar">
                         <AvatarOf address={$postData?.owner} />
                     </div>
-                    <a href="#{$postData?.owner}" class="nickname">
+                    <a href="#{$currentRoute.chainId}#{$postData?.owner}" class="nickname">
                         <NicknameOf address={$postData?.owner} />
 <!--                         <KHoverMenu background>
                             <ProfileMiniCard address={$postData?.owner} />
@@ -90,14 +91,14 @@
 
                 <div class="chip">
                     {#if parentPostData}
-                        <a href="#{$currentRoute.path}#{$parentPostData.postId}">
+                        <a href="#{$currentRoute.chainId}#{$currentRoute.path}#{$parentPostData.postId}">
                             <KChip color="slave">
                                 <div class="k-text-singleline">Reply to:</div>
                                 <NicknameOf address={$parentPostData.owner} /> @{$postData.timelineKey}
                             </KChip>
                         </a>
                     {:else if $postData?.timelineGroup.eq(TimelineGroup.Topics)}
-                        <a href="#{bigNumberAsUtf8($postData.timelineKey)}">
+                        <a href="#{$currentRoute.chainId}#{bigNumberAsUtf8($postData.timelineKey)}">
                             <KChip>#{bigNumberAsUtf8($postData.timelineKey)}</KChip>
                         </a>
                     {/if}
@@ -105,7 +106,7 @@
                         <KChip color="mode-pop">@{$postData?.postId}</KChip>
                     </div>
                 </div>
-                <a class="content k-text-multiline" draggable={selected ? 'false' : 'true'} href={postId ? `#${$currentRoute.path}#${postId}` : null}>
+                <a class="content k-text-multiline" draggable={selected ? 'false' : 'true'} href={postId ? `#${$currentRoute.chainId}#${$currentRoute.path}#${postId}` : null}>
                     {#if postContent}
                         <Content content={postContent} />
                     {:else}

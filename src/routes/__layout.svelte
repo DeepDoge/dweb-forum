@@ -1,7 +1,7 @@
 <script lang="ts">
     import { ipfsClient } from "$/tools/ipfs/client";
-    import { chainOptionsByChainId, connectWallet, currentChainOption, wallet } from "$/tools/wallet";
-    import ChangeChain from "$lib/App/ChangeChain.svelte";
+    import { chainOptionsByChainId, changeChain, connectWallet, currentChainOption, changeWalletChain, wallet } from "$/tools/wallet";
+    import ChainButton from "$lib/App/ChainButton.svelte";
     import KApp from "$lib/kicho-ui/components/KApp.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import { ethers } from "ethers";
@@ -34,12 +34,15 @@
             Wrong Wallet Network
             <div class="change-chain">
                 <span>Switch to</span>
-                <ChangeChain chainId={currentChainOption.chainId} />
+                <ChainButton chainId={currentChainOption.chainId} on:click={() => changeWalletChain(currentChainOption.chainId)} />
             </div>
             {#if wallet.account && chainOptionsByChainId[ethers.utils.hexValue(wallet.web3Provider.network.chainId)]}
                 <div class="change-chain">
                     <span>Or use</span>
-                    <ChangeChain chainId={ethers.utils.hexValue(wallet.web3Provider.network.chainId)} />
+                    <ChainButton
+                        chainId={ethers.utils.hexValue(wallet.web3Provider.network.chainId)}
+                        on:click={() => changeChain(ethers.utils.hexValue(wallet.web3Provider.network.chainId))}
+                    />
                 </div>
             {/if}
         {:else if $walletState === "notConnected"}
