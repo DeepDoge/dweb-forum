@@ -71,10 +71,10 @@ if (web3Provider)
 
     state.set('loading')
 
-    if (!(Object.values(jsonProviders)
-        .some((info) => info.chainId === ethers.utils.hexlify(provider.network.chainId)) &&
+    if (!(
         deployed[provider.network.chainId]?.['App'] &&
-        deployed[provider.network.chainId]?.['Profile']))
+        deployed[provider.network.chainId]?.['Profile']
+    ))
     {
         state.set('wrongNetwork')
         throw 'Wrong Network'
