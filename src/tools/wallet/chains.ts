@@ -1,4 +1,4 @@
-import { ethers } from "ethers"
+import { BigNumber, ethers } from "ethers"
 
 export interface JsonRpcProviderConfig
 {
@@ -20,10 +20,12 @@ function createChainOption<T extends ChainOption>(value: T)
     return value
 }
 
+(window as any).BigNumber = BigNumber
+
 export const defaultChainOptions = Object.freeze({
     Ethereum: createChainOption({
         chainName: 'Ethereum Mainnet',
-        chainId: '0x1',
+        chainId: ethers.utils.hexValue(1),
         nativeCurrency: { name: 'ETH', decimals: 18, symbol: 'ETH' },
         rpcUrls: ['https://cloudflare-eth.com'],
         blockExplorerUrls: ['https://etherscan.io'],
@@ -32,7 +34,7 @@ export const defaultChainOptions = Object.freeze({
     }),
     Polygon: createChainOption({
         chainName: 'Polygon Mainnet',
-        chainId: ethers.utils.hexlify(137),
+        chainId: ethers.utils.hexValue(137),
         nativeCurrency: { name: 'MATIC', decimals: 18, symbol: 'MATIC' },
         rpcUrls: ['https://polygon-rpc.com'],
         blockExplorerUrls: ['https://polygonscan.com'],
@@ -41,7 +43,7 @@ export const defaultChainOptions = Object.freeze({
     }),
     Avalanche: createChainOption({
         chainName: 'Avalanche C-Chain',
-        chainId: ethers.utils.hexlify(43114),
+        chainId: ethers.utils.hexValue(43114),
         nativeCurrency: { name: "AVAX", decimals: 18, symbol: 'AVAX' },
         rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
         blockExplorerUrls: ['https://cchain.explorer.avax.network/'],
@@ -50,7 +52,7 @@ export const defaultChainOptions = Object.freeze({
     }),
     Optimism: createChainOption({
         chainName: 'Optimism Mainnet',
-        chainId: ethers.utils.hexlify(10),
+        chainId: ethers.utils.hexValue(10),
         nativeCurrency: { name: 'ETH', decimals: 18, symbol: 'ETH' },
         rpcUrls: ['https://mainnet.optimism.io'],
         blockExplorerUrls: ['https://optimistic.etherscan.io'],

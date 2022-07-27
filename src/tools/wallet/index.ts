@@ -85,7 +85,7 @@ else
 
         state.set('loading')
 
-        if (!(currentChainOption.chainId === ethers.utils.hexlify(provider.network.chainId)))
+        if (!(currentChainOption.chainId === ethers.utils.hexValue(provider.network.chainId)))
         {
             state.set('wrongNetwork')
             throw 'Wrong Network'
