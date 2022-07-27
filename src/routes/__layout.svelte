@@ -36,7 +36,7 @@
                 <span>Switch to</span>
                 <ChangeChain chainId={currentChainOption.chainId} />
             </div>
-            {#if wallet.web3Provider && chainOptionsByChainId[ethers.utils.hexValue(wallet.web3Provider.network.chainId)]}
+            {#if wallet.account && chainOptionsByChainId[ethers.utils.hexValue(wallet.web3Provider.network.chainId)]}
                 <div class="change-chain">
                     <span>Or use</span>
                     <ChangeChain chainId={ethers.utils.hexValue(wallet.web3Provider.network.chainId)} />
