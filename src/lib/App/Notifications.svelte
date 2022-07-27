@@ -37,8 +37,8 @@
 
 <style>
     .inner {
-        border-left: solid calc(var(--k-padding) * 3) transparent;
-        border-right: solid calc(var(--k-padding) * 3) transparent;
+        border-left: solid calc(var(--k-padding) * 2) transparent;
+        border-right: solid calc(var(--k-padding) * 2) transparent;
     }
 
     .notifications {

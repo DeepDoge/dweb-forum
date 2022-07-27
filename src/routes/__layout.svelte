@@ -1,8 +1,10 @@
 <script lang="ts">
     import { ipfsClient } from "$/tools/ipfs/client";
-    import { connectWallet, currentProviderInfo, updateWalletNetwork, wallet } from "$/tools/wallet";
+    import { chainOptionsByChainId, connectWallet,currentChainOption,wallet } from "$/tools/wallet";
+    import ChangeChain from "$lib/App/ChangeChain.svelte";
     import KApp from "$lib/kicho-ui/components/KApp.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
+    import { BigNumber } from "ethers";
 
     $: walletState = wallet.state;
 
@@ -20,9 +22,9 @@
                 {:catch err}
                     Failed to Load App Layout. Reloading...
                     {(() => {
-                        setTimeout(() => location.reload(), 3000) 
-                        console.error(err)
-                        return ''
+                        setTimeout(() => location.reload(), 3000);
+                        console.error(err);
+                        return "";
                     })()}
                 {/await}
             {:else}
@@ -30,11 +32,16 @@
             {/if}
         {:else if $walletState === "wrongNetwork"}
             Wrong Wallet Network
-            <span>
-                <KButton color="master" on:click={() => updateWalletNetwork()}>
-                    Switch to {currentProviderInfo.chainName} Network
-                </KButton>
-            </span>
+            <div>
+                Switch to
+                <ChangeChain chainId={currentChainOption.chainId} />
+            </div>
+            {#if wallet.web3Provider && chainOptionsByChainId[BigNumber.from(wallet.web3Provider.network.chainId)._hex]}
+                <div>
+                    Or use
+                    <ChangeChain chainId={BigNumber.from(wallet.web3Provider.network.chainId)._hex} />
+                </div>
+            {/if}
         {:else if $walletState === "notConnected"}
             No Wallet Connected
             <span>

@@ -1,11 +1,15 @@
 <script lang="ts">
     import KBoxEffect from "$/lib/kicho-ui/components/effects/KBoxEffect.svelte";
-    import { connectWallet, wallet } from "$/tools/wallet";
+    import { connectWallet, currentChainOption, wallet } from "$/tools/wallet";
+    import { defaultChainOptions } from "$/tools/wallet/chains";
     import AddressOf from "$lib/App/AddressOf.svelte";
     import AvatarOf from "$lib/App/AvatarOf.svelte";
+    import ChangeChain from "$lib/App/ChangeChain.svelte";
     import NicknameOf from "$lib/App/NicknameOf.svelte";
     import Notifications from "$lib/App/Notifications.svelte";
+    import PickChain from "$lib/App/PickChain.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
+    import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
     import { currentRoute } from "./_routing.svelte";
 
     let height: number = 0;
@@ -29,9 +33,12 @@
                     <AddressOf address={wallet.account} />
                 </div>
             </div>
-            <Notifications account={wallet.account} />
         {:else}
             <KButton color="gradient" glow="gradient" glowMultiplier={0.5} on:click={() => connectWallet()}>Connect Wallet</KButton>
+        {/if}
+        <PickChain />
+        {#if wallet.account}
+            <Notifications account={wallet.account} />
         {/if}
         <KButton radius="fab" color={$currentRoute.path || $currentRoute.hash ? "mode-pop" : "master"} href="#">Home</KButton>
         <!-- <div class="account-balance k-text-singleline">Balance: <b><Balance /></b></div> -->
@@ -41,7 +48,7 @@
 <style>
     header {
         display: grid;
-        grid-template-columns: 1fr auto auto;
+        grid-template-columns: 1fr auto auto auto;
         align-items: center;
         justify-content: space-between;
         justify-items: start;
