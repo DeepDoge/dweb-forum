@@ -14,7 +14,10 @@
     let loading = true;
     let show = false;
     const dangerClassNames: (keyof Predictions["predictions"])[] = ["Hentai", "Porn", "Sexy"];
-    $: nsfw = predictions && dangerClassNames.some((className) => predictions.predictions[className].probability >= 0.6) && predictions.predictions.Neutral.probability < 0.2;
+    $: nsfw =
+        predictions &&
+        dangerClassNames.some((className) => predictions.predictions[className].probability >= 0.6) &&
+        predictions.predictions.Neutral.probability < 0.2;
     $: blur = !show && (loading || !predictions || nsfw);
 </script>
 
