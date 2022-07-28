@@ -5,7 +5,7 @@
     import { ContentType } from "$/utils/content";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
     import AvatarOf from "./AvatarOf.svelte";
-    import ImageAi from "./ImageAI.svelte";
+    import ContentImage from "./ContentImage.svelte";
     import NicknameOf from "./NicknameOf.svelte";
     import ProfileMiniCard from "./ProfileMiniCard.svelte";
 
@@ -27,11 +27,9 @@
     {:else if item.type === ContentType.IpfsLink}
         <a target="_blank" href={$ipfsClient.toURL(item.data)}>{item.data}</a>
     {:else if item.type === ContentType.IpfsImage}
-        <a target="_blank" href={$ipfsClient.toURL(item.data)}>
-            <div class="image">
-                <ImageAi alt={item.data} src={$ipfsClient.toURL(item.data)} />
-            </div>
-        </a>
+        <div class="image">
+            <ContentImage alt={item.data} src={$ipfsClient.toURL(item.data)} />
+        </div>
     {:else if item.type === ContentType.Text}
         {#each item.data.split(/(\n)/g) as part}
             {#if part === "\n"}

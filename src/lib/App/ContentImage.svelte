@@ -7,27 +7,28 @@
     export let alt: string = null;
 
     let predictions: Predictions = null;
-
-    let loading = true;
-
     const classify = promiseQueue(async (value: EventTarget) => {
         predictions = await classifyImage(value as any);
     });
 
-    $: blur = loading || (predictions?.topPrediction.className !== "Neutral" && predictions?.topPrediction.className !== "Drawing");
+
+    let loading = true;
+    let show = false;
+    $: blur = !show && (loading || (predictions?.topPrediction.className !== "Neutral" && predictions?.topPrediction.className !== "Drawing"));
 </script>
 
 <div
+    on:click={() => (show = !show)}
     class="image-ai"
     class:blur
-    title={predictions?.predictionsArray.map((prediction) => `${prediction.className} - ${(prediction.probability * 100).toFixed(0)}`).join("\n") ??
+    title={predictions?.predictionsArray.map((prediction) => `${prediction.className} - ${(prediction.probability * 100).toFixed(0)}%`).join("\n") ??
         ""}
 >
     <img
         width="100%"
         height="100%"
-        on:loadstart={() => (loading = true)}
-        on:load={() => loading = false}
+        on:loadstart={() => {loading = true; show = false}}
+        on:load={() => (loading = false)}
         on:load={(e) => classify(e.target)}
         {src}
         {alt}
@@ -58,9 +59,10 @@
 
     .image-ai {
         overflow: hidden;
+        cursor: pointer;
     }
 
     .blur img {
-        filter: blur(.75em);
+        filter: blur(0.75em);
     }
 </style>
