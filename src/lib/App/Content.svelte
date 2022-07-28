@@ -1,11 +1,11 @@
 <script lang="ts">
-import { currentRoute } from "$/routes/_routing";
-
+    import { currentRoute } from "$/routes/_routing";
     import { ipfsClient } from "$/tools/ipfs/client";
     import type { PostContentData } from "$/utils/content";
     import { ContentType } from "$/utils/content";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
     import AvatarOf from "./AvatarOf.svelte";
+    import ImageAi from "./ImageAI.svelte";
     import NicknameOf from "./NicknameOf.svelte";
     import ProfileMiniCard from "./ProfileMiniCard.svelte";
 
@@ -27,11 +27,11 @@ import { currentRoute } from "$/routes/_routing";
     {:else if item.type === ContentType.IpfsLink}
         <a target="_blank" href={$ipfsClient.toURL(item.data)}>{item.data}</a>
     {:else if item.type === ContentType.IpfsImage}
-        <div class="image">
-            <a target="_blank" href={$ipfsClient.toURL(item.data)}>
-                <img alt={item.data} src={$ipfsClient.toURL(item.data)} />
-            </a>
-        </div>
+        <a target="_blank" href={$ipfsClient.toURL(item.data)}>
+            <div class="image">
+                <ImageAi alt={item.data} src={$ipfsClient.toURL(item.data)} />
+            </div>
+        </a>
     {:else if item.type === ContentType.Text}
         {#each item.data.split(/(\n)/g) as part}
             {#if part === "\n"}
@@ -45,22 +45,13 @@ import { currentRoute } from "$/routes/_routing";
 {/each}
 
 <style>
-    img {
-        min-width: 10rem;
-        min-height: 10rem;
-        height: 15rem;
-        object-fit: contain;
-        object-position: left;
-        background-color: var(--k-color-mode);
-        overflow: hidden;
-    }
-
     .image {
         display: grid;
-        justify-content: start;
-        grid-template-columns: auto;
-        grid-template-rows: auto;
+        justify-content: stretch;
+        align-content: stretch;
         padding: var(--k-padding);
+        width: 20em;
+        aspect-ratio: 16/9;
     }
 
     .profile-inline {
@@ -81,6 +72,8 @@ import { currentRoute } from "$/routes/_routing";
     }
 
     a {
+        display: inline-block;
         color: var(--k-color-master);
+        width: auto;
     }
 </style>
