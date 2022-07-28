@@ -17,7 +17,6 @@ declare module nsfwjs
 
 export interface Predictions
 {
-    topPrediction: nsfwjs.Prediction
     predictions: Record<nsfwjs.Prediction['className'], nsfwjs.Prediction>
     predictionsArray: nsfwjs.Prediction[]
 }
@@ -30,7 +29,6 @@ export async function classifyImage(img: HTMLImageElement): Promise<Predictions>
     const predictions = await nsfwModel.classify(img)
 
     return {
-        topPrediction: predictions[0],
         predictions: Object.fromEntries(predictions.map((prediction) => [prediction.className, prediction])) as any,
         predictionsArray: predictions
     }

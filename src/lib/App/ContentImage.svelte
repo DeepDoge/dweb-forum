@@ -11,10 +11,11 @@
         predictions = await classifyImage(value as any);
     });
 
-
     let loading = true;
     let show = false;
-    $: blur = !show && (loading || (predictions?.topPrediction.className !== "Neutral" && predictions?.topPrediction.className !== "Drawing"));
+    const dangerClassNames: (keyof Predictions["predictions"])[] = ["Hentai", "Porn", "Sexy"];
+    $: nsfw = predictions && dangerClassNames.some((className) => predictions.predictions[className].probability >= 0.6) && predictions.predictions.Neutral.probability < 0.2;
+    $: blur = !show && (loading || !predictions || nsfw);
 </script>
 
 <div
@@ -27,7 +28,10 @@
     <img
         width="100%"
         height="100%"
-        on:loadstart={() => {loading = true; show = false}}
+        on:loadstart={() => {
+            loading = true;
+            show = false;
+        }}
         on:load={() => (loading = false)}
         on:load={(e) => classify(e.target)}
         {src}
@@ -42,12 +46,19 @@
 </div>
 
 <style>
+    .image-ai {
+        display: grid;
+        place-content: center;
+        overflow: hidden;
+        cursor: pointer;
+        background-color: #000;
+    }
+
     img {
-        width: 100%;
+        width: auto;
         height: 100%;
         object-fit: contain;
         object-position: center;
-        background-color: #000;
     }
 
     .spinner {
@@ -55,11 +66,6 @@
         inset: 0;
         display: grid;
         place-content: center;
-    }
-
-    .image-ai {
-        overflow: hidden;
-        cursor: pointer;
     }
 
     .blur img {
