@@ -19,7 +19,3 @@ This is a Web3 + IPFS based forum, or social media, or how ever you wanna call i
 ![](https://bafybeib7nnvsb6xn5xaqmic75ud6efvdxuct77zl254e3wbkj2xxzgklku.ipfs.infura-ipfs.io) 
 
 I was using event logs to store posts before, but decided its not the right way. Even thought it was spending less GAS
-
-# TODO
-- Also in the final product there will be a settings page to change, add readonly json rpc providers. So users can choose to use different providers or their own local node etc.
-- IMPORTANT, client side AI with TensorFlow.js or similar, that classifys images. maybe text later too. And blur the nsfw content based on the user configuration. 
