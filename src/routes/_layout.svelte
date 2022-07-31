@@ -16,8 +16,8 @@
 
     let searchInput: string;
     async function search() {
-        if (searchInput.startsWith("#")) location.hash = searchInput.toLowerCase();
-        if (ethers.utils.isAddress(searchInput)) location.hash = `#${searchInput}`;
+        if (searchInput.startsWith("#")) location.hash = `#${$currentRoute.chainId}${searchInput.toLowerCase()}`;
+        if (ethers.utils.isAddress(searchInput)) location.hash = `#${$currentRoute.chainId}#${searchInput}`;
     }
 </script>
 

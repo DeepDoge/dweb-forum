@@ -5,20 +5,39 @@
 
     export let src: string = null;
     export let alt: string = null;
+    export let fit: "contain" | "cover" = "contain";
+    export let hide = false;
 
     let predictions: Predictions = null;
-    const classify = promiseQueue(async (value: EventTarget) => {
-        predictions = await classifyImage(value as any);
+    $: classify(src);
+    const classify = promiseQueue(async (value: typeof src) => {
+        processing = true;
+        show = false;
+        const image = new Image(720, 720);
+        image.src = value;
+        image.style.objectFit = "contain";
+        image.crossOrigin = "anonymous";
+        document.head.appendChild(image);
+        await new Promise((r) => image.addEventListener("load", r, { once: true }));
+        predictions = await classifyImage(image);
+        image.remove();
+        processing = false;
     });
 
-    let loading = true;
+    let imageLoading = true;
+    let processing = true;
+    $: loading = processing || imageLoading;
     let show = false;
-    const dangerClassNames: (keyof Predictions["predictions"])[] = ["Hentai", "Porn", "Sexy"];
     $: nsfw =
         predictions &&
-        dangerClassNames.some((className) => predictions.predictions[className].probability >= 0.6) &&
-        predictions.predictions.Neutral.probability < 0.2;
-    $: blur = !show && (loading || !predictions || nsfw);
+        predictions.predictions.Neutral.probability < 0.07 &&
+        (predictions.predictions.Porn.probability >= 0.6 ||
+            predictions.predictions.Sexy.probability >= 0.75 ||
+            predictions.predictions.Hentai.probability >= 0.6 ||
+            predictions.predictions.Porn.probability + predictions.predictions.Sexy.probability + predictions.predictions.Hentai.probability >= 0.8);
+    $: blur = (hide || !show) && (loading || !predictions || nsfw);
+
+    $: text = nsfw && blur ? "NSFW" : null;
 </script>
 
 <div
@@ -28,50 +47,68 @@
     title={predictions?.predictionsArray.map((prediction) => `${prediction.className} - ${(prediction.probability * 100).toFixed(0)}%`).join("\n") ??
         ""}
 >
-    <img
-        width="100%"
-        height="100%"
-        on:loadstart={() => {
-            loading = true;
-            show = false;
-        }}
-        on:load={() => (loading = false)}
-        on:load={(e) => classify(e.target)}
-        {src}
-        {alt}
-        crossorigin="anonymous"
-    />
-    {#if loading}
-        <div class="spinner">
+    <div class="image-wrapper">
+        {#key src}
+            <img
+                on:loadstart={() => (imageLoading = true)}
+                on:load={() => setTimeout(() => (imageLoading = false), 500)}
+                style:--fit={fit}
+                {src}
+                {alt}
+            />
+        {/key}
+    </div>
+    <div class="overlay">
+        {#if loading}
             <KSpinner />
-        </div>
-    {/if}
+        {:else if text}
+            <div class="text">
+                {text}
+            </div>
+        {/if}
+    </div>
 </div>
 
 <style>
     .image-ai {
+        width: 100%;
+        height: 100%;
         display: grid;
-        place-content: center;
-        overflow: hidden;
+        place-items: stretch;
         cursor: pointer;
+    }
+
+    .image-wrapper {
+        width: 100%;
+        height: 100%;
         background-color: #000;
     }
 
+    .text {
+        background-color: rgba(255, 255, 255, 0.6);
+        border-radius: var(--k-border-radius-rounded);
+        padding: calc(var(--k-padding) * 2) calc(var(--k-padding) * 4);
+        color: rgb(114, 114, 114);
+        font-weight: bold;
+        font-size: 47%;
+    }
+
     img {
-        width: auto;
+        width: 100%;
         height: 100%;
-        object-fit: contain;
+        object-fit: var(--fit);
         object-position: center;
     }
 
-    .spinner {
+    .blur img {
+        filter: blur(0.75rem);
+    }
+
+    .overlay {
         position: absolute;
         inset: 0;
         display: grid;
         place-content: center;
-    }
-
-    .blur img {
-        filter: blur(0.75em);
+        pointer-events: none;
     }
 </style>

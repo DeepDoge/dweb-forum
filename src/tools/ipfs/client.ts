@@ -23,11 +23,11 @@ interface Config
 export const ipfsConfigs: Writable<Config[]> = writable([
     {
         api: 'http://127.0.0.1:5001',
-        gateway: 'http://127.0.0.1:8080/ipfs/'
+        gateway: 'http://127.0.0.1:8080/'
     },
     {
         api: 'https://ipfs.infura.io:5001',
-        gateway: 'https://ipfs.infura.io/ipfs/'
+        gateway: 'https://ipfs.infura-ipfs.io/'
     }
 ])
 export const ipfsClient: Readable<Client> = readable(null, (set) => ipfsConfigs.subscribe((configs) => onIpfsAPIsUpdate(set, configs)))
@@ -46,8 +46,9 @@ const onIpfsAPIsUpdate = promiseQueue(async (set: Subscriber<Client>, configs: C
                 config,
                 toURL(hash)
                 {
-                    hash = new CID(hash).toV0().toString()
-                    return `${config.gateway}${hash}`
+                    hash = new CID(hash).toV1().toString('base32')
+                    const url = new URL(config.gateway)
+                    return `${url.protocol}//${hash}.${url.host}`
                 },
                 async getBytes(hash)
                 {

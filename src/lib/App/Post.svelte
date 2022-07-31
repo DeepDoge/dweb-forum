@@ -145,11 +145,6 @@ import { currentRoute } from "$/routes/_routing";
         transition-property: transform;
     }
 
-    .post.limit-height .content {
-        max-height: 25em;
-        overflow: hidden;
-    }
-
     /*  .post:hover {
         transform: translateY(-0.1rem) scale(1.005);
     } disabled because cancels z-index */

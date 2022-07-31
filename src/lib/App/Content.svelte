@@ -5,14 +5,21 @@
     import { ContentType } from "$/utils/content";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
     import AvatarOf from "./AvatarOf.svelte";
-    import ContentImage from "./ContentImage.svelte";
+    import ContentGallery from "./ContentGallery.svelte";
+    import type ContentImage from "./ContentImage.svelte";
     import NicknameOf from "./NicknameOf.svelte";
     import ProfileMiniCard from "./ProfileMiniCard.svelte";
 
     export let content: PostContentData;
+
+    $: items = content?.items.filter((item) => item.type !== ContentType.IpfsImage);
+    let imageItems: ContentImage["$$prop_def"][];
+    $: imageItems = content?.items
+        .filter((item) => item.type === ContentType.IpfsImage)
+        .map((item) => ({ src: $ipfsClient.toURL(item.data), alt: item.data }));
 </script>
 
-{#each content?.items ?? [] as item, i (i)}
+{#each items ?? [] as item, i (i)}
     {" "}
     {#if item.type === ContentType.Mention}
         <a data-address={content.mentions[item.data]} class="profile-inline" href="#{$currentRoute.chainId}#{content.mentions[item.data]}">
@@ -26,10 +33,6 @@
         </a>
     {:else if item.type === ContentType.IpfsLink}
         <a target="_blank" href={$ipfsClient.toURL(item.data)}>{item.data}</a>
-    {:else if item.type === ContentType.IpfsImage}
-        <div class="image">
-            <ContentImage alt={item.data} src={$ipfsClient.toURL(item.data)} />
-        </div>
     {:else if item.type === ContentType.Text}
         {#each item.data.split(/(\n)/g) as part}
             {#if part === "\n"}
@@ -41,17 +44,11 @@
     {/if}
     {" "}
 {/each}
+{#if imageItems?.length > 0}
+    <ContentGallery items={imageItems} />
+{/if}
 
 <style>
-    .image {
-        display: grid;
-        justify-content: stretch;
-        align-content: stretch;
-        padding: var(--k-padding);
-        width: 20em;
-        aspect-ratio: 16/9;
-    }
-
     .profile-inline {
         display: inline-grid;
         grid-template-columns: 1.5ch auto;
