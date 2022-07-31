@@ -21,7 +21,7 @@
         <div class="items">
             {#each previewItems as item, i}
                 <div class="item" on:click={() => show(i)}>
-                    <ContentImage hide fit="cover" {...item} />
+                    <ContentImage hide cover {...item} />
                 </div>
             {/each}
         </div>
@@ -35,7 +35,7 @@
             <div class="items">
                 {#each items as item, i}
                     <div class="item" on:click={() => show(i)}>
-                        <ContentImage hide fit="cover" {...item} />
+                        <ContentImage hide cover {...item} />
                     </div>
                 {/each}
             </div>
@@ -92,6 +92,8 @@
     }
 
     .modal .scroll {
+        display: grid;
+        justify-content: center;
         grid-area: items;
         overflow-x: auto;
         overflow-y: hidden;
@@ -99,8 +101,7 @@
 
     .modal .items {
         display: flex;
-        justify-content: center;
-        height: 100%;
+        justify-content: start;
         gap: calc(var(--k-padding));
     }
 

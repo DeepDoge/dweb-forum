@@ -5,7 +5,7 @@
 
     export let src: string = null;
     export let alt: string = null;
-    export let fit: "contain" | "cover" = "contain";
+    export let cover = false
     export let hide = false;
 
     let predictions: Predictions = null;
@@ -30,11 +30,8 @@
     let show = false;
     $: nsfw =
         predictions &&
-        predictions.predictions.Neutral.probability < 0.07 &&
-        (predictions.predictions.Porn.probability >= 0.6 ||
-            predictions.predictions.Sexy.probability >= 0.75 ||
-            predictions.predictions.Hentai.probability >= 0.6 ||
-            predictions.predictions.Porn.probability + predictions.predictions.Sexy.probability + predictions.predictions.Hentai.probability >= 0.8);
+        ((predictions.predictionsArray[0].className === "Sexy" && predictions.predictions.Neutral.probability < 0.05) ||
+            ["Porn", "Hentai"].some((name) => predictions.predictionsArray[0].className === name));
     $: blur = (hide || !show) && (loading || !predictions || nsfw);
 
     $: text = nsfw && blur ? "NSFW" : null;
@@ -43,6 +40,7 @@
 <div
     on:click={() => (show = !show)}
     class="image-ai"
+    class:cover
     class:blur
     title={predictions?.predictionsArray.map((prediction) => `${prediction.className} - ${(prediction.probability * 100).toFixed(0)}%`).join("\n") ??
         ""}
@@ -52,7 +50,6 @@
             <img
                 on:loadstart={() => (imageLoading = true)}
                 on:load={() => setTimeout(() => (imageLoading = false), 500)}
-                style:--fit={fit}
                 {src}
                 {alt}
             />
@@ -73,31 +70,36 @@
     .image-ai {
         width: 100%;
         height: 100%;
-        display: grid;
-        place-items: stretch;
         cursor: pointer;
-    }
-
-    .image-wrapper {
-        width: 100%;
-        height: 100%;
-        background-color: #000;
+        background-color: transparent;
         overflow: hidden;
     }
 
-    .text {
-        background-color: rgba(255, 255, 255, 0.6);
-        border-radius: var(--k-border-radius-rounded);
-        padding: calc(var(--k-padding) * 2) calc(var(--k-padding) * 4);
-        color: rgb(114, 114, 114);
-        font-weight: bold;
-        font-size: 47%;
+    .image-wrapper {
+        display: inline-block;
+        background-color: black;
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .image-wrapper {
+        margin-left: 50%;
+        transform: translate(-50%, 0);
     }
 
     img {
-        width: 100%;
+        width: auto;
         height: 100%;
-        object-fit: var(--fit);
+    }
+
+    .cover .image-wrapper {
+        display: grid;
+        width: 100%;
+        place-items: stretch;
+    }
+
+    .cover img {
+        object-fit: cover;
         object-position: center;
     }
 
@@ -111,5 +113,14 @@
         display: grid;
         place-content: center;
         pointer-events: none;
+    }
+
+    .text {
+        background-color: rgba(255, 255, 255, 0.6);
+        border-radius: var(--k-border-radius-rounded);
+        padding: calc(var(--k-padding) * 2) calc(var(--k-padding) * 4);
+        color: rgb(114, 114, 114);
+        font-weight: bold;
+        font-size: 47%;
     }
 </style>
