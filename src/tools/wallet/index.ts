@@ -28,7 +28,7 @@ const web3Provider = (window as any).ethereum ? new ethers.providers.Web3Provide
 const defaultChainId = defaultChainOptions.Polygon.chainId
 if (!get(currentRoute).chainId) 
 {
-    location.replace(`#${web3Provider?.network.chainId ?? parseInt(defaultChainId, 16)}`)
+    location.replace(`#${web3Provider?.network?.chainId ?? parseInt(defaultChainId, 16)}`)
     location.reload()
 }
 export const currentChainOption = chainOptionsByChainId[ethers.utils.hexValue(get(currentRoute).chainId) ?? defaultChainId] ?? chainOptionsByChainId[defaultChainId]

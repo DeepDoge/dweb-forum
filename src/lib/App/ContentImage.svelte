@@ -77,7 +77,6 @@
 
     .image-wrapper {
         display: inline-block;
-        background-color: black;
         overflow: hidden;
         height: 100%;
     }
@@ -89,7 +88,9 @@
 
     img {
         width: auto;
+        max-width: 95vw;
         height: 100%;
+        object-fit: contain;
     }
 
     .cover .image-wrapper {

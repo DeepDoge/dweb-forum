@@ -26,23 +26,24 @@
             {/each}
         </div>
     </div>
-    <KOverlay size="100%" bind:active={modalActive} align="stretch" justify="center">
-        <div class="modal">
-            <div class="selected">
-                <ContentImage {...selectedItem} />
-            </div>
-            <div class="scroll">
-            <div class="items">
-                {#each items as item, i}
-                    <div class="item" on:click={() => show(i)}>
-                        <ContentImage hide cover {...item} />
-                    </div>
-                {/each}
-            </div>
-        </div>
-        </div>
-    </KOverlay>
 </div>
+
+<KOverlay size="100%" bind:active={modalActive} align="stretch" justify="center">
+    <div class="modal">
+        <div class="selected">
+            <ContentImage {...selectedItem} />
+        </div>
+        <div class="scroll">
+        <div class="items">
+            {#each items as item, i}
+                <div class="item" on:click={() => show(i)}>
+                    <ContentImage hide cover {...item} />
+                </div>
+            {/each}
+        </div>
+    </div>
+    </div>
+</KOverlay>
 
 <style>
     .preview .items {
@@ -56,6 +57,9 @@
     }
 
     .preview .item {
+        width: 100%;
+        height: 100%; /* so it always fill the space even if the image is not loaded yet */
+
         border-radius: var(--k-border-radius);
         overflow: hidden;
     }
@@ -107,7 +111,7 @@
 
     .modal .item {
         display: inline-block;
-        width: 5em;
+        width: min(5em, calc(100vw / 2.5));
         flex-shrink: 0;
         height: 100%;
         display: grid;
