@@ -1,0 +1,2 @@
+- KOverlay should append at the bottom of the body
+- ContentGallery modal should have a route, so people can go back on mobile or share it's link
