@@ -34,7 +34,7 @@
     {:else if item.type === ContentType.IpfsLink}
         <a target="_blank" href={$ipfsClient.toURL(item.data)}>{item.data}</a>
     {:else if item.type === ContentType.Text}
-        {#each item.data.split(/(\n)/g) as part}
+        {#each item.data.trim().split(/(\n)/g) as part}
             {#if part === "\n"}
                 <br />
             {:else}
@@ -45,6 +45,8 @@
     {" "}
 {/each}
 {#if imageItems?.length > 0}
+    <br />
+    <br />
     <ContentGallery items={imageItems} />
 {/if}
 

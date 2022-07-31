@@ -23,11 +23,12 @@ export const chainOptionsByChainId = Object.freeze(
 )
 
 const state: Writable<'ready' | 'loading' | 'connecting' | 'notConnected' | 'wrongNetwork'> = writable('notConnected')
+const web3Provider = (window as any).ethereum ? new ethers.providers.Web3Provider((window as any).ethereum) : null
 
 const defaultChainId = defaultChainOptions.Polygon.chainId
 if (!get(currentRoute).chainId) 
 {
-    location.replace(`#${parseInt(defaultChainId, 16)}`)
+    location.replace(`#${web3Provider?.network.chainId ?? parseInt(defaultChainId, 16)}`)
     location.reload()
 }
 export const currentChainOption = chainOptionsByChainId[ethers.utils.hexValue(get(currentRoute).chainId) ?? defaultChainId] ?? chainOptionsByChainId[defaultChainId]
@@ -35,7 +36,7 @@ export const currentChainOption = chainOptionsByChainId[ethers.utils.hexValue(ge
 let account: string = null
 let provider: Web3Provider | JsonRpcProvider = null
 
-const web3Provider = (window as any).ethereum ? new ethers.providers.Web3Provider((window as any).ethereum) : null
+
 const ethProvider = new ethers.providers.JsonRpcProvider(
     defaultChainOptions.Ethereum.rpcUrls[0],
     {

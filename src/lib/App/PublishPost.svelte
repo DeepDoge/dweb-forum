@@ -33,7 +33,7 @@ import { getPostData,packTimelineId,TimelineGroup,TimelineId } from "$/tools/api
                 contentText,
                 BigNumber.from(timelineId.group).eq(TimelineGroup.Replies)
                     ? [get(await getPostData(BigNumber.from(timelineId.key))).owner].filter(
-                          (mention) => mention.toLowerCase() !== wallet.account
+                          (mention) => mention.toLowerCase() !== wallet.account.toLowerCase()
                       )
                     : []
             );
