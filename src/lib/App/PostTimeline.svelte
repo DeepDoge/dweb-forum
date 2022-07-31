@@ -1,4 +1,6 @@
 <script lang="ts">
+import { currentRoute } from "$/routes/_routing";
+
     import { Feed, getPostRoot, PostId, TimelineGroup } from "$/tools/api/feed";
     import { bigNumberAsUtf8 } from "$/utils/bytes";
     import { promiseQueue } from "$/utils/common/promiseQueue";
@@ -45,7 +47,7 @@
                     <svelte:fragment slot="before" let:postData>
                         {#if postData?.timelineGroup.eq(TimelineGroup.Topics)}
                             <div class="topic-button">
-                                <KButton size="normal" color="master" href="#{bigNumberAsUtf8(postData.timelineKey)}">
+                                <KButton size="normal" color="master" href="#{$currentRoute.chainId}#{bigNumberAsUtf8(postData.timelineKey)}">
                                     #{bigNumberAsUtf8(postData.timelineKey)}
                                 </KButton>
                                 <div>⌄</div>
