@@ -11,6 +11,7 @@
     import ProfileMiniCard from "./ProfileMiniCard.svelte";
 
     export let content: PostContentData;
+    export let limitHeight = false
 
     $: items = content?.items.filter((item) => item.type !== ContentType.IpfsImage);
     let imageItems: ContentImage["$$prop_def"][];
@@ -19,38 +20,61 @@
         .map((item) => ({ src: $ipfsClient.toURL(item.data), alt: item.data }));
 </script>
 
-{#each items ?? [] as item, i (i)}
-    {" "}
-    {#if item.type === ContentType.Mention}
-        <a data-address={content.mentions[item.data]} class="profile-inline" href="#{$currentRoute.chainId}#{content.mentions[item.data]}">
-            <AvatarOf address={content.mentions[item.data]} />
-            <div class="no-select">
-                <NicknameOf address={content.mentions[item.data]} />
-                <KHoverMenu background>
-                    <ProfileMiniCard address={content.mentions[item.data]} />
-                </KHoverMenu>
-            </div>
-        </a>
-    {:else if item.type === ContentType.IpfsLink}
-        <a target="_blank" href={$ipfsClient.toURL(item.data)}>{item.data}</a>
-    {:else if item.type === ContentType.Text}
-        {#each item.data.trim().split(/(\n)/g) as part}
-            {#if part === "\n"}
-                <br />
-            {:else}
-                {part}
+<div class="content" class:limit-height={limitHeight}>
+    <div class="text">
+        {#each items ?? [] as item, i (i)}
+            {" "}
+            {#if item.type === ContentType.Mention}
+                <a data-address={content.mentions[item.data]} class="profile-inline" href="#{$currentRoute.chainId}#{content.mentions[item.data]}">
+                    <AvatarOf address={content.mentions[item.data]} />
+                    <div class="no-select">
+                        <NicknameOf address={content.mentions[item.data]} />
+                        <KHoverMenu background>
+                            <ProfileMiniCard address={content.mentions[item.data]} />
+                        </KHoverMenu>
+                    </div>
+                </a>
+            {:else if item.type === ContentType.IpfsLink}
+                <a target="_blank" href={$ipfsClient.toURL(item.data)}>{item.data}</a>
+            {:else if item.type === ContentType.Text}
+                {#each item.data.trim().split(/(\n)/g) as part}
+                    {#if part === "\n"}
+                        <br />
+                    {:else}
+                        {part}
+                    {/if}
+                {/each}
+            {:else if item.type === ContentType.Error}
+                {#each item.data.trim().split(/(\n)/g) as part}
+                    {#if part === "\n"}
+                        <br />
+                    {:else}
+                        <span class="error">{part}</span>
+                    {/if}
+                {/each}
             {/if}
+            {" "}
         {/each}
+    </div>
+
+    {#if imageItems?.length > 0}
+        <div class="media">
+            <ContentGallery items={imageItems} />
+        </div>
     {/if}
-    {" "}
-{/each}
-{#if imageItems?.length > 0}
-    <br />
-    <br />
-    <ContentGallery items={imageItems} />
-{/if}
+</div>
 
 <style>
+    .content {
+        display: grid;
+        gap: calc(var(--k-padding) * 4);
+    }
+
+    .limit-height .text {
+        max-height: calc(19.5em);
+        overflow: hidden;
+    }
+
     .profile-inline {
         display: inline-grid;
         grid-template-columns: 1.5ch auto;
@@ -72,5 +96,9 @@
         display: inline-block;
         color: var(--k-color-master);
         width: auto;
+    }
+
+    .error {
+        color: var(--k-color-error);
     }
 </style>

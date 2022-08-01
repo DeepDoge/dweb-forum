@@ -10,7 +10,8 @@ export const enum ContentType
     Text,
     Mention,
     IpfsLink,
-    IpfsImage
+    IpfsImage,
+    Error
 }
 
 export interface PostContentData

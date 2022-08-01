@@ -93,6 +93,7 @@
 
     .modal .selected {
         grid-area: selected;
+        min-width: 2em; /* this is to make loading spinner visible */
     }
 
     .modal .scroll {

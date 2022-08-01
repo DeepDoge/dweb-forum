@@ -1,10 +1,9 @@
 <script lang="ts">
-import { currentRoute } from "$/routes/_routing";
-
-    import { getPostData,getTimelineInfo,PostData,PostId,TimelineGroup } from "$/tools/api/feed";
-    import { bigNumberAsUtf8,bytes32ToIpfsHash,hexToBytes } from "$/utils/bytes";
+    import { currentRoute } from "$/routes/_routing";
+    import { getPostData, getTimelineInfo, PostData, PostId, TimelineGroup } from "$/tools/api/feed";
+    import { bigNumberAsUtf8, bytes32ToIpfsHash, hexToBytes, hexToUtf8 } from "$/utils/bytes";
     import { promiseQueue } from "$/utils/common/promiseQueue";
-    import { decodePostContentItems,getPostContentItemsDataFromIpfs,PostContentData } from "$/utils/content";
+    import { ContentType, decodePostContentItems, getPostContentItemsDataFromIpfs, PostContentData } from "$/utils/content";
     import { second } from "$/utils/second";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KChip from "$lib/kicho-ui/components/KChip.svelte";
@@ -42,23 +41,40 @@ import { currentRoute } from "$/routes/_routing";
         await Promise.all([
             (async () => {
                 postData = await getPostData(postId);
-                await Promise.all([
-                    (async () => {
-                        const contentBytes = hexToBytes($postData.data);
-                        postContent = $postData
-                            ? {
-                                  items:
-                                      contentBytes[0] === 0
-                                          ? await getPostContentItemsDataFromIpfs(bytes32ToIpfsHash(contentBytes.subarray(1)))
-                                          : decodePostContentItems(contentBytes),
-                                  mentions: $postData.mentions,
-                              }
-                            : null;
-                    })(),
-                    (async () => {
-                        if ($postData.timelineGroup.eq(TimelineGroup.Replies)) parentPostData = await getPostData($postData.timelineKey);
-                    })(),
-                ]);
+                postContent = null;
+                parentPostData = null;
+
+                if ($postData) {
+                    await Promise.all([
+                        (async () => {
+                            try {
+                                const contentBytes = hexToBytes($postData.data);
+                                postContent = {
+                                    items:
+                                        contentBytes[0] === 0
+                                            ? await getPostContentItemsDataFromIpfs(bytes32ToIpfsHash(contentBytes.subarray(1)))
+                                            : decodePostContentItems(contentBytes),
+                                    mentions: $postData.mentions,
+                                };
+                            } catch {
+                                postContent = {
+                                    items: [
+                                        {
+                                            type: ContentType.Error,
+                                            data: `Failed to decode post:\n${$postData.data}\n${hexToUtf8($postData.data)}`,
+                                        },
+                                    ],
+                                    mentions: [],
+                                };
+                            }
+                        })(),
+                        (async () => {
+                            if ($postData.timelineGroup.eq(TimelineGroup.Replies)) {
+                                parentPostData = await getPostData($postData.timelineKey);
+                            }
+                        })(),
+                    ]);
+                }
             })(),
             (async () => (repliesTimelineLength = (await getTimelineInfo({ group: TimelineGroup.Replies, key: postId })).length))(),
         ]);
@@ -71,7 +87,7 @@ import { currentRoute } from "$/routes/_routing";
 
 <slot name="before" postData={$postData} />
 <article>
-    <div class="post" class:limit-height={!fullHeight}>
+    <div class="post">
         <KBoxEffect color="mode" radius="rounded" background {loading} hideContent={loading} glow={selected ? "master" : false} {...$$props}>
             <div class="inner">
                 <div class="profile">
@@ -80,7 +96,7 @@ import { currentRoute } from "$/routes/_routing";
                     </div>
                     <a href="#{$currentRoute.chainId}#{$postData?.owner}" class="nickname">
                         <NicknameOf address={$postData?.owner} />
-<!--                         <KHoverMenu background>
+                        <!--                         <KHoverMenu background>
                             <ProfileMiniCard address={$postData?.owner} />
                         </KHoverMenu> -->
                     </a>
@@ -106,9 +122,13 @@ import { currentRoute } from "$/routes/_routing";
                         <KChip color="mode-pop">@{$postData?.postId}</KChip>
                     </div>
                 </div>
-                <a class="content k-text-multiline" draggable={selected ? 'false' : 'true'} href={postId ? `#${$currentRoute.chainId}#${$currentRoute.path}#${postId}` : null}>
+                <a
+                    class="content k-text-multiline"
+                    draggable={selected ? "false" : "true"}
+                    href={postId ? `#${$currentRoute.chainId}#${$currentRoute.path}#${postId}` : null}
+                >
                     {#if postContent}
-                        <Content content={postContent} />
+                        <Content limitHeight={!fullHeight} content={postContent} />
                     {:else}
                         ...
                     {/if}
@@ -144,10 +164,6 @@ import { currentRoute } from "$/routes/_routing";
         transition: var(--k-transition);
         transition-property: transform;
     }
-
-    /*  .post:hover {
-        transform: translateY(-0.1rem) scale(1.005);
-    } disabled because cancels z-index */
 
     .post .inner {
         display: grid;

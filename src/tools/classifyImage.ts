@@ -21,7 +21,16 @@ export interface Predictions
     predictionsArray: nsfwjs.Prediction[]
 }
 
-const nsfwModelPromise = nsfwjs.load()
+const nsfwModelPromise = (async () => {
+    while (true)
+    {
+        try {
+            return await nsfwjs.load()
+        } catch (error) {
+            await new Promise((r) => setTimeout(r, 1500))
+        }
+    }
+})() 
 
 export async function classifyImage(img: HTMLImageElement): Promise<Predictions>
 {
