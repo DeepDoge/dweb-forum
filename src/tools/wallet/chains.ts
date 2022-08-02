@@ -1,8 +1,8 @@
-import { BigNumber, ethers } from "ethers"
-import ethereumImage from '$/assets/ethereum.svg'
+import avalancheLogo from '$/assets/avalanche.svg'
+import ethereumLogo from '$/assets/ethereum.svg'
+import optimismLogo from '$/assets/optimism.svg'
 import polygonImage from '$/assets/polygon.svg'
-import avalancheImage from '$/assets/avalanche.svg'
-import optimismImage from '$/assets/optimism.svg'
+import { BigNumber, ethers } from "ethers"
 
 export interface JsonRpcProviderConfig
 {
@@ -33,8 +33,17 @@ export const defaultChainOptions = Object.freeze({
         nativeCurrency: { name: 'ETH', decimals: 18, symbol: 'ETH' },
         rpcUrls: ['https://cloudflare-eth.com'],
         blockExplorerUrls: ['https://etherscan.io'],
-        themeColor: '#647ae7',
-        iconSrc: ethereumImage
+        themeColor: '#627EEA',
+        iconSrc: ethereumLogo
+    }),
+    EthereumClassic: createChainOption({
+        chainName: 'Ethereum Classic',
+        chainId: ethers.utils.hexValue(61),
+        nativeCurrency: { name: 'ETC', decimals: 18, symbol: 'ETC' },
+        rpcUrls: ['https://www.ethercluster.com/etc'],
+        blockExplorerUrls: ['https://blockscout.com/etc/mainnet'],
+        themeColor: '#457f38',
+        iconSrc: ethereumLogo
     }),
     Polygon: createChainOption({
         chainName: 'Polygon Mainnet',
@@ -52,7 +61,7 @@ export const defaultChainOptions = Object.freeze({
         rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
         blockExplorerUrls: ['https://cchain.explorer.avax.network/'],
         themeColor: '#d74b4c',
-        iconSrc: avalancheImage
+        iconSrc: avalancheLogo
     }),
     Optimism: createChainOption({
         chainName: 'Optimism Mainnet',
@@ -61,6 +70,6 @@ export const defaultChainOptions = Object.freeze({
         rpcUrls: ['https://mainnet.optimism.io'],
         blockExplorerUrls: ['https://optimistic.etherscan.io'],
         themeColor: '#ff0028',
-        iconSrc: optimismImage
-    }) 
+        iconSrc: optimismLogo
+    })
 } as const)

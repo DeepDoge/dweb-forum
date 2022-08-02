@@ -31,6 +31,7 @@
         aspect-ratio: 1 / 1;
         background-image: var(--icon);
         background-size: contain;
+        background-repeat: no-repeat;
         background-position: center;
     }
 </style>

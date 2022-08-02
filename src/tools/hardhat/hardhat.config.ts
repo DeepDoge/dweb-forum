@@ -51,6 +51,10 @@ const config: HardhatUserConfig = {
       url: `https://polygon-rpc.com/`,
       accounts: [secrets.privateKey]
     },
+    classic: {
+      url: `https://www.ethercluster.com/etc`,
+      accounts: [secrets.privateKey]
+    },
     optimism: {
       url: 'https://mainnet.optimism.io',
       accounts: [secrets.privateKey]
