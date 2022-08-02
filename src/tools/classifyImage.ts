@@ -1,4 +1,4 @@
-declare module nsfwjs
+declare module nsfwjs // https://github.com/infinitered/nsfwjs
 {
     interface Model
     {
