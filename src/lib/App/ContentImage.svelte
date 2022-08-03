@@ -30,8 +30,8 @@
     let show = false;
     $: nsfw =
         predictions &&
-        ((predictions.predictionsArray[0].className === "Sexy" && predictions.predictions.Neutral.probability < 0.05) ||
-            ["Porn", "Hentai"].some((name) => predictions.predictionsArray[0].className === name));
+        ((predictions.array[0].className === "Sexy" && predictions.map.Neutral.probability < 0.05) ||
+            ["Porn", "Hentai"].some((name) => predictions.array[0].className === name));
     $: blur = (hide || !show) && (loading || !predictions || nsfw);
 
     $: text = nsfw && blur ? "NSFW" : null;
@@ -42,7 +42,7 @@
     class="image-ai"
     class:cover
     class:blur
-    title={predictions?.predictionsArray.map((prediction) => `${prediction.className} - ${(prediction.probability * 100).toFixed(0)}%`).join("\n") ??
+    title={predictions?.array.map((prediction) => `${prediction.className} - ${(prediction.probability * 100).toFixed(0)}%`).join("\n") ??
         ""}
 >
     <div class="image-wrapper">

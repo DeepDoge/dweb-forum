@@ -1,3 +1,5 @@
+import { createPromiseResultCacher, createTempStore } from "$/utils/common/store"
+
 declare module nsfwjs
 {
     interface Model
@@ -17,28 +19,51 @@ declare module nsfwjs
 
 export interface Predictions
 {
-    predictions: Record<nsfwjs.Prediction['className'], nsfwjs.Prediction>
-    predictionsArray: nsfwjs.Prediction[]
+    map: Record<nsfwjs.Prediction['className'], nsfwjs.Prediction>
+    array: nsfwjs.Prediction[]
 }
 
-const nsfwModelPromise = (async () => {
+const nsfwModelPromise = (async () =>
+{
     while (true)
     {
-        try {
+        try
+        {
             return await nsfwjs.load()
-        } catch (error) {
+        } catch (error)
+        {
             await new Promise((r) => setTimeout(r, 1500))
         }
     }
-})() 
+})()
 
+const imageClassCache = createPromiseResultCacher()
+const imageClassStore = createTempStore<nsfwjs.Prediction[]>('image-class')
 export async function classifyImage(img: HTMLImageElement): Promise<Predictions>
 {
-    const nsfwModel = await nsfwModelPromise
-    const predictions = await nsfwModel.classify(img)
+    return await imageClassCache.cache(img.src, async () =>
+    {
+        function toMap(predictions: nsfwjs.Prediction[])
+        {
+            return Object.fromEntries(predictions.map((prediction) => [prediction.className, prediction])) as any
+        }
 
-    return {
-        predictions: Object.fromEntries(predictions.map((prediction) => [prediction.className, prediction])) as any,
-        predictionsArray: predictions
-    }
+        const cache = await imageClassStore.get(img.src)
+        if (cache) return {
+            map: toMap(cache),
+            array: cache
+        }
+
+        const nsfwModel = await nsfwModelPromise
+        const predictions = await nsfwModel.classify(img)
+
+        const value: Predictions = {
+            map: toMap(predictions),
+            array: predictions
+        }
+
+        await imageClassStore.put(img.src, value.array)
+
+        return value 
+    })
 }
