@@ -1,10 +1,6 @@
-<<<<<<< HEAD
 import { createPromiseResultCacher, createTempStore } from "$/utils/common/store"
 
 declare module nsfwjs
-=======
-declare module nsfwjs // https://github.com/infinitered/nsfwjs
->>>>>>> 46a3499689d761ad2738cb5d0501a4a2d285ed37
 {
     interface Model
     {
