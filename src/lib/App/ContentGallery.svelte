@@ -16,11 +16,11 @@
     }
 </script>
 
-<div class="gallery" class:more={countText} style:--count-text="'{countText}'">
+<div class="gallery" class:more={countText} data-count={items.length} style:--count-text="'{countText}'">
     <div class="preview">
         <div class="items">
             {#each previewItems as item, i}
-                <div class="item" on:click={() => show(i)}>
+                <div class="item" style:grid-area="item-{i}" on:click={() => show(i)}>
                     <ContentImage hide cover {...item} />
                 </div>
             {/each}
@@ -51,9 +51,33 @@
         aspect-ratio: 16/9;
 
         display: grid;
-        --gap: var(--k-padding);
-        grid-template-columns: repeat(auto-fit, minmax(calc(50% - var(--gap)), 1fr));
-        gap: var(--gap);
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: var(--k-padding);
+    }
+
+    .preview .items {
+        grid-template-areas: 
+            "item-0 item-1"
+            "item-2 item-3";
+    }
+
+    [data-count="3"] .preview .items {
+        grid-template-areas: 
+            "item-0 item-2"
+            "item-1 item-2";
+    }
+
+    [data-count="2"] .preview .items {
+        grid-template-areas: 
+            "item-0 item-1"
+            "item-0 item-1";
+    }
+
+    [data-count="1"] .preview .items {
+        grid-template-areas: 
+            "item-0 item-0"
+            "item-0 item-0";
     }
 
     .preview .item {
