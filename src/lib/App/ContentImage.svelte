@@ -5,23 +5,36 @@
 
     export let src: string = null;
     export let alt: string = null;
-    export let cover = false
+    export let cover = false;
     export let hide = false;
 
     let predictions: Predictions = null;
     $: classify(src);
     const classify = promiseQueue(async (value: typeof src) => {
-        processing = true;
-        show = false;
-        const image = new Image(720, 720);
-        image.src = value;
-        image.style.objectFit = "contain";
-        image.crossOrigin = "anonymous";
-        document.head.appendChild(image);
-        await new Promise((r) => image.addEventListener("load", r, { once: true }));
-        predictions = await classifyImage(image);
-        image.remove();
-        processing = false;
+        try {
+            processing = true;
+            show = false;
+            const image = new Image(720, 720);
+            image.src = value;
+            image.style.objectFit = "contain";
+            image.crossOrigin = "anonymous";
+            document.head.appendChild(image);
+            await new Promise<void>((r, e) => {
+                const controller = new AbortController();
+                image.addEventListener("load", () => r(), { once: true, signal: controller.signal });
+                image.addEventListener(
+                    "error",
+                    () => {
+                        e();
+                        controller.abort();
+                    },
+                    { once: true }
+                );
+            });
+            predictions = await classifyImage(image);
+            image.remove();
+            processing = false;
+        } catch {}
     });
 
     let imageLoading = true;
@@ -42,17 +55,11 @@
     class="image-ai"
     class:cover
     class:blur
-    title={predictions?.array.map((prediction) => `${prediction.className} - ${(prediction.probability * 100).toFixed(0)}%`).join("\n") ??
-        ""}
+    title={predictions?.array.map((prediction) => `${prediction.className} - ${(prediction.probability * 100).toFixed(0)}%`).join("\n") ?? ""}
 >
     <div class="image-wrapper">
         {#key src}
-            <img
-                on:loadstart={() => (imageLoading = true)}
-                on:load={() => setTimeout(() => (imageLoading = false), 500)}
-                {src}
-                {alt}
-            />
+            <img on:loadstart={() => (imageLoading = true)} on:load={() => setTimeout(() => (imageLoading = false), 500)} {src} {alt} />
         {/key}
     </div>
     <div class="overlay">

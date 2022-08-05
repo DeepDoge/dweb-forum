@@ -1,5 +1,6 @@
 <script lang="ts">
     import ClaimName from "$lib/App/ClaimName.svelte";
+    import Settings from "$lib/App/Settings.svelte";
 
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KDialog, { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
@@ -32,6 +33,10 @@
 
     <KModalHashRoute hash="claim-name" hashOverride={$currentRoute.hash}>
         <ClaimName on:done={() => history.back()} />
+    </KModalHashRoute>
+
+    <KModalHashRoute hash="settings" hashOverride={$currentRoute.hash}>
+        <Settings />
     </KModalHashRoute>
 
     <KDialog dialogManager={globalDialogManager} />
