@@ -1,4 +1,4 @@
-- Settings modal
++ Settings modal
 + retry to load AI model if it fails
 + some text on top of nsfw blur saying NSFW, so its not just some blur, also saying Model is loading while the model is loading, because we keep it blured while also its loading
 + some picture grid gallery like on twitter, showing max 4 pics, others are showed as +1 23 4 5 etc, like on twitter
