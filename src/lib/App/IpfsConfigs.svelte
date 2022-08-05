@@ -54,7 +54,7 @@ import { globalEventNotificationManager } from "$lib/kicho-ui/components/KEventN
 
     .config {
         background-color: var(--k-color-mode);
-        padding: calc(var(--k-padding) * 2);
+        padding: calc(var(--k-padding) * 3.5);
         border-radius: var(--k-border-radius);
     }
 

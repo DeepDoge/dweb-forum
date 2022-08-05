@@ -32,7 +32,7 @@
         {:else}
             <KButton color="gradient" glow="gradient" glowMultiplier={0.5} on:click={() => connectWallet()}>Connect Wallet</KButton>
         {/if}
-        <KButton radius="fab" href="#{$currentRoute.chainId}#{$currentRoute.path}#settings">
+        <KButton text radius="fab" href="#{$currentRoute.chainId}#{$currentRoute.path}#settings">
             <div class="settings-gear" style:--chain-icon="url({currentChainOption.iconSrc})" style:--chain-theme={currentChainOption.themeColor}>
                 <svg x="0px" y="0px" viewBox="0 0 512.003 512.003" fill="currentColor">
                     <g>
@@ -89,21 +89,23 @@
         justify-content: space-between;
         justify-items: start;
         padding: calc(var(--k-padding) * 2);
-        gap: calc(var(--k-padding) * 2);
+        gap: calc(var(--k-padding) * 4);
         position: sticky;
         top: 0;
         z-index: var(--k-z-index-floating);
     }
 
     .settings-gear {
-        width: 2ch;
+        display: grid;
+        place-items: stretch;
+        width: 1.4em;
         aspect-ratio: 1/1;
         background-image: var(--icon);
     }
 
     .settings-gear::after {
         content: "";
-        width: 2.25ch;
+        width: 1.2em;
         aspect-ratio: 1/1;
         border-radius: var(--k-border-radius-fab);
         background-color: var(--chain-theme);
@@ -115,7 +117,7 @@
         position: absolute;
         top: 0;
         right: 0;
-        transform: translate(100%, -60%);
+        transform: translate(65%, -65%);
     }
 
     .account-info {
