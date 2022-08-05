@@ -98,7 +98,7 @@
     .settings-gear {
         display: grid;
         place-items: stretch;
-        width: 1.4em;
+        width: 1.5em;
         aspect-ratio: 1/1;
         background-image: var(--icon);
     }
@@ -117,7 +117,7 @@
         position: absolute;
         top: 0;
         right: 0;
-        transform: translate(65%, -65%);
+        transform: translate(70%, -70%);
     }
 
     .account-info {
