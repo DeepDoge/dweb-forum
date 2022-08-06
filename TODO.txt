@@ -11,5 +11,5 @@
 + better sizing for the pictures, its kinda hard because we dont know the width and height of the image before loading it, so its kinda hard
 
 
-- KOverlay should append at the bottom of the body
++ KOverlay should append at the bottom of the body
 - ContentGallery modal should have a route, so people can go back on mobile or share it's link
