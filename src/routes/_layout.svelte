@@ -1,4 +1,6 @@
 <script lang="ts">
+import About from "$/pages/about.svelte";
+
     import ClaimName from "$lib/App/ClaimName.svelte";
     import Settings from "$lib/App/Settings.svelte";
 
@@ -29,6 +31,8 @@
         <KButton color="master">Search</KButton>
     </form>
 
+    <a href="#{$currentRoute.chainId}#{$currentRoute.path}#about" class="about-link">What is DForum?</a>
+
     <Routing />
 
     <KModalHashRoute hash="claim-name" hashOverride={$currentRoute.hash}>
@@ -37,6 +41,10 @@
 
     <KModalHashRoute hash="settings" hashOverride={$currentRoute.hash}>
         <Settings />
+    </KModalHashRoute>
+
+    <KModalHashRoute hash="about" size="60em" hashOverride={$currentRoute.hash}>
+        <About />
     </KModalHashRoute>
 
     <KDialog dialogManager={globalDialogManager} />
@@ -58,5 +66,18 @@
         margin: auto;
         width: var(--k-page-width);
         padding: var(--k-page-padding);
+    }
+
+    .about-link {
+        display: inline-block;
+        margin-left: auto;
+        font-weight: bold;
+        color: var(--k-color-slave);
+        text-decoration: underline;
+        opacity: 0;
+    }
+
+    .about-link:hover {
+        opacity: 1;
     }
 </style>
