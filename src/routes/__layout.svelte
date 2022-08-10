@@ -2,6 +2,7 @@
     import { ipfsClient } from "$/tools/ipfs/client";
     import { chainOptionsByChainId, changeChain, connectWallet, currentChainOption, changeWalletChain, wallet } from "$/tools/wallet";
     import ChainButton from "$lib/App/ChainButton.svelte";
+    import IpfsConfigs from "$lib/App/IpfsConfigs.svelte";
     import KApp from "$lib/kicho-ui/components/KApp.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import { ethers } from "ethers";
@@ -14,7 +15,13 @@
 <KApp>
     <layout class:not-ready={$walletState !== "ready"}>
         {#if $walletState === "ready"}
-            {#if $ipfsClient}
+            {#if $ipfsClient === "none"}
+                No IPFS Client is accessable.
+                <div>
+                    Change IPFS settings:
+                    <IpfsConfigs />
+                </div>
+            {:else if $ipfsClient}
                 {#await import("./_layout.svelte")}
                     Loading App Layout...
                 {:then Layout}

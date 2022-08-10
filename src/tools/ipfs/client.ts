@@ -1,6 +1,5 @@
 import { promiseQueue } from '$/utils/common/promiseQueue'
 import { weakRecord } from '$/utils/common/weakRecord'
-import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte"
 import { globalEventNotificationManager } from '$lib/kicho-ui/components/KEventNotification.svelte'
 import { globalTaskNotificationManager } from '$lib/kicho-ui/components/KTaskNotification.svelte'
 import CID from 'cids'
@@ -28,8 +27,8 @@ export const defaultIpfsConfigs: () => Config[] = () => [
         gateway: 'http://127.0.0.1:8080/'
     },
     {
-        api: 'https://ipfs.infura.io:5001',
-        gateway: 'https://ipfs.infura-ipfs.io/'
+        api: 'https://dweb.link',
+        gateway: 'https://ipfs.dweb.link'
     }
 ]
 export const ipfsConfigs: Writable<Config[]> = writable(JSON.parse(localStorage.getItem("ipfs-config")) ?? defaultIpfsConfigs())
@@ -38,7 +37,7 @@ ipfsConfigs.subscribe((configs) => localStorage.setItem('ipfs-config', JSON.stri
 
 
 const cache = weakRecord<Uint8Array>()
-const onIpfsAPIsUpdate = promiseQueue(async (set: Subscriber<Client>, configs: Config[]) => 
+const onIpfsAPIsUpdate = promiseQueue(async (set: Subscriber<Client | 'none'>, configs: Config[]) => 
 {
     for (const config of configs)
     {
@@ -79,10 +78,11 @@ const onIpfsAPIsUpdate = promiseQueue(async (set: Subscriber<Client>, configs: C
         }
     }
     console.error('No IPFS API is accessible')
-    globalDialogManager.alert('No IPFS API is accessible. Some features may not work.')
+    globalEventNotificationManager.append('No IPFS API is accessible. Some features may not work.')
+    set('none')
 })
 
-export const ipfsClient: Readable<Client> = readable(null, (set) => ipfsConfigs.subscribe(async (configs) => 
+export const ipfsClient: Readable<Client | 'none'> = readable(null, (set) => ipfsConfigs.subscribe(async (configs) => 
 {
     const cache = get(ipfsClient)
     if (cache === null) 
