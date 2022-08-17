@@ -1,13 +1,15 @@
-import { postToNftContract, wallet } from "../wallet"
-import type { PostId } from "./feed"
-import { globalTaskNotificationManager } from "$lib/kicho-ui/components/KTaskNotification.svelte";
-import { globalEventNotificationManager } from "$lib/kicho-ui/components/KEventNotification.svelte"
 import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte"
-import { get } from "svelte/store"
+import { globalEventNotificationManager } from "$lib/kicho-ui/components/KEventNotification.svelte"
+import { globalTaskNotificationManager } from "$lib/kicho-ui/components/KTaskNotification.svelte"
+import { BigNumber } from "ethers"
+import { NULL_ADDREESS, postToNftContract, wallet } from "../wallet"
+import { waitContractUntil } from "../wallet/listen"
+import type { PostId } from "./feed"
 
 export async function mintPostNft(postId: PostId)
 {
-    try {
+    try
+    {
         const owner = await postToNftContract.ownerOf(postId)
         if (owner.toLowerCase() === wallet.account.toLowerCase())
             await globalDialogManager.alert("You already own this NFT.")
@@ -15,8 +17,19 @@ export async function mintPostNft(postId: PostId)
             await globalDialogManager.alert("This post already minted as NFT.")
 
         if (owner) return
-    } catch (error) { }
-    
-    await globalTaskNotificationManager.append(postToNftContract.mintPostNft(postId), "Minting Post...")
+    } catch (error)
+    {
+        console.warn(error)
+    }
+
+    await globalTaskNotificationManager.append(postToNftContract.mintPostNft(postId), "Waiting for user approval...")
+    await globalTaskNotificationManager.append(
+        waitContractUntil(
+            postToNftContract, 
+            postToNftContract.filters.Transfer(NULL_ADDREESS, wallet.account, postId), 
+            () => true
+        ), 
+        "Minting Post as NFT..."
+    )
     globalEventNotificationManager.append("Post Minted")
 }

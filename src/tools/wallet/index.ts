@@ -57,7 +57,9 @@ export let resolvePostContract: ResolvePost = null
 export let profileContract: Profile = null
 export let postToNftContract: PostToNFT = null
 
-const ethSigner = ethProvider.getSigner("0x0000000000000000000000000000000000000000")
+export const NULL_ADDREESS = '0x0000000000000000000000000000000000000000'
+
+const ethSigner = ethProvider.getSigner(NULL_ADDREESS)
 export let ensReverseRecord = ReverseRegistrar__factory.connect('0x084b1c3C81545d370f3634392De611CaaBFf8148', ethSigner)
 export let ensReverseResolver = DefaultReverseResolver__factory.connect('0xA2C122BE93b0074270ebeE7f6b7292C7deB45047', ethSigner)
 
@@ -101,7 +103,7 @@ else
             throw 'Wrong Network'
         }
 
-        const signer = provider instanceof Web3Provider ? provider.getSigner() : provider.getSigner('0x0000000000000000000000000000000000000000')
+        const signer = provider instanceof Web3Provider ? provider.getSigner() : provider.getSigner(NULL_ADDREESS)
         postsContract = Posts__factory.connect(deployed[provider.network.chainId]['Posts'], signer)
         postMetadataContract = PostMetadata__factory.connect(deployed[provider.network.chainId]['PostMetadata'], signer)
         resolvePostContract = ResolvePost__factory.connect(deployed[provider.network.chainId]['ResolvePost'], signer)

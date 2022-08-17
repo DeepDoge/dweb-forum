@@ -1,6 +1,8 @@
 <script lang="ts">
-    import { getProfileData, ProfileInfo } from "$/tools/api/profile";
-    import { onDestroy } from "svelte";
+    import { getProfileData,ProfileInfo } from "$/tools/api/profile";
+    import { disposableReadable } from "$/utils/disposableReadable";
+    import KIntersectionObserver from "$lib/kicho-ui/components/KIntersectionObserver.svelte";
+    import { writable } from "svelte/store";
 
     export let address: string = null;
     let nameInfo: ProfileInfo = null;
@@ -9,19 +11,34 @@
     $: address, onAddressChange();
     async function onAddressChange() {
         nameInfo = null;
-        nameInfo?.unlisten();
-        if (address) {
-            await getProfileData(address, "nickname").then((value) => (nameInfo = value));
-            nameInfo.listen();
-        }
+        if (address) nameInfo = await getProfileData(address, "nickname");
     }
 
-    onDestroy(() => nameInfo?.unlisten());
+    let intersecting = false;
+    $: listen = intersecting;
+
+    const listen_ = writable(listen);
+    $: listen_.set(listen);
+    const nameInfo_ = writable(nameInfo);
+    $: nameInfo_.set(nameInfo);
+
+    disposableReadable({
+        active: listen_,
+        value: nameInfo_,
+        init(value) {
+            value.listen();
+        },
+        dispose(value) {
+            value.unlisten();
+        },
+    });
 </script>
 
-<span class="k-text-singleline">
-    {(name && $name?.trim()) || "Nameless"}
-</span>
+<KIntersectionObserver bind:intersecting>
+    <span class="k-text-singleline">
+        {(name && $name?.trim()) || "Nameless"}
+    </span>
+</KIntersectionObserver>
 
 <style>
     span {

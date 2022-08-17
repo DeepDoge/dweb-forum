@@ -1,9 +1,11 @@
 <script lang="ts">
     import { Feed, getFeed, TimelineId } from "$/tools/api/feed";
+    import { disposableReadable } from "$/utils/disposableReadable";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KIntersectionObserver from "$lib/kicho-ui/components/KIntersectionObserver.svelte";
     import KSpinner from "$lib/kicho-ui/components/KSpinner.svelte";
-    import { onDestroy } from "svelte";
+    import { subscribe } from "svelte/internal";
+    import { readable, writable } from "svelte/store";
 
     export let timelineIds: TimelineId[];
     let feed: Feed;
@@ -12,17 +14,12 @@
 
     $: timelineIds, onTimelineIdsChange();
     function onTimelineIdsChange() {
-        feed?.unlisten();
-
         feed = getFeed(timelineIds);
         postIds = feed.postIds;
         newPostCount = feed.newPostCount;
         done = false;
         active = false;
-
-        feed.listen();
     }
-    onDestroy(() => feed?.unlisten());
 
     $: isReady = done || $postIds?.length > 0;
 
@@ -35,14 +32,14 @@
         done = false;
     }
 
-    let intersecting = false;
+    let intersectingBottom = false;
     let done = false;
     let active = true;
-    $: !done && intersecting && !active && loop(feed);
+    $: !done && intersectingBottom && !active && loop(feed);
     async function loop(feedCache: typeof feed) {
         active = true;
 
-        while (!done && intersecting) {
+        while (!done && intersectingBottom) {
             const result = await feedCache.loadMore();
             if (feedCache !== feed) return;
             done = result;
@@ -53,26 +50,47 @@
 
         active = false;
     }
+
+    let intersectingTop = false;
+    $: listen = intersectingTop;
+
+    const listen_ = writable(listen);
+    $: listen_.set(listen);
+    const feed_ = writable(feed);
+    $: feed_.set(feed);
+
+    disposableReadable({
+        active: listen_,
+        value: feed_,
+        init(value) {
+            value.listen();
+        },
+        dispose(value) {
+            value.unlisten();
+        },
+    });
 </script>
 
 <div class="feed">
     <div class="refresh-button">
         {#key feed}
-            <KButton title="Refresh" on:click={refresh} background={feed && !$newPostCount.eq(0)} color="mode-pop">
-                {#if !isReady}
-                    <KSpinner />
-                {:else if $newPostCount.eq(0)}
-                    Up to date
-                {:else}
-                    Refresh ({$newPostCount.toString()} new)
-                {/if}
-            </KButton>
+            <KIntersectionObserver bind:intersecting={intersectingTop}>
+                <KButton title="Refresh" on:click={refresh} background={feed && !$newPostCount.eq(0)} color="mode-pop">
+                    {#if !isReady}
+                        <KSpinner />
+                    {:else if $newPostCount.eq(0)}
+                        Up to date
+                    {:else}
+                        Refresh ({$newPostCount.toString()} new)
+                    {/if}
+                </KButton>
+            </KIntersectionObserver>
         {/key}
     </div>
     {#if feed}
         <slot postIds={$postIds} />
         {#if !done}
-            <KIntersectionObserver bind:intersecting rootMargin="{window.visualViewport.height * 5}px 0px">
+            <KIntersectionObserver bind:intersecting={intersectingBottom} rootMargin="{window.visualViewport.height * 5}px 0px">
                 <div />
             </KIntersectionObserver>
         {:else}
