@@ -4,7 +4,7 @@ import { BigNumber, type BigNumberish } from "ethers"
 import { get, writable, type Writable } from "svelte/store"
 import type { TimelineAddPostEvent } from '../hardhat/typechain-types/contracts/Posts'
 import type { Posts } from '../hardhat/typechain-types/contracts/ResolvePost'
-import { postsContract, resolvePostContract, wallet } from '../wallet'
+import { postsContract, postResolverContract, wallet } from '../wallet'
 import { listenContract } from "../wallet/listen"
 
 const followedTopics = createPermaStore<{ topic: string }>(`${deployed[wallet.provider.network.chainId]['Posts']}:followed`)
@@ -39,7 +39,7 @@ export async function getPostData(postId: PostId): Promise<Writable<PostData>>
         const cache = await postDataStore.get(postId._hex)
         if (cache) return writable(deserializeBigNumbers(cache) as PostData)
 
-        const response = await resolvePostContract.getPostData(postId, [])
+        const response = await postResolverContract.getPostData(postId, [])
         const postData: PostData = {
             postId: response.postId,
             ...response.post,
@@ -106,7 +106,7 @@ export async function getTimelinePost(timelineId: TimelineId, postIndex: BigNumb
         if (cache) return await getPostData(BigNumber.from(cache))
 
         const timelineIdPacked = packTimelineId(timelineId)
-        const respose = await resolvePostContract.getPostDataFromTimeline(timelineIdPacked, postIndex, [])
+        const respose = await postResolverContract.getPostDataFromTimeline(timelineIdPacked, postIndex, [])
 
         await timelinePostStore.put(key, respose.postId)
 

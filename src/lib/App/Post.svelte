@@ -2,7 +2,7 @@
     import { currentRoute } from "$/routes/_routing";
     import { getPostData, getTimelineInfo, PostData, PostId, TimelineGroup } from "$/tools/api/feed";
     import { mintPostNft } from "$/tools/api/mint";
-    import { postToNftContract, wallet } from "$/tools/wallet";
+    import { postNftContract, wallet } from "$/tools/wallet";
     import { bigNumberAsUtf8, bytes32ToIpfsHash, hexToBytes, hexToUtf8 } from "$/utils/bytes";
     import { promiseQueue } from "$/utils/common/promiseQueue";
     import { ContentType, decodePostContentItems, getPostContentItemsDataFromIpfs, PostContentData } from "$/utils/content";

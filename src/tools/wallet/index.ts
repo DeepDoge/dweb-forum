@@ -1,11 +1,13 @@
 import { currentRoute } from '$/routes/_routing'
 import deployed from '$/tools/hardhat/scripts/deployed.json'
-import { DefaultReverseResolver__factory, type PostToNFT, PostToNFT__factory, Profile__factory, ReverseRegistrar__factory, type Profile, type Posts, type PostMetadata, type ResolvePost, Posts__factory, PostMetadata__factory, ResolvePost__factory } from '$/tools/hardhat/typechain-types'
 import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte"
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers"
 import { ethers } from "ethers"
 import type { Writable } from 'svelte/store'
 import { get, readable, writable } from 'svelte/store'
+import { DefaultReverseResolver__factory, PostMetadata__factory, PostNFT__factory, PostResolver__factory, Posts__factory, Profile__factory } from '../hardhat/typechain-types'
+import type { PostMetadata, PostNFT, PostResolver, Posts, Profile } from '../hardhat/typechain-types'
+import { ReverseRegistrar__factory } from '../hardhat/typechain-types/factories/contracts/others/ens/ENSReverseResolve.sol'
 import { type ChainOption, defaultChainOptions } from './chains'
 
 export const chainOptions: readonly ChainOption[] = Object.freeze(Object.values(defaultChainOptions).filter((option) =>
@@ -53,9 +55,9 @@ export const wallet = {
 
 export let postsContract: Posts = null
 export let postMetadataContract: PostMetadata = null
-export let resolvePostContract: ResolvePost = null
+export let postResolverContract: PostResolver = null
 export let profileContract: Profile = null
-export let postToNftContract: PostToNFT = null
+export let postNftContract: PostNFT = null
 
 export const NULL_ADDREESS = '0x0000000000000000000000000000000000000000'
 
@@ -106,9 +108,9 @@ else
         const signer = provider instanceof Web3Provider ? provider.getSigner() : provider.getSigner(NULL_ADDREESS)
         postsContract = Posts__factory.connect(deployed[provider.network.chainId]['Posts'], signer)
         postMetadataContract = PostMetadata__factory.connect(deployed[provider.network.chainId]['PostMetadata'], signer)
-        resolvePostContract = ResolvePost__factory.connect(deployed[provider.network.chainId]['ResolvePost'], signer)
+        postResolverContract = PostResolver__factory.connect(deployed[provider.network.chainId]['PostResolver'], signer)
         profileContract = Profile__factory.connect(deployed[provider.network.chainId]['Profile'], signer)
-        postToNftContract = PostToNFT__factory.connect(deployed[provider.network.chainId]['PostToNFT'], signer)
+        postNftContract = PostNFT__factory.connect(deployed[provider.network.chainId]['PostNFT'], signer)
 
         state.set('ready')
     })()

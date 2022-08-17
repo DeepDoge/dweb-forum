@@ -59,9 +59,16 @@ async function main()
 
   if (!deployed[chainId]['Posts']) await deployContract('Posts')
   if (!deployed[chainId]['PostMetadata']) await deployContract('PostMetadata', deployed[chainId]['Posts'])
-  if (!deployed[chainId]['ResolvePost']) await deployContract('ResolvePost', deployed[chainId]['Posts'], deployed[chainId]['PostMetadata'])
+  if (!deployed[chainId]['PostResolver']) await deployContract('PostResolver', deployed[chainId]['Posts'], deployed[chainId]['PostMetadata'])
   if (!deployed[chainId]['Profile']) await deployContract('Profile')
-  if (!deployed[chainId]['PostToNFT']) await deployContract('PostToNFT', deployed[chainId]['Posts'])
+  if (!deployed[chainId]['PostNFT']) await deployContract('PostNFT', deployed[chainId]['Posts'], deployed[chainId]['UriGetterV0'] ?? '0x0000000000000000000000000000000000000000')
+  if (!deployed[chainId]['UriGetterV0']) 
+  {
+    await deployContract('UriGetterV0', deployed[chainId]['Posts'])
+    const PostNft = await ethers.getContractFactory('PostNFT')
+    const postNft = PostNft.attach(deployed[chainId]['PostNFT'])
+    await postNft.setUriGetterAddress(deployed[chainId]['Posts'])
+  }
 }
 
 // We recommend this pattern to be able to use async/await everywhere

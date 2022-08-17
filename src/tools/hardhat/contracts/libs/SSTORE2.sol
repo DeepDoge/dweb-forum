@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./utils/Bytecode.sol";
+import "../utils/Bytecode.sol";
 
 /**
   @title A key-value storage with auto-generated keys for storing chunks of data with a lower write & read cost.

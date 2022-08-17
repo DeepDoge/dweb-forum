@@ -1,9 +1,10 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./SSTORE2.sol";
+import "./libs/SSTORE2.sol";
+import "./extensions/PostReader.sol";
 
-contract Posts {
+contract Posts is PostReader {
     /* INTERNAL TIMELINE GROUPS */
     uint96 public constant TIMELINE_GROUP_PROFILE_POSTS = 0;
     uint96 public constant TIMELINE_GROUP_PROFILE_REPLIES = 1;
@@ -43,17 +44,8 @@ contract Posts {
     Post
     ==========================
     */
-    struct Post {
-        uint96 timelineGroup;
-        uint160 timelineKey;
-        address owner;
-        address contentPointer;
-    }
-
-    struct PostContent {
-        uint256 time;
-        address[] mentions;
-        bytes data;
+    function _getPost(uint160 postId) internal view override returns(Post memory) {
+        return posts[postId];
     }
 
     mapping(uint160 => Post) public posts;
@@ -86,11 +78,6 @@ contract Posts {
 
         for (uint256 i = 0; i < mentions.length; i++)
             addPostToTimeline(getTimelineId(TIMELINE_GROUP_PROFILE_MENTIONS, uint160(address(mentions[i]))), postId);
-    }
-
-    modifier onlyPostOwner(uint160 postId) {
-        require(posts[postId].owner == msg.sender, "You don't own this post.");
-        _;
     }
 
     /* 

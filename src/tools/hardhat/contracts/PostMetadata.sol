@@ -1,23 +1,10 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./Posts.sol";
+import "./extensions/PostsExternal.sol";
 
-contract PostMetadata {
-    Posts postsContract;
-
-    constructor(address postsContractAddress) {
-        postsContract = Posts(postsContractAddress);
-    }
-
-    function readPost(uint160 postId) private view returns(uint96, uint160, address, address) {
-        return postsContract.posts(postId);
-    }
-
-    modifier onlyPostOwner(uint160 postId) {
-        (,, address owner,) = readPost(postId);
-        require(owner == msg.sender, "You don't own this post.");
-        _;
+contract PostMetadata is PostsExternal {
+    constructor(address postsContractAddress) PostsExternal(postsContractAddress) {
     }
 
     mapping(uint160 => mapping(bytes32 => bytes32)) public postMetadatas;
