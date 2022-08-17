@@ -2,14 +2,14 @@
 pragma solidity ^0.8.0;
 
 import "./Posts.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 
-contract PostToNFT is ERC721Enumerable {
+contract PostToNFT is ERC721Enumerable  {
+    using Strings for uint256;
+    
     Posts postsContract;
 
-    constructor(address postsContractAddress) ERC721("DForum Post", "DFP") {
+    constructor(address postsContractAddress) ERC721("DForum", "DFM") {
         postsContract = Posts(postsContractAddress);
     } 
 
@@ -17,9 +17,16 @@ contract PostToNFT is ERC721Enumerable {
         return postsContract.posts(postId);
     }
 
+    mapping(uint160 => uint256) public mintVersion;
     function mintPostNft(uint160 postId) external {
         (, , address owner, ) = readPost(postId);
-        require(owner == msg.sender, "You don't own this post.");
-        _mint(msg.sender, postId);
+        require(owner == _msgSender(), "You don't own this post.");
+        _mint(_msgSender(), postId);
+        mintVersion[postId] = postsContract.postContentHistoryLength(postId);
+    }
+
+    function burn(uint256 tokenId) public virtual {
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner nor approved");
+        _burn(tokenId);
     }
 }
