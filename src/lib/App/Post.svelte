@@ -145,7 +145,7 @@
                         {repliesTimelineLength ? $repliesTimelineLength : "..."}
                     </div>
                     <div class="actions">
-                        {#if $postData?.owner.toLocaleLowerCase() === wallet.account.toLocaleLowerCase()}
+                        {#if $postData?.owner.toLowerCase() === wallet.account.toLowerCase()}
                             <KButton text on:click={() => mintPostNft(postId)}>Mint as NFT</KButton>
                         {/if}
                     </div>
