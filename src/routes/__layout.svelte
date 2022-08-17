@@ -1,7 +1,8 @@
 <script context="module" lang="ts">
-    const version = '0.02'
+    const version = '0.0.3'
     if (localStorage.getItem('current-version') !== version)
     {
+        console.log('a')
         indexedDB.databases().then((databases) => {
             databases.forEach((database) => indexedDB.deleteDatabase(database.name))
         })

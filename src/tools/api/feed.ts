@@ -2,12 +2,12 @@ import deployed from '$/tools/hardhat/scripts/deployed.json'
 import { createPermaStore, createPromiseResultCacher, createTempStore } from "$/utils/common/store"
 import { BigNumber, type BigNumberish } from "ethers"
 import { get, writable, type Writable } from "svelte/store"
+import type { PostResolver } from '../hardhat/typechain-types/contracts/PostResolver'
 import type { TimelineAddPostEvent } from '../hardhat/typechain-types/contracts/Posts'
-import type { Posts } from '../hardhat/typechain-types/contracts/ResolvePost'
 import { postsContract, postResolverContract, wallet } from '../wallet'
 import { listenContract } from "../wallet/listen"
 
-const followedTopics = createPermaStore<{ topic: string }>(`${deployed[wallet.provider.network.chainId]['Posts']}:followed`)
+const followedTopics = wallet.account ? createPermaStore<{ topic: string }>(`${deployed[wallet.provider.network.chainId]['Posts']}:${wallet.account}:followed`) : null
 export async function followTopic(topic: string)
 {
     await followedTopics.put(wallet.account, { topic })
@@ -15,8 +15,8 @@ export async function followTopic(topic: string)
 
 export type PostId = BigNumber
 export type PostData =
-    Omit<Posts.PostContentStructOutput, Exclude<keyof Posts.PostContentStructOutput, keyof Posts.PostContentStruct>> &
-    Omit<Posts.PostStructOutput, Exclude<keyof Posts.PostStructOutput, keyof Posts.PostStruct>> &
+    Omit<PostResolver.PostDataStructOutput['postContent'], Exclude<keyof PostResolver.PostDataStructOutput['postContent'], keyof PostResolver.PostDataStruct['postContent']>> &
+    Omit<PostResolver.PostDataStructOutput['post'], Exclude<keyof PostResolver.PostDataStructOutput['post'], keyof PostResolver.PostDataStruct['post']>> &
     {
         postId: PostId
         owner: string
@@ -30,7 +30,7 @@ function deserializeBigNumbers(thing: object)
     )
 }
 
-const postDataStore = createTempStore(`${deployed[wallet.provider.network.chainId]?.['App']}:posts`)
+const postDataStore = createTempStore(`${deployed[wallet.provider.network.chainId]?.['Posts']}:posts`)
 const postDataCacher = createPromiseResultCacher()
 export async function getPostData(postId: PostId): Promise<Writable<PostData>>
 {
@@ -95,7 +95,7 @@ export function packTimelineId(timelineId: TimelineId)
     return BigNumber.from(timelineId.group).shl(160).or(timelineId.key)
 }
 
-const timelinePostStore = createTempStore(`${deployed[wallet.provider.network.chainId]?.['App']}:timelines`)
+const timelinePostStore = createTempStore(`${deployed[wallet.provider.network.chainId]?.['Posts']}:timelines`)
 const timelinePostCacher = createPromiseResultCacher()
 export async function getTimelinePost(timelineId: TimelineId, postIndex: BigNumber)
 {

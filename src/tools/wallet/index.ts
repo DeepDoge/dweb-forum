@@ -112,6 +112,9 @@ else
         profileContract = Profile__factory.connect(deployed[provider.network.chainId]['Profile'], signer)
         postNftContract = PostNFT__factory.connect(deployed[provider.network.chainId]['PostNFT'], signer)
 
+        console.log('----', await postNftContract.getUriGetterAddress())
+        console.log('----', await postNftContract.tokenURI(0))
+
         state.set('ready')
     })()
 

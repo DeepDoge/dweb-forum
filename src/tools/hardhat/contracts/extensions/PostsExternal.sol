@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "./PostReader.sol";
 import "../Posts.sol";
 
-contract PostsExternal is PostReader {
+abstract contract PostsExternal is PostReader {
     Posts internal _posts;
 
     constructor(address postsContractAddress) {
