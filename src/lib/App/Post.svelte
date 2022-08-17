@@ -1,11 +1,14 @@
 <script lang="ts">
     import { currentRoute } from "$/routes/_routing";
     import { getPostData, getTimelineInfo, PostData, PostId, TimelineGroup } from "$/tools/api/feed";
+    import { mintPostNft } from "$/tools/api/mint";
+    import { postToNftContract, wallet } from "$/tools/wallet";
     import { bigNumberAsUtf8, bytes32ToIpfsHash, hexToBytes, hexToUtf8 } from "$/utils/bytes";
     import { promiseQueue } from "$/utils/common/promiseQueue";
     import { ContentType, decodePostContentItems, getPostContentItemsDataFromIpfs, PostContentData } from "$/utils/content";
     import { second } from "$/utils/second";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
+    import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KChip from "$lib/kicho-ui/components/KChip.svelte";
     import type { BigNumber } from "ethers";
     import type { Writable } from "svelte/store";
@@ -50,10 +53,7 @@
                             try {
                                 const contentBytes = hexToBytes($postData.data);
                                 postContent = {
-                                    items:
-                                        contentBytes[0] === 0
-                                            ? await getPostContentItemsDataFromIpfs(bytes32ToIpfsHash(contentBytes.subarray(1)))
-                                            : decodePostContentItems(contentBytes),
+                                    items: decodePostContentItems(contentBytes),
                                     mentions: $postData.mentions,
                                 };
                             } catch {
@@ -144,6 +144,11 @@
                         </svg>
                         {repliesTimelineLength ? $repliesTimelineLength : "..."}
                     </div>
+                    <div class="actions">
+                        {#if $postData?.owner.toLocaleLowerCase() === wallet.account.toLocaleLowerCase()}
+                            <KButton text on:click={() => mintPostNft(postId)}>Mint as NFT</KButton>
+                        {/if}
+                    </div>
                     <div class="date k-text-singleline">{date?.toLocaleString()}</div>
                 </div>
             </div>
@@ -221,14 +226,15 @@
     .footer {
         grid-area: footer;
         display: grid;
-        grid-auto-flow: column;
-        justify-content: space-between;
+        grid-template-areas: "replies actions . date";
+        grid-template-columns: auto auto 1fr auto;
         align-items: center;
         font-size: var(--k-font-xx-smaller);
         gap: var(--k-padding);
     }
 
     .reply-counter {
+        grid-area: replies;
         display: grid;
         grid-auto-flow: column;
         align-items: center;
@@ -236,6 +242,14 @@
     }
 
     .reply-counter svg {
-        height: 100%
+        height: 100%;
+    }
+
+    .date {
+        grid-area: date;
+    }
+
+    .actions {
+        grid-area: actions;
     }
 </style>

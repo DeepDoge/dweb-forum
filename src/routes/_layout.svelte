@@ -1,5 +1,5 @@
 <script lang="ts">
-import About from "$/pages/about.svelte";
+    import About from "$/pages/about.svelte";
 
     import ClaimName from "$lib/App/ClaimName.svelte";
     import Settings from "$lib/App/Settings.svelte";
@@ -8,6 +8,7 @@ import About from "$/pages/about.svelte";
     import KDialog, { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
     import KEventNotification, { globalEventNotificationManager } from "$lib/kicho-ui/components/KEventNotification.svelte";
     import KModalHashRoute from "$lib/kicho-ui/components/KModalHashRoute.svelte";
+import { overlayMountPoint } from "$lib/kicho-ui/components/KOverlay.svelte";
     import KTaskNotification, { globalTaskNotificationManager } from "$lib/kicho-ui/components/KTaskNotification.svelte";
 
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
@@ -22,6 +23,9 @@ import About from "$/pages/about.svelte";
         if (searchInput.startsWith("#")) location.hash = `#${$currentRoute.chainId}${searchInput.toLowerCase()}`;
         if (ethers.utils.isAddress(searchInput)) location.hash = `#${$currentRoute.chainId}#${searchInput}`;
     }
+
+    let overlays: HTMLDivElement
+    $: overlays && ($overlayMountPoint = overlays)
 </script>
 
 <Header />
@@ -34,24 +38,25 @@ import About from "$/pages/about.svelte";
     <a href="#{$currentRoute.chainId}#{$currentRoute.path}#about" class="about-link">What is DForum?</a>
 
     <Routing />
-
-    <KModalHashRoute hash="claim-name" hashOverride={$currentRoute.hash}>
-        <ClaimName on:done={() => history.back()} />
-    </KModalHashRoute>
-
-    <KModalHashRoute hash="settings" hashOverride={$currentRoute.hash}>
-        <Settings />
-    </KModalHashRoute>
-
-    <KModalHashRoute hash="about" size="60em" hashOverride={$currentRoute.hash}>
-        <About />
-    </KModalHashRoute>
-
-    <KDialog dialogManager={globalDialogManager} />
-
-    <KEventNotification eventNotificationManager={globalEventNotificationManager} />
-    <KTaskNotification taskNotificationManager={globalTaskNotificationManager} />
 </main>
+<KModalHashRoute hash="claim-name" hashOverride={$currentRoute.hash}>
+    <ClaimName on:done={() => history.back()} />
+</KModalHashRoute>
+
+<KModalHashRoute hash="settings" hashOverride={$currentRoute.hash}>
+    <Settings />
+</KModalHashRoute>
+
+<KModalHashRoute hash="about" size="60em" hashOverride={$currentRoute.hash}>
+    <About />
+</KModalHashRoute>
+
+<div bind:this={overlays} id="overlays" />
+
+<KDialog dialogManager={globalDialogManager} />
+
+<KEventNotification eventNotificationManager={globalEventNotificationManager} />
+<KTaskNotification taskNotificationManager={globalTaskNotificationManager} />
 
 <style>
     main {

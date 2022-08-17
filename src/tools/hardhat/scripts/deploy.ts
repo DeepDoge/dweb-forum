@@ -46,19 +46,22 @@ async function main()
     return deployed[chainId][name]
   }
 
-  async function deployContract(name: string)
+  async function deployContract(name: string, ...args: any[])
   {
     console.log(`Getting factory ${name}`)
     const Contract = await ethers.getContractFactory(name)
     console.log(`Deploying ${name}`)
-    const contract = await Contract.deploy()
+    const contract = await Contract.deploy(...args)
 
     await contract.deployed()
     setAsDeployed(name, contract.address)
   }
 
-  await deployContract('App')
+  if (!deployed[chainId]['Posts']) await deployContract('Posts')
+  if (!deployed[chainId]['PostMetadata']) await deployContract('PostMetadata', deployed[chainId]['Posts'])
+  if (!deployed[chainId]['ResolvePost']) await deployContract('ResolvePost', deployed[chainId]['Posts'], deployed[chainId]['PostMetadata'])
   if (!deployed[chainId]['Profile']) await deployContract('Profile')
+  if (!deployed[chainId]['PostToNFT']) await deployContract('PostToNFT', deployed[chainId]['Posts'])
 }
 
 // We recommend this pattern to be able to use async/await everywhere

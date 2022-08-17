@@ -2,7 +2,6 @@ import { ensReverseRecord, ensReverseResolver, profileContract } from "$/tools/w
 import { listenContract } from "$/tools/wallet/listen"
 import { hexToUtf8, utf8AsBytes32 } from "$/utils/bytes"
 import { createPromiseResultCacher, createTempStore } from "$/utils/common/store"
-import { getDefaultProvider } from "ethers"
 import { writable, type Writable } from "svelte/store"
 
 export interface ProfileInfo

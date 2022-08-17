@@ -1,11 +1,10 @@
 <script lang="ts">
-import { getPostData,packTimelineId,TimelineGroup,TimelineId } from "$/tools/api/feed";
-
+    import { getPostData, packTimelineId, TimelineGroup, TimelineId } from "$/tools/api/feed";
     import { ipfsClient } from "$/tools/ipfs/client";
-    import { appContract, wallet } from "$/tools/wallet";
+    import { postsContract, wallet } from "$/tools/wallet";
     import { waitContractUntil } from "$/tools/wallet/listen";
     import { IpfsHashToBytes32 } from "$/utils/bytes";
-    import { addPostContentItemsDataToIpfs,encodePostContentItems,parseContent } from "$/utils/content";
+    import { addPostContentItemsDataToIpfs, encodePostContentItems, parseContent } from "$/utils/content";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
@@ -26,7 +25,7 @@ import { getPostData,packTimelineId,TimelineGroup,TimelineId } from "$/tools/api
     $: encodedContent = content ? encodePostContentItems(content.items) : null;
     $: length = encodedContent?.length ?? 0;
 
-    async function publish(perma = false) {
+    async function publish() {
         try {
             const content = parseContent(
                 wallet.account,
@@ -39,18 +38,11 @@ import { getPostData,packTimelineId,TimelineGroup,TimelineId } from "$/tools/api
             );
 
             uploadingFile = true;
-            const contentData = perma
-                ? encodePostContentItems(content.items)
-                : new Uint8Array([
-                      0,
-                      ...IpfsHashToBytes32(
-                          await globalTaskNotificationManager.append(addPostContentItemsDataToIpfs(content.items), "Adding post content to IPFS")
-                      ),
-                  ]);
+            const contentData = encodePostContentItems(content.items)
             uploadingFile = false;
 
             const tx = await globalTaskNotificationManager.append(
-                appContract.publishPost(timelineId.group, timelineId.key, contentData, content.mentions),
+                postsContract.publishPost(timelineId.group, timelineId.key, contentData, content.mentions),
                 "Awaiting Publish Confirmation"
             );
 
@@ -60,15 +52,10 @@ import { getPostData,packTimelineId,TimelineGroup,TimelineId } from "$/tools/api
             }, 500);
 
             await globalTaskNotificationManager.append(
-                waitContractUntil(
-                    appContract,
-                    appContract.filters.TimelineAddPost(packTimelineId(timelineId)),
-                    (x, y, z, w, event) => 
-                    {
-                        console.log(tx.hash, event.transactionHash)
-                        return tx.hash === event.transactionHash
-                    }
-                ),
+                waitContractUntil(postsContract, postsContract.filters.TimelineAddPost(packTimelineId(timelineId)), (x, y, z, w, event) => {
+                    console.log(tx.hash, event.transactionHash);
+                    return tx.hash === event.transactionHash;
+                }),
                 "Publishing Post"
             );
         } catch (error) {
@@ -92,7 +79,7 @@ import { getPostData,packTimelineId,TimelineGroup,TimelineId } from "$/tools/api
         on:change={async (event) => {
             uploadingFile = true;
 
-            if (!(await globalDialogManager.confirm(`Are you sure you wanna upload "${uploadElement.files[0].name}"?`))) return;
+            if (!(await globalDialogManager.confirm(`Are you sure you wanna upload "${uploadElement.files[0].name}"?`))) return uploadingFile = false;
 
             try {
                 await globalTaskNotificationManager.append(
@@ -104,7 +91,7 @@ import { getPostData,packTimelineId,TimelineGroup,TimelineId } from "$/tools/api
                     `Uploading file (${uploadElement.files[0].name}) to IPFS`
                 );
             } catch (err) {
-                globalDialogManager.alert("There was an error while uploading the file.");
+                globalDialogManager.alert("There was an error while uploading the file. See the console for details.\nThis might happen when IPFS API doesn't allow file uploads.\nYou can still post media using `image,Qm...` or `image,bafy...`");
                 console.error(err);
             } finally {
                 uploadingFile = false;
@@ -137,8 +124,7 @@ import { getPostData,packTimelineId,TimelineGroup,TimelineId } from "$/tools/api
             </div>
             <div class="actions">
                 <input type="submit" style="opacity:0;position:absolute;pointer-events:none;width:0;height:0" />
-                <KButton color="slave" radius="rounded" disabled={busy} on:click={() => publish(true)}>Perma Post</KButton>
-                <KButton color="master" radius="rounded" disabled={busy} on:click={() => publish()}>Post</KButton>
+                <KButton color="master" radius="rounded" disabled={busy} on:click={publish}>Post on Chain</KButton>
             </div>
         </form>
     </KModal>
@@ -229,7 +215,7 @@ import { getPostData,packTimelineId,TimelineGroup,TimelineId } from "$/tools/api
     .preview .fields {
         padding: calc(var(--k-padding) * 2);
     }
-    
+
     .actions {
         display: grid;
         justify-content: end;

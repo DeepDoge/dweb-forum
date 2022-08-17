@@ -32,13 +32,15 @@ export const defaultIpfsConfigs: () => Config[] = () => [
     }
 ]
 export const ipfsConfigs: Writable<Config[]> = writable(JSON.parse(localStorage.getItem("ipfs-config")) ?? defaultIpfsConfigs())
+
+const _noIpfsClientFound = writable(false) 
+export const noIpfsClientFound: Readable<boolean> = _noIpfsClientFound 
 ipfsConfigs.subscribe((configs) => localStorage.setItem('ipfs-config', JSON.stringify(configs)))
 
-
-
 const cache = weakRecord<Uint8Array>()
-const onIpfsAPIsUpdate = promiseQueue(async (set: Subscriber<Client | 'none'>, configs: Config[]) => 
+const onIpfsAPIsUpdate = promiseQueue(async (set: Subscriber<Client>, configs: Config[]) => 
 {
+    _noIpfsClientFound.set(false)
     for (const config of configs)
     {
         try
@@ -79,10 +81,12 @@ const onIpfsAPIsUpdate = promiseQueue(async (set: Subscriber<Client | 'none'>, c
     }
     console.error('No IPFS API is accessible')
     globalEventNotificationManager.append('No IPFS API is accessible. Some features may not work.')
-    set('none')
+    if (get(ipfsClient)) setTimeout(() => location.reload(), 1000)
+    set(null)
+    _noIpfsClientFound.set(true)
 })
 
-export const ipfsClient: Readable<Client | 'none'> = readable(null, (set) => ipfsConfigs.subscribe(async (configs) => 
+export const ipfsClient: Readable<Client> = readable(null, (set) => ipfsConfigs.subscribe(async (configs) => 
 {
     const cache = get(ipfsClient)
     if (cache === null) 

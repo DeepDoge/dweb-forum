@@ -1,6 +1,6 @@
 import { currentRoute } from '$/routes/_routing'
 import deployed from '$/tools/hardhat/scripts/deployed.json'
-import { App__factory, DefaultReverseResolver__factory, Profile__factory, ReverseRegistrar__factory, type App, type Profile } from '$/tools/hardhat/typechain-types'
+import { DefaultReverseResolver__factory, type PostToNFT, PostToNFT__factory, Profile__factory, ReverseRegistrar__factory, type Profile, type Posts, type PostMetadata, type ResolvePost, Posts__factory, PostMetadata__factory, ResolvePost__factory } from '$/tools/hardhat/typechain-types'
 import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte"
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers"
 import { ethers } from "ethers"
@@ -9,8 +9,7 @@ import { get, readable, writable } from 'svelte/store'
 import { type ChainOption, defaultChainOptions } from './chains'
 
 export const chainOptions: readonly ChainOption[] = Object.freeze(Object.values(defaultChainOptions).filter((option) =>
-    deployed[parseInt(option.chainId, 16)]?.App &&
-    deployed[parseInt(option.chainId, 16)]?.Profile
+    deployed[parseInt(option.chainId, 16)]
 ).map((option) => ({
     ...option,
     rpcUrls: [localStorage.getItem(`custom-chain-${option.chainId}-rpc`) ?? option.rpcUrls[0]]
@@ -52,8 +51,12 @@ export const wallet = {
     state: readable(get(state), (set) => state.subscribe((value) => set(value)))
 }
 
-export let appContract: App = null
+export let postsContract: Posts = null
+export let postMetadataContract: PostMetadata = null
+export let resolvePostContract: ResolvePost = null
 export let profileContract: Profile = null
+export let postToNftContract: PostToNFT = null
+
 const ethSigner = ethProvider.getSigner("0x0000000000000000000000000000000000000000")
 export let ensReverseRecord = ReverseRegistrar__factory.connect('0x084b1c3C81545d370f3634392De611CaaBFf8148', ethSigner)
 export let ensReverseResolver = DefaultReverseResolver__factory.connect('0xA2C122BE93b0074270ebeE7f6b7292C7deB45047', ethSigner)
@@ -99,8 +102,11 @@ else
         }
 
         const signer = provider instanceof Web3Provider ? provider.getSigner() : provider.getSigner('0x0000000000000000000000000000000000000000')
-        appContract = App__factory.connect(deployed[provider.network.chainId]['App'], signer)
+        postsContract = Posts__factory.connect(deployed[provider.network.chainId]['Posts'], signer)
+        postMetadataContract = PostMetadata__factory.connect(deployed[provider.network.chainId]['PostMetadata'], signer)
+        resolvePostContract = ResolvePost__factory.connect(deployed[provider.network.chainId]['ResolvePost'], signer)
         profileContract = Profile__factory.connect(deployed[provider.network.chainId]['Profile'], signer)
+        postToNftContract = PostToNFT__factory.connect(deployed[provider.network.chainId]['PostToNFT'], signer)
 
         state.set('ready')
     })()

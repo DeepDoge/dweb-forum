@@ -2,12 +2,12 @@ import deployed from '$/tools/hardhat/scripts/deployed.json'
 import { createPermaStore, createPromiseResultCacher, createTempStore } from "$/utils/common/store"
 import { BigNumber, type BigNumberish } from "ethers"
 import { get, writable, type Writable } from "svelte/store"
-import type { App } from "../hardhat/typechain-types"
-import type { TimelineAddPostEvent } from "../hardhat/typechain-types/App"
-import { appContract, wallet } from '../wallet'
+import type { TimelineAddPostEvent } from '../hardhat/typechain-types/contracts/Posts'
+import type { Posts } from '../hardhat/typechain-types/contracts/ResolvePost'
+import { postsContract, resolvePostContract, wallet } from '../wallet'
 import { listenContract } from "../wallet/listen"
 
-const followedTopics = createPermaStore<{ topic: string }>(`${deployed[wallet.provider.network.chainId]['App']}:followed`)
+const followedTopics = createPermaStore<{ topic: string }>(`${deployed[wallet.provider.network.chainId]['Posts']}:followed`)
 export async function followTopic(topic: string)
 {
     await followedTopics.put(wallet.account, { topic })
@@ -15,8 +15,8 @@ export async function followTopic(topic: string)
 
 export type PostId = BigNumber
 export type PostData =
-    Omit<App.PostContentStructOutput, Exclude<keyof App.PostContentStructOutput, keyof App.PostContentStruct>> &
-    Omit<App.PostStructOutput, Exclude<keyof App.PostStructOutput, keyof App.PostStruct>> &
+    Omit<Posts.PostContentStructOutput, Exclude<keyof Posts.PostContentStructOutput, keyof Posts.PostContentStruct>> &
+    Omit<Posts.PostStructOutput, Exclude<keyof Posts.PostStructOutput, keyof Posts.PostStruct>> &
     {
         postId: PostId
         owner: string
@@ -39,7 +39,7 @@ export async function getPostData(postId: PostId): Promise<Writable<PostData>>
         const cache = await postDataStore.get(postId._hex)
         if (cache) return writable(deserializeBigNumbers(cache) as PostData)
 
-        const response = await appContract.getPostData(postId, [])
+        const response = await resolvePostContract.getPostData(postId, [])
         const postData: PostData = {
             postId: response.postId,
             ...response.post,
@@ -106,7 +106,7 @@ export async function getTimelinePost(timelineId: TimelineId, postIndex: BigNumb
         if (cache) return await getPostData(BigNumber.from(cache))
 
         const timelineIdPacked = packTimelineId(timelineId)
-        const respose = await appContract.getPostDataFromTimeline(timelineIdPacked, postIndex, [])
+        const respose = await resolvePostContract.getPostDataFromTimeline(timelineIdPacked, postIndex, [])
 
         await timelinePostStore.put(key, respose.postId)
 
@@ -127,7 +127,7 @@ export async function getTimelineInfo(timelineId: TimelineId)
     const timelineIdPacked = packTimelineId(timelineId)
     return await timelineInfoCacher.cache(uniqueKey, async () =>
     {
-        const length = writable(await appContract.getTimelineLengh(timelineIdPacked))
+        const length = writable(await postsContract.getTimelineLengh(timelineIdPacked))
         const lastEvent: Writable<TimelineAddPostEvent> = writable(null)
 
         function listen()
@@ -135,7 +135,7 @@ export async function getTimelineInfo(timelineId: TimelineId)
             if (timelineInfoListeners[uniqueKey]) timelineInfoListeners[uniqueKey].count++
             else timelineInfoListeners[uniqueKey] = {
                 count: 1, unlisten: listenContract(
-                    appContract, appContract.filters.TimelineAddPost(timelineIdPacked
+                    postsContract, postsContract.filters.TimelineAddPost(timelineIdPacked
                     ),
                     async (timelineIdPacked, postId, owner, timelineLength, event) =>
                     {

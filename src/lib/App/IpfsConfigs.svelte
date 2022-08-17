@@ -1,7 +1,6 @@
 <script lang="ts">
     import { defaultIpfsConfigs, ipfsConfigs } from "$/tools/ipfs/client";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
-import { globalEventNotificationManager } from "$lib/kicho-ui/components/KEventNotification.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import { get } from "svelte/store";
 
@@ -34,7 +33,7 @@ import { globalEventNotificationManager } from "$lib/kicho-ui/components/KEventN
     </div>
 
     <div class="config">
-        <div class="label">Remote</div>
+        <div class="label">Remote Fallback</div>
         <KTextField label="Gateway" bind:value={remoteIpfsConfig.gateway} />
         <KTextField label="API" bind:value={remoteIpfsConfig.api} />
     </div>

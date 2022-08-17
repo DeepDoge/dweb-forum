@@ -28,6 +28,7 @@
     "@fontsource/fira-mono": "^4.5.0",
     "@metamask/jazzicon": "^2.0.0",
     "@nomiclabs/hardhat-ethers": "^2.0.4",
+    "@openzeppelin/contracts": "^4.7.3",
     "@sveltejs/adapter-static": "^1.0.0-next.26",
     "@sveltejs/kit": "next",
     "@typechain/ethers-v5": "^10.0.0",

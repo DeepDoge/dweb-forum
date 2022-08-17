@@ -1,5 +1,5 @@
 <script lang="ts">
-import { currentRoute } from "$/routes/_routing";
+    import { currentRoute } from "$/routes/_routing";
 
     import { Feed, getPostRoot, PostId, TimelineGroup } from "$/tools/api/feed";
     import { bigNumberAsUtf8 } from "$/utils/bytes";
@@ -7,6 +7,7 @@ import { currentRoute } from "$/routes/_routing";
     import Post from "$lib/App/Post.svelte";
     import Timeline from "$lib/App/Timeline.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
+    import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
     import { BigNumber } from "ethers";
 
     export let postId: PostId;
@@ -20,15 +21,20 @@ import { currentRoute } from "$/routes/_routing";
     const updateReplies = promiseQueue(async (value: PostId) => {
         if (!value.eq(postId)) return;
         loading = true;
+        
+        try {
+            const root = await getPostRoot({ postId: value });
+            if (!value.eq(postId)) return loading = false;;
+            rootPostIds = [...root, value];
+            setTimeout(() => setTimeout(() => rootPostElements[postId._hex].scrollIntoView({ block: "nearest", inline: "nearest" })));
 
-        const root = await getPostRoot({ postId: value });
-        if (!value.eq(postId)) return;
-        rootPostIds = [...root, value];
-        setTimeout(() => setTimeout(() => rootPostElements[postId._hex].scrollIntoView({ block: "nearest", inline: "nearest" })));
-
-        await repliesFeed.ready;
-        if (!value.eq(postId)) return;
-        setTimeout(() => rootPostElements[postId._hex].scrollIntoView({ block: "nearest", inline: "nearest" }));
+            await repliesFeed.ready;
+            if (!value.eq(postId)) return loading = false;;
+            setTimeout(() => rootPostElements[postId._hex].scrollIntoView({ block: "nearest", inline: "nearest" }));
+        } catch (error) {
+            console.log(error);
+            await globalDialogManager.alert("There was an error reaching the post timeline. See console for details.", "error");
+        }
 
         loading = false;
     });
