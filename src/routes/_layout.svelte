@@ -21,7 +21,7 @@ import { overlayMountPoint } from "$lib/kicho-ui/components/KOverlay.svelte";
     let searchInput: string;
     async function search() {
         if (searchInput.startsWith("#")) location.hash = `#${$currentRoute.chainId}${searchInput.toLowerCase()}`;
-        if (ethers.utils.isAddress(searchInput)) location.hash = `#${$currentRoute.chainId}#${searchInput}`;
+        if (ethers.utils.isAddress(searchInput)) location.hash = `#${$currentRoute.chainId}#${ethers.utils.getAddress(searchInput)}`;
     }
 
     let overlays: HTMLDivElement
