@@ -29,7 +29,7 @@ contract UriGetterV0 is ERC721UriGetter, PostReadableExternal {
             abi.encodePacked(
                 '[',
                     /* '{"display_type": "number","trait_type":"Byte Size","value":', content.data.length.toString(), '},', */
-                    '{"trait_type":"Bytes","value":', content.data.length.toString(), '},',
+                    '{"display_type": "number","trait_type":"Bytes","value":', content.data.length.toString(), '},',
                     '{"display_type": "date","trait_type":"Publish Date","value":', content.time.toString(), '},',
                     '{"trait_type":"Timeline Group","value":"', post.timelineGroup.toString(), '"},',
                     '{"trait_type":"Timeline Key","value":"', post.timelineKey.toString(), '"}',
@@ -40,7 +40,7 @@ contract UriGetterV0 is ERC721UriGetter, PostReadableExternal {
 
     function _svg(string memory tokenIdString) private pure returns(string memory) {
         return string(
-            abi.encodePacked("<svg width='500' height='500' viewPort='0 0 500 500' xmlns='http://www.w3.org/2000/svg'><rect style='fill:url(#g);width:500;height:500'/><text font-size='45' style='fill:#fff;font-family:sans-serif;font-weight:bold'><tspan x='14' y='390'>Post</tspan><tspan x='14' y='450'>#", tokenIdString, "</tspan></text><defs><linearGradient id='g' x1='0' x2='500' gradientUnits='userSpaceOnUse'><stop stop-color='#8360C3'/><stop offset='1' stop-color='#208B69'/></linearGradient></defs></svg>")
+            abi.encodePacked("<svg width='500' height='500' viewPort='0 0 500 500' xmlns='http://www.w3.org/2000/svg'><rect style='fill:url(#g);width:500px;height:500px'/><text font-size='45' style='fill:#fff;font-family:sans-serif;font-weight:bold'><tspan x='14' y='390'>Post</tspan><tspan x='14' y='450'>#", tokenIdString, "</tspan></text><defs><linearGradient id='g' x1='0' x2='500' gradientUnits='userSpaceOnUse'><stop stop-color='#8360C3'/><stop offset='1' stop-color='#208B69'/></linearGradient></defs></svg>")
         );
     }
 
