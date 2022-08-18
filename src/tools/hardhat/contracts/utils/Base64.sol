@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 library Base64 {
 
     bytes constant private base64stdchars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-    bytes constant private base64urlchars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_=";
                                             
     function encode(string memory _str) internal pure returns (string memory) {
         uint i = 0;                                 // Counters & runners
@@ -29,17 +28,17 @@ library Base64 {
             uint c2 = (uint(uint8(_ms[i+1])) & 15) << 2 | uint(uint8(_ms[i+2])) >> 6;
             uint c3 = (uint(uint8(_ms[i+2])) & 63);
 
-            res[j]   = base64urlchars[c0];
-            res[j+1] = base64urlchars[c1];
-            res[j+2] = base64urlchars[c2];
-            res[j+3] = base64urlchars[c3];
+            res[j]   = base64stdchars[c0];
+            res[j+1] = base64stdchars[c1];
+            res[j+2] = base64stdchars[c2];
+            res[j+3] = base64stdchars[c3];
 
             j += 4;
         }
 
         // Adjust trailing empty values
-        if ((padlen - bytes(_str).length) >= 1) { res[j-1] = base64urlchars[64];}
-        if ((padlen - bytes(_str).length) >= 2) { res[j-2] = base64urlchars[64];}
+        if ((padlen - bytes(_str).length) >= 1) { res[j-1] = base64stdchars[64];}
+        if ((padlen - bytes(_str).length) >= 2) { res[j-2] = base64stdchars[64];}
         return string(res);
     }
 
@@ -86,9 +85,9 @@ library Base64 {
     }
 
     function charpos(bytes1 char) private pure returns (uint pos) {
-        for (; base64urlchars[pos] != char; pos++) 
+        for (; base64stdchars[pos] != char; pos++) 
             {}    //for loop body is not necessary
-        require (base64urlchars[pos]==char, "Illegal char in string");
+        require (base64stdchars[pos]==char, "Illegal char in string");
         return pos;
     }
 
