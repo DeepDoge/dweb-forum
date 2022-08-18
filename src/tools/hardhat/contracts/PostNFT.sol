@@ -6,7 +6,7 @@ import "./extensions/PostReadableExternal.sol";
 
 contract PostNFT is ERC721UriExternal, PostReadableExternal {
     constructor(address postsContractAddress, address uriGetterAddress)
-        ERC721("Decenterlized Forum Posts", "DFP")
+        ERC721("Decenterlized Forum", "DFM")
         ERC721UriExternal(uriGetterAddress)
         PostReadableExternal(postsContractAddress)
     {}
