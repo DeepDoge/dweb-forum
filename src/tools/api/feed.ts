@@ -40,7 +40,7 @@ export async function getPostData(postId: PostId): Promise<Writable<PostData>>
         const cache = await postDataStore.get(postId._hex)
         if (cache) return writable(deserializeBigNumbers(cache) as PostData)
 
-        const response = await postResolverContract.getPostData(postId, [[utf8AsBytes32("hidden"), new Uint8Array()]])
+        const response = await postResolverContract.getPostData(postId, [[utf8AsBytes32("hidden"), new Uint8Array(32)]])
         const postData: PostData = {
             postId: response.postId,
             ...response.post,
@@ -108,7 +108,7 @@ export async function getTimelinePost(timelineId: TimelineId, postIndex: BigNumb
         if (cache) return await getPostData(BigNumber.from(cache))
 
         const timelineIdPacked = packTimelineId(timelineId)
-        const respose = await postResolverContract.getPostDataFromTimeline(timelineIdPacked, postIndex, [[utf8AsBytes32('hidden'), new Uint8Array()]])
+        const respose = await postResolverContract.getPostDataFromTimeline(timelineIdPacked, postIndex, [[utf8AsBytes32('hidden'), new Uint8Array(32)]])
 
         await timelinePostStore.put(key, respose.postId)
 

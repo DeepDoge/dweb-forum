@@ -20,13 +20,22 @@ contract UriGetterV0 is ERC721UriGetter, PostReadableExternal {
         return string(
                 abi.encodePacked(
                     '[',
-                    '{"display_type": "number","trait_type":"Byte Size","value":', content.data.length.toString(), '},',
+                    /* '{"display_type": "number","trait_type":"Byte Size","value":', content.data.length.toString(), '},', */
+                    '{"trait_type":"Bytes","value":', content.data.length.toString(), '},',
                     '{"display_type": "date","trait_type":"Publish Date","value":', content.time.toString(), '},',
                     '{"trait_type":"Timeline Group","value":"', post.timelineGroup.toString(), '"},',
                     '{"trait_type":"Timeline Key","value":"', post.timelineKey.toString(), '"}',
                     ']'
                 )
             );
+    }
+
+    function _getChainID() private view returns (uint256) {
+        uint256 id;
+        assembly {
+            id := chainid()
+        }
+        return id;
     }
 
     function tokenURI(uint256 tokenId) external view override returns (string memory) {
@@ -39,7 +48,7 @@ contract UriGetterV0 is ERC721UriGetter, PostReadableExternal {
                         '{"name":', '"Post #', tokenIdString, '",', 
                         '"description":', '"Decenterlized Forum Post #', tokenIdString, '",',  
                         '"image_data":', '"ipfs://QmY12M6ds8d4RRXgEFqW8sycoQM582coZ6aB9cVvs4mJ7o",', 
-                        '"external_url":', '"ipns://dforum.eth/#137##', tokenIdString, '",'
+                        '"external_url":', '"https://dforum.eth.link/#', _getChainID().toString(), '##', tokenIdString, '",'
                         '"attributes":', _attributes(tokenId), 
                         '}')))
                 )
@@ -47,6 +56,6 @@ contract UriGetterV0 is ERC721UriGetter, PostReadableExternal {
     }
 
     function contractURI() external pure override returns (string memory) {
-        return "";
+        return "ipfs://QmdJxFRCuFoxoP3XgdzTftkwrfmWYUzQHT6AqvFaWWS9ZQ";
     }
 }
