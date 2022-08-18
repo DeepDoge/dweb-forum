@@ -29,8 +29,8 @@ contract UriGetterV0 is ERC721UriGetter, PostReadableExternal {
             abi.encodePacked(
                 '[',
                     /* '{"display_type": "number","trait_type":"Byte Size","value":', content.data.length.toString(), '},', */
-                    '{"display_type": "number","trait_type":"Bytes","value":', content.data.length.toString(), '},',
-                    '{"display_type": "date","trait_type":"Publish Date","value":', content.time.toString(), '},',
+                    '{"display_type":"number","trait_type":"Bytes","value":', content.data.length.toString(), '},',
+                    '{"display_type":"date","trait_type":"Publish Date","value":', content.time.toString(), '},',
                     '{"trait_type":"Timeline Group","value":"', post.timelineGroup.toString(), '"},',
                     '{"trait_type":"Timeline Key","value":"', post.timelineKey.toString(), '"}',
                 ']'
