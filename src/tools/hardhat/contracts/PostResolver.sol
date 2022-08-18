@@ -21,7 +21,7 @@ contract PostResolver is PostsExternal, PostMetadataExternal {
         for (uint256 i = 0; i < metadata.length; i++) metadata[i][1] = _postMetadata.postMetadatas(postId, metadata[i][0]);
 
         Post memory post = _getPost(postId);
-        PostData memory postData = PostData(postId, post, abi.decode(SSTORE2.read(post.contentPointer), (PostContent)), metadata);
+        PostData memory postData = PostData(postId, post, _getContent(post.contentPointer), metadata);
 
         return postData;
     }
@@ -36,7 +36,7 @@ contract PostResolver is PostsExternal, PostMetadataExternal {
         for (uint256 i = 0; i < metadata.length; i++) metadata[i][1] = _postMetadata.postMetadatas(postId, metadata[i][0]);
 
         Post memory post = _getPost(postId);
-        PostData memory postData = PostData(postId, post, abi.decode(SSTORE2.read(post.contentPointer), (PostContent)), metadata);
+        PostData memory postData = PostData(postId, post, _getContent(post.contentPointer), metadata);
 
         return postData;
     }

@@ -20,7 +20,7 @@ abstract contract PostReader is Context {
 
     function _getPost(uint160 postId) internal view virtual returns (Post memory) {}
 
-    function _readContent(address contentPointer) private view returns (PostContent memory) {
+    function _getContent(address contentPointer) internal view returns (PostContent memory) {
         return abi.decode(SSTORE2.read(contentPointer), (PostContent));
     }
 

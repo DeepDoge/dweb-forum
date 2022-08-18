@@ -64,10 +64,20 @@ async function main()
   if (!deployed[chainId]['PostNFT']) await deployContract('PostNFT', deployed[chainId]['Posts'], deployed[chainId]['UriGetterV0'] ?? '0x0000000000000000000000000000000000000000')
   if (!deployed[chainId]['UriGetterV0']) await deployContract('UriGetterV0', deployed[chainId]['Posts'])
 
+  console.log('Getting current UriGetter info...')
   const PostNft = await ethers.getContractFactory('PostNFT')
   const postNft = PostNft.attach(deployed[chainId]['PostNFT'])
-  if (deployed[chainId]['UriGetterV0'] && await postNft.getUriGetterAddress().toLowerCase() !== deployed[chainId]['UriGetterV0'].toLowerCase())
+  if (deployed[chainId]['UriGetterV0'] && (await postNft.getUriGetterAddress()).toLowerCase() !== deployed[chainId]['UriGetterV0'].toLowerCase())
+  {
+    console.log('UriGetter is outdated')
+    console.log('Updating UriGetter...')
     await postNft.setUriGetterAddress(deployed[chainId]['UriGetterV0'])
+    console.log('Updated UriGetter')
+  }
+  else 
+  {
+    console.log('UriGetter is up to date')
+  }
 }
 
 // We recommend this pattern to be able to use async/await everywhere
