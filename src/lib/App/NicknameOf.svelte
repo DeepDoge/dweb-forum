@@ -1,8 +1,7 @@
 <script lang="ts">
-    import { getProfileData,ProfileInfo } from "$/tools/api/profile";
-    import { disposableReadable } from "$/utils/disposableReadable";
+    import { getProfileData, ProfileInfo } from "$/tools/api/profile";
+    import { createTheThingThatLetsYouInitializeAndFinalize_A_ValueWhenItsSetAndSomeBooelanIsTrue } from "$/utils/thing";
     import KIntersectionObserver from "$lib/kicho-ui/components/KIntersectionObserver.svelte";
-    import { writable } from "svelte/store";
 
     export let address: string = null;
     let nameInfo: ProfileInfo = null;
@@ -17,21 +16,12 @@
     let intersecting = false;
     $: listen = intersecting;
 
-    const listen_ = writable(listen);
-    $: listen_.set(listen);
-    const nameInfo_ = writable(nameInfo);
-    $: nameInfo_.set(nameInfo);
-
-    disposableReadable({
-        active: listen_,
-        value: nameInfo_,
-        init(value) {
-            value.listen();
-        },
-        dispose(value) {
-            value.unlisten();
-        },
+    const thing = createTheThingThatLetsYouInitializeAndFinalize_A_ValueWhenItsSetAndSomeBooelanIsTrue<typeof nameInfo>({
+        init: (value) => value.listen(),
+        dispose: (value) => value.unlisten(),
     });
+
+    $: thing.update(listen, nameInfo);
 </script>
 
 <KIntersectionObserver bind:intersecting>

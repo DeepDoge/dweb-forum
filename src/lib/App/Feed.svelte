@@ -1,11 +1,9 @@
 <script lang="ts">
     import { Feed, getFeed, TimelineId } from "$/tools/api/feed";
-    import { disposableReadable } from "$/utils/disposableReadable";
+    import { createTheThingThatLetsYouInitializeAndFinalize_A_ValueWhenItsSetAndSomeBooelanIsTrue } from "$/utils/thing";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KIntersectionObserver from "$lib/kicho-ui/components/KIntersectionObserver.svelte";
     import KSpinner from "$lib/kicho-ui/components/KSpinner.svelte";
-    import { subscribe } from "svelte/internal";
-    import { readable, writable } from "svelte/store";
 
     export let timelineIds: TimelineId[];
     let feed: Feed;
@@ -54,14 +52,7 @@
     let intersectingTop = false;
     $: listen = intersectingTop;
 
-    const listen_ = writable(listen);
-    $: listen_.set(listen);
-    const feed_ = writable(feed);
-    $: feed_.set(feed);
-
-    disposableReadable({
-        active: listen_,
-        value: feed_,
+    const thing = createTheThingThatLetsYouInitializeAndFinalize_A_ValueWhenItsSetAndSomeBooelanIsTrue<typeof feed>({
         init(value) {
             value.listen();
         },
@@ -69,6 +60,7 @@
             value.unlisten();
         },
     });
+    $: thing.update(listen, feed);
 </script>
 
 <div class="feed">
