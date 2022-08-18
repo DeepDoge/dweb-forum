@@ -2,9 +2,9 @@
 pragma solidity ^0.8.0;
 
 import "./libs/SSTORE2.sol";
-import "./extensions/PostReader.sol";
+import "./extensions/PostWritable.sol";
 
-contract Posts is PostReader {
+contract Posts is PostWritable {
     /* INTERNAL TIMELINE GROUPS */
     uint96 public constant TIMELINE_GROUP_PROFILE_POSTS = 0;
     uint96 public constant TIMELINE_GROUP_PROFILE_REPLIES = 1;
@@ -60,7 +60,7 @@ contract Posts is PostReader {
         require(timelineGroup > LAST_INTERNAL_TIMELINE_GROUP, "Can't post on internal timeline group.");
 
         uint160 postId = postCounter++;
-        address contentPointer = SSTORE2.write(abi.encode(PostContent(block.timestamp, mentions, data)));
+        address contentPointer = _setContent(PostContent(block.timestamp, mentions, data));
         posts[postId] = Post(timelineGroup, timelineKey, msg.sender, contentPointer);
 
         if (!(timelineGroup == 0 && timelineKey == 0)) {
@@ -78,26 +78,5 @@ contract Posts is PostReader {
 
         for (uint256 i = 0; i < mentions.length; i++)
             addPostToTimeline(getTimelineId(TIMELINE_GROUP_PROFILE_MENTIONS, uint160(address(mentions[i]))), postId);
-    }
-
-    /* 
-    ==========================
-    Post Edit
-    ==========================
-    */
-    mapping(uint160 => address[]) public postContentHistory;
-
-    function postContentHistoryLength(uint160 postId) external view returns(uint256) {
-        return postContentHistory[postId].length;
-    }
-
-    function editPost(
-        uint160 postId,
-        bytes calldata data,
-        address[] calldata mentions
-    ) external onlyPostOwner(postId) {
-        Post storage post = posts[postId];
-        postContentHistory[postId].push(post.contentPointer);
-        post.contentPointer = SSTORE2.write(abi.encode(PostContent(block.timestamp, mentions, data)));
     }
 }

@@ -1,10 +1,10 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./PostReader.sol";
+import "./PostReadable.sol";
 import "../Posts.sol";
 
-abstract contract PostsExternal is PostReader {
+abstract contract PostReadableExternal is PostReadable {
     Posts internal _posts;
 
     constructor(address postsContractAddress) {

@@ -1,4 +1,5 @@
 import deployed from '$/tools/hardhat/scripts/deployed.json'
+import { hexToBytes, utf8AsBytes32 } from '$/utils/bytes'
 import { createPermaStore, createPromiseResultCacher, createTempStore } from "$/utils/common/store"
 import { BigNumber, type BigNumberish } from "ethers"
 import { get, writable, type Writable } from "svelte/store"
@@ -19,7 +20,7 @@ export type PostData =
     Omit<PostResolver.PostDataStructOutput['post'], Exclude<keyof PostResolver.PostDataStructOutput['post'], keyof PostResolver.PostDataStruct['post']>> &
     {
         postId: PostId
-        owner: string
+        hidden: boolean
     }
 
 function deserializeBigNumbers(thing: object)
@@ -39,11 +40,12 @@ export async function getPostData(postId: PostId): Promise<Writable<PostData>>
         const cache = await postDataStore.get(postId._hex)
         if (cache) return writable(deserializeBigNumbers(cache) as PostData)
 
-        const response = await postResolverContract.getPostData(postId, [])
+        const response = await postResolverContract.getPostData(postId, [[utf8AsBytes32("hidden"), new Uint8Array()]])
         const postData: PostData = {
             postId: response.postId,
             ...response.post,
-            ...response.postContent
+            ...response.postContent,
+            hidden: hexToBytes(response.metadata[0][1])[0] !== 0
         }
 
         await postDataStore.put(postId._hex, postData)
@@ -106,11 +108,16 @@ export async function getTimelinePost(timelineId: TimelineId, postIndex: BigNumb
         if (cache) return await getPostData(BigNumber.from(cache))
 
         const timelineIdPacked = packTimelineId(timelineId)
-        const respose = await postResolverContract.getPostDataFromTimeline(timelineIdPacked, postIndex, [])
+        const respose = await postResolverContract.getPostDataFromTimeline(timelineIdPacked, postIndex, [[utf8AsBytes32('hidden'), new Uint8Array()]])
 
         await timelinePostStore.put(key, respose.postId)
 
-        const postData: PostData = { postId: respose.postId, ...respose.post, ...respose.postContent }
+        const postData: PostData = { 
+            postId: respose.postId, 
+            ...respose.post, 
+            ...respose.postContent,
+            hidden: hexToBytes(respose.metadata[0][1])[0] !== 0
+        }
 
         await postDataStore.put(respose.postId._hex, postData)
 

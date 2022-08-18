@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/utils/Context.sol";
 import "../libs/SSTORE2.sol";
 
-abstract contract PostReader is Context {
+abstract contract PostReadable is Context {
     struct Post {
         uint96 timelineGroup;
         uint160 timelineKey;

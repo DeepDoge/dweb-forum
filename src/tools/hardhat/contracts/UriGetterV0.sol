@@ -4,15 +4,15 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "./extensions/ERC721UriGetter.sol";
-import "./extensions/PostsExternal.sol";
+import "./extensions/PostReadableExternal.sol";
 import "./utils/Base64.sol";
 
-contract UriGetterV0 is ERC721UriGetter, PostsExternal {
+contract UriGetterV0 is ERC721UriGetter, PostReadableExternal {
     using Strings for uint256;
     using Strings for uint96;
     using Strings for uint160;
 
-    constructor(address postsContractAddress) PostsExternal(postsContractAddress) {}
+    constructor(address postsContractAddress) PostReadableExternal(postsContractAddress) {}
 
     function _attributes(uint256 tokenId) private view returns(string memory) {
         Post memory post = _getPost(uint160(tokenId));

@@ -1,12 +1,12 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./extensions/PostsExternal.sol";
+import "./extensions/PostReadableExternal.sol";
 import "./extensions/PostMetadataExternal.sol";
 
-contract PostResolver is PostsExternal, PostMetadataExternal {
+contract PostResolver is PostReadableExternal, PostMetadataExternal {
     constructor(address postsContractAddress, address postMetadataContractAddress)
-        PostsExternal(postsContractAddress)
+        PostReadableExternal(postsContractAddress)
         PostMetadataExternal(postMetadataContractAddress)
     {}
 

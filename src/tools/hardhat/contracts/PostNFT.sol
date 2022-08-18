@@ -2,21 +2,18 @@
 pragma solidity ^0.8.0;
 
 import "./extensions/ERC721UriExternal.sol";
-import "./extensions/PostsExternal.sol";
+import "./extensions/PostReadableExternal.sol";
 
-contract PostNFT is ERC721UriExternal, PostsExternal {
+contract PostNFT is ERC721UriExternal, PostReadableExternal {
     constructor(address postsContractAddress, address uriGetterAddress)
         ERC721("Decenterlized Forum Posts TEST", "DFP")
         ERC721UriExternal(uriGetterAddress)
-        PostsExternal(postsContractAddress)
+        PostReadableExternal(postsContractAddress)
     {}
-
-    mapping(uint160 => uint256) public mintVersion;
 
     function mintPostNft(uint160 postId) external {
         Post memory post = _getPost(postId);
         require(post.owner == _msgSender(), "You don't own this post.");
-        mintVersion[postId] = _posts.postContentHistoryLength(postId);
         _mint(_msgSender(), postId);
     }
 
