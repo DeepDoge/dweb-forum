@@ -40,7 +40,7 @@ contract PostNFTUriGetter is ERC721UriGetter, PostReadableExternal {
 
     function _svg(string memory tokenIdString) private pure returns(string memory) {
         return string(
-            abi.encodePacked("<svg width='500' height='500' viewPort='0 0 500 500' xmlns='http://www.w3.org/2000/svg'><rect style='fill:url(#g);width:500px;height:500px'/><text font-size='45' style='fill:#fff;font-family:sans-serif;font-weight:bold'><tspan x='14' y='390'>Post</tspan><tspan x='14' y='450'>#", tokenIdString, "</tspan></text><defs><linearGradient id='g' x1='0' x2='500' gradientUnits='userSpaceOnUse'><stop stop-color='#8360C3'/><stop offset='1' stop-color='#208B69'/></linearGradient></defs></svg>")
+            abi.encodePacked("<svg width='500' height='500' viewPort='0 0 500 500' xmlns='http://www.w3.org/2000/svg'><rect fill='url(#g)' width='500' height='500'/><text font-size='45' style='fill:#fff;font-family:sans-serif;font-weight:bold'><tspan x='50' y='350'>Post</tspan><tspan x='50' y='420'>#", tokenIdString, "</tspan></text><defs><linearGradient id='g' x1='0' x2='500' gradientUnits='userSpaceOnUse'><stop stop-color='#8360C3'/><stop offset='1' stop-color='#208B69'/></linearGradient></defs></svg>")
         );
     }
 
