@@ -61,17 +61,17 @@ async function main()
   if (!deployed[chainId]['PostMetadata']) await deployContract('PostMetadata', deployed[chainId]['Posts'])
   if (!deployed[chainId]['PostResolver']) await deployContract('PostResolver', deployed[chainId]['Posts'], deployed[chainId]['PostMetadata'])
   if (!deployed[chainId]['Profile']) await deployContract('Profile')
-  if (!deployed[chainId]['UriGetterV0']) await deployContract('UriGetterV0', deployed[chainId]['Posts'])
-  if (!deployed[chainId]['PostNFT']) await deployContract('PostNFT', deployed[chainId]['Posts'], deployed[chainId]['UriGetterV0'] ?? '0x0000000000000000000000000000000000000000')
+  if (!deployed[chainId]['PostNFTUriGetter']) await deployContract('PostNFTUriGetter', deployed[chainId]['Posts'])
+  if (!deployed[chainId]['PostNFT']) await deployContract('PostNFT', deployed[chainId]['Posts'], deployed[chainId]['PostNFTUriGetter'] ?? '0x0000000000000000000000000000000000000000')
 
   console.log('Getting current UriGetter info...')
   const PostNft = await ethers.getContractFactory('PostNFT')
   const postNft = PostNft.attach(deployed[chainId]['PostNFT'])
-  if (deployed[chainId]['UriGetterV0'] && (await postNft.getUriGetterAddress()).toLowerCase() !== deployed[chainId]['UriGetterV0'].toLowerCase())
+  if (deployed[chainId]['PostNFTUriGetter'] && (await postNft.getUriGetterAddress()).toLowerCase() !== deployed[chainId]['PostNFTUriGetter'].toLowerCase())
   {
     console.log('UriGetter is outdated')
     console.log('Updating UriGetter...')
-    await postNft.setUriGetterAddress(deployed[chainId]['UriGetterV0'])
+    await postNft.setUriGetterAddress(deployed[chainId]['PostNFTUriGetter'])
     console.log('Updated UriGetter')
   }
   else 
