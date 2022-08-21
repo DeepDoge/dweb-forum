@@ -4,6 +4,7 @@ import { globalEventNotificationManager } from "$lib/kicho-ui/components/KEventN
 import { globalTaskNotificationManager } from "$lib/kicho-ui/components/KTaskNotification.svelte"
 import { NULL_ADDREESS, postNftContract, wallet } from "../wallet"
 import type { PostId } from "./feed"
+import deployed from '$/tools/hardhat/scripts/deployed.json'
 
 export async function mintPostNft(postId: PostId)
 {
@@ -28,7 +29,7 @@ export async function mintPostNft(postId: PostId)
     globalEventNotificationManager.append("Post Minted")
 }
 
-const isNftStore = createTempStore<{value: boolean}>(`is-post-nft-${postNftContract.address}`, 100 * 60 * 5)
+const isNftStore = createTempStore<{ value: boolean }>(`is-post-nft-${deployed[wallet.provider.network.chainId]?.['PostNFT']}`, 100 * 60 * 5)
 const isNftCache = createPromiseResultCacher()
 export async function isPostNft(postId: PostId)
 {

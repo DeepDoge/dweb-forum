@@ -34,7 +34,8 @@
 		"irongeek.vscode-env",
 		"github.vscode-pull-request-github",
 		"esbenp.prettier-vscode",
-		"JuanBlanco.solidity"
+		"JuanBlanco.solidity",
+		"RemixProject.ethereum-remix"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
