@@ -10,7 +10,10 @@
         <div class="menu">
             {#each chainOptions as chainOption (chainOption.chainId)}
                 {#if chainOption.chainId !== currentChainOption.chainId}
-                    <ChainButton chainId={chainOption.chainId} on:click={() => changeWalletChain(chainOption.chainId).then(() => changeChain(chainOption.chainId))} />
+                    <ChainButton
+                        chainId={chainOption.chainId}
+                        on:click={() => changeWalletChain(chainOption.chainId).then(() => changeChain(chainOption.chainId))}
+                    />
                 {/if}
             {/each}
         </div>

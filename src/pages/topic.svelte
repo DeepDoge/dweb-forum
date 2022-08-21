@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { TimelineGroup,TimelineId } from "$/tools/api/feed";
+    import { TimelineGroup, TimelineId } from "$/tools/api/feed";
     import { utf8AsBigNumber256 } from "$/utils/bytes";
     import { pageTitle } from "$/utils/pageTitle";
     import TimelinePage from "$lib/App/TimelinePage.svelte";
@@ -9,10 +9,14 @@
     $: topicId = utf8AsBigNumber256(topic);
     let timelineId: TimelineId;
     $: timelineId = { group: TimelineGroup.Topics, key: topicId };
+
+    export let active: boolean;
 </script>
 
 <svelte:head>
-    <title>{pageTitle(`#${topic}`)}</title>
+    {#if active}
+        <title>{pageTitle(`#${topic}`)}</title>
+    {/if}
 </svelte:head>
 
 <TimelinePage {timelineId}>

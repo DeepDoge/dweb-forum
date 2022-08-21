@@ -24,10 +24,14 @@
     export let modeKey: ProfilePageTabsKey;
 
     $: mode = profilePageTabs[modeKey].mode;
+
+    export let active: boolean;
 </script>
 
 <svelte:head>
-    <title>{pageTitle(address)}</title>
+    {#if active}
+        <title>{pageTitle(address)}</title>
+    {/if}
 </svelte:head>
 
 <div class="profile-page">
@@ -49,7 +53,11 @@
                 <svelte:fragment slot="timeline-header">
                     <div class="tabs">
                         {#each tabsEntries as [path, tab] (path)}
-                            <KButton href="#{$currentRoute.chainId}#{address}/{path}#{$currentRoute.hash}" color="master" background={tab.mode === mode}>{tab.name}</KButton>
+                            <KButton
+                                href="#{$currentRoute.chainId}#{address}/{path}#{$currentRoute.hash}"
+                                color="master"
+                                background={tab.mode === mode}>{tab.name}</KButton
+                            >
                         {/each}
                     </div>
                 </svelte:fragment>

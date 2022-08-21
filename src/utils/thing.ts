@@ -5,7 +5,7 @@ export function createTheThingThatLetsYouInitializeAndFinalize_A_ValueWhenItsSet
 {
     let current = false
     let cache: T = null
- 
+
     function init(value: T)
     {
         if (current === true) return
@@ -24,7 +24,7 @@ export function createTheThingThatLetsYouInitializeAndFinalize_A_ValueWhenItsSet
     {
         if (cache) dispose(cache)
         if (active && value)
-        { 
+        {
             init(value)
             cache = value
         }

@@ -1,13 +1,12 @@
 /**
  *Submitted for verification at Etherscan.io on 2020-01-30
-*/
+ */
 
 // File: @ensdomains/ens/contracts/ENS.sol
 
 pragma solidity >=0.4.24;
 
 interface ENS {
-
     // Logged when the owner of a node assigns a new owner to a subnode.
     event NewOwner(bytes32 indexed node, bytes32 indexed label, address owner);
 
@@ -23,24 +22,49 @@ interface ENS {
     // Logged when an operator is added or removed.
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
 
-    function setRecord(bytes32 node, address owner, address resolver, uint64 ttl) external;
-    function setSubnodeRecord(bytes32 node, bytes32 label, address owner, address resolver, uint64 ttl) external;
-    function setSubnodeOwner(bytes32 node, bytes32 label, address owner) external returns(bytes32);
+    function setRecord(
+        bytes32 node,
+        address owner,
+        address resolver,
+        uint64 ttl
+    ) external;
+
+    function setSubnodeRecord(
+        bytes32 node,
+        bytes32 label,
+        address owner,
+        address resolver,
+        uint64 ttl
+    ) external;
+
+    function setSubnodeOwner(
+        bytes32 node,
+        bytes32 label,
+        address owner
+    ) external returns (bytes32);
+
     function setResolver(bytes32 node, address resolver) external;
+
     function setOwner(bytes32 node, address owner) external;
+
     function setTTL(bytes32 node, uint64 ttl) external;
+
     function setApprovalForAll(address operator, bool approved) external;
+
     function owner(bytes32 node) external view returns (address);
+
     function resolver(bytes32 node) external view returns (address);
+
     function ttl(bytes32 node) external view returns (uint64);
+
     function recordExists(bytes32 node) external view returns (bool);
+
     function isApprovedForAll(address owner, address operator) external view returns (bool);
 }
 
 // File: @ensdomains/ens/contracts/ReverseRegistrar.sol
 
 pragma solidity ^0.5.0;
-
 
 contract Resolver {
     function setName(bytes32 node, string memory name) public;
@@ -68,7 +92,7 @@ contract ReverseRegistrar {
             oldRegistrar.claim(msg.sender);
         }
     }
-    
+
     /**
      * @dev Transfers ownership of the reverse ENS record associated with the
      *      calling account.
@@ -144,7 +168,11 @@ contract ReverseRegistrar {
         assembly {
             let lookup := 0x3031323334353637383961626364656600000000000000000000000000000000
 
-            for { let i := 40 } gt(i, 0) { } {
+            for {
+                let i := 40
+            } gt(i, 0) {
+
+            } {
                 i := sub(i, 1)
                 mstore8(i, byte(and(addr, 0xf), lookup))
                 addr := div(addr, 0x10)

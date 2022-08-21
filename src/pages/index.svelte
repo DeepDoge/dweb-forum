@@ -2,10 +2,14 @@
     import { TimelineGroup } from "$/tools/api/feed";
     import { pageTitle } from "$/utils/pageTitle";
     import TimelinePage from "$lib/App/TimelinePage.svelte";
+
+    export let active: boolean;
 </script>
 
 <svelte:head>
-    <title>{pageTitle("All")}</title>
+    {#if active}
+        <title>{pageTitle("All")}</title>
+    {/if}
 </svelte:head>
 
 <TimelinePage timelineId={{ group: TimelineGroup.AllPostsInGroup, key: TimelineGroup.Topics }}>

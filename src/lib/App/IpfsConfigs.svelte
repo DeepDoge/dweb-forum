@@ -6,23 +6,20 @@
 
     let localIpfsConfig = get(ipfsConfigs)[0];
     let remoteIpfsConfig = get(ipfsConfigs)[1];
-    function update()
-    {
+    function update() {
         localIpfsConfig = get(ipfsConfigs)[0];
         remoteIpfsConfig = get(ipfsConfigs)[1];
     }
 
     function save() {
         ipfsConfigs.set([localIpfsConfig, remoteIpfsConfig]);
-        update()
+        update();
     }
 
     function reset() {
-        ipfsConfigs.set(defaultIpfsConfigs())
-        update()
+        ipfsConfigs.set(defaultIpfsConfigs());
+        update();
     }
-
-    
 </script>
 
 <form class="ipfs-configs" on:submit|preventDefault={save}>

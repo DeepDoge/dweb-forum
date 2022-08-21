@@ -15,29 +15,30 @@
 
 <header style:--height={height} bind:offsetHeight={height}>
     <KBoxEffect color="mode" blur size="smaller" background radius="tile">
-        {#if wallet.account}
-            <div class="account-info">
-                <div class="avatar">
-                    <AvatarOf address={wallet.account} />
+        <div class="layout">
+            {#if wallet.account}
+                <div class="account-info">
+                    <div class="avatar">
+                        <AvatarOf address={wallet.account} />
+                    </div>
+                    <div class="nickname">
+                        <KButton text href="#{$currentRoute.chainId}#{$currentRoute.path}#claim-name" title="Claim Nickname">
+                            <NicknameOf address={wallet.account} />
+                        </KButton>
+                    </div>
+                    <div class="address">
+                        <AddressOf address={wallet.account} />
+                    </div>
                 </div>
-                <div class="nickname">
-                    <KButton text href="#{$currentRoute.chainId}#{$currentRoute.path}#claim-name" title="Claim Nickname">
-                        <NicknameOf address={wallet.account} />
-                    </KButton>
-                </div>
-                <div class="address">
-                    <AddressOf address={wallet.account} />
-                </div>
-            </div>
-        {:else}
-            <KButton color="gradient" glow="gradient" glowMultiplier={0.5} on:click={() => connectWallet()}>Connect Wallet</KButton>
-        {/if}
-        <KButton text radius="fab" href="#{$currentRoute.chainId}#{$currentRoute.path}#settings">
-            <div class="settings-gear" style:--chain-icon="url({currentChainOption.iconSrc})" style:--chain-theme={currentChainOption.themeColor}>
-                <svg x="0px" y="0px" viewBox="0 0 512.003 512.003" fill="currentColor">
-                    <g>
-                        <path
-                            d="M491.584,192.579l-55.918-6.914c-0.919-2.351-1.884-4.682-2.892-6.993l34.648-44.428
+            {:else}
+                <KButton color="gradient" glow="gradient" glowMultiplier={0.5} on:click={() => connectWallet()}>Connect Wallet</KButton>
+            {/if}
+            <KButton text radius="fab" href="#{$currentRoute.chainId}#{$currentRoute.path}#settings">
+                <div class="settings-gear" style:--chain-icon="url({currentChainOption.iconSrc})" style:--chain-theme={currentChainOption.themeColor}>
+                    <svg x="0px" y="0px" viewBox="0 0 512.003 512.003" fill="currentColor">
+                        <g>
+                            <path
+                                d="M491.584,192.579l-55.918-6.914c-0.919-2.351-1.884-4.682-2.892-6.993l34.648-44.428
 			c7.227-9.267,6.412-22.464-1.899-30.773l-57.028-56.996c-8.308-8.304-21.502-9.114-30.763-1.893L333.32,79.216
 			c-2.312-1.008-4.644-1.974-6.994-2.894l-6.915-55.904c-1.443-11.66-11.348-20.415-23.097-20.415h-80.637
 			c-11.748,0-21.656,8.755-23.097,20.416l-6.914,55.904c-2.349,0.919-4.681,1.884-6.988,2.89l-44.415-34.642
@@ -60,29 +61,38 @@
 			c1.133,9.148,7.557,16.767,16.384,19.427c9.328,2.811,18.379,6.557,26.902,11.135c8.122,4.364,18.055,3.522,25.325-2.149
 			l39.616-30.894l27.927,27.912l-30.897,39.618c-5.666,7.267-6.513,17.191-2.158,25.311c4.58,8.54,8.328,17.599,11.138,26.923
 			c2.661,8.825,10.279,15.248,19.427,16.381l49.878,6.169V275.74z"
-                        />
-                    </g>
-                    <g>
-                        <path
-                            d="M255.997,155.153c-55.606,0-100.845,45.244-100.845,100.856c0,55.603,45.239,100.839,100.845,100.839
+                            />
+                        </g>
+                        <g>
+                            <path
+                                d="M255.997,155.153c-55.606,0-100.845,45.244-100.845,100.856c0,55.603,45.239,100.839,100.845,100.839
 			c55.609,0,100.852-45.236,100.852-100.839C356.849,200.397,311.606,155.153,255.997,155.153z M255.997,310.303
 			c-29.941,0-54.3-24.356-54.3-54.294c0-29.947,24.359-54.311,54.3-54.311c29.944,0,54.306,24.363,54.306,54.311
 			C310.303,285.947,285.941,310.303,255.997,310.303z"
-                        />
-                    </g>
-                </svg>
-            </div>
-        </KButton>
-        {#if wallet.account}
-            <Notifications account={wallet.account} />
-        {/if}
-        <KButton radius="fab" color={$currentRoute.path || $currentRoute.hash ? "mode-pop" : "master"} href="#{$currentRoute.chainId}#">Home</KButton>
-        <!-- <div class="account-balance k-text-singleline">Balance: <b><Balance /></b></div> -->
+                            />
+                        </g>
+                    </svg>
+                </div>
+            </KButton>
+            {#if wallet.account}
+                <Notifications account={wallet.account} />
+            {/if}
+            <KButton radius="fab" color={$currentRoute.path || $currentRoute.hash ? "mode-pop" : "master"} href="#{$currentRoute.chainId}#"
+                >Home</KButton
+            >
+            <!-- <div class="account-balance k-text-singleline">Balance: <b><Balance /></b></div> -->
+        </div>
     </KBoxEffect>
 </header>
 
 <style>
     header {
+        position: sticky;
+        top: 0;
+        z-index: var(--k-z-index-floating);
+    }
+
+    .layout {
         display: grid;
         grid-template-columns: 1fr auto auto auto;
         align-items: center;
@@ -90,9 +100,6 @@
         justify-items: start;
         padding: calc(var(--k-padding) * 2);
         gap: calc(var(--k-padding) * 4);
-        position: sticky;
-        top: 0;
-        z-index: var(--k-z-index-floating);
     }
 
     .settings-gear {
@@ -113,7 +120,7 @@
         background-position: center;
         background-size: 50%;
         background-repeat: no-repeat;
-        
+
         position: absolute;
         top: 0;
         right: 0;

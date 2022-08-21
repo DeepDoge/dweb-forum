@@ -34,14 +34,14 @@
             <ContentImage {...selectedItem} />
         </div>
         <div class="scroll">
-        <div class="items">
-            {#each items as item, i}
-                <div class="item" on:click={() => show(i)}>
-                    <ContentImage hide cover {...item} />
-                </div>
-            {/each}
+            <div class="items">
+                {#each items as item, i}
+                    <div class="item" on:click={() => show(i)}>
+                        <ContentImage hide cover {...item} />
+                    </div>
+                {/each}
+            </div>
         </div>
-    </div>
     </div>
 </KOverlay>
 
@@ -57,25 +57,25 @@
     }
 
     .preview .items {
-        grid-template-areas: 
+        grid-template-areas:
             "item-0 item-1"
             "item-2 item-3";
     }
 
     [data-count="3"] .preview .items {
-        grid-template-areas: 
+        grid-template-areas:
             "item-0 item-2"
             "item-1 item-2";
     }
 
     [data-count="2"] .preview .items {
-        grid-template-areas: 
+        grid-template-areas:
             "item-0 item-1"
             "item-0 item-1";
     }
 
     [data-count="1"] .preview .items {
-        grid-template-areas: 
+        grid-template-areas:
             "item-0 item-0"
             "item-0 item-0";
     }
@@ -103,7 +103,7 @@
         display: grid;
         grid-template-columns: 1fr auto 1fr;
         grid-template-rows: 1fr 5em;
-        grid-template-areas: 
+        grid-template-areas:
             ". selected ."
             "items items items";
         gap: calc(var(--k-padding));

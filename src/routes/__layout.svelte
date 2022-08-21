@@ -1,14 +1,13 @@
 <script context="module" lang="ts">
-    const version = '0.0.3'
-    if (localStorage.getItem('current-version') !== version)
-    {
-        console.log('a')
+    const version = "0.0.3";
+    if (localStorage.getItem("current-version") !== version) {
+        console.log("a");
         indexedDB.databases().then((databases) => {
-            databases.forEach((database) => indexedDB.deleteDatabase(database.name))
-        })
-        localStorage.clear()
-        localStorage.setItem('current-version', version)
-        location.reload()
+            databases.forEach((database) => indexedDB.deleteDatabase(database.name));
+        });
+        localStorage.clear();
+        localStorage.setItem("current-version", version);
+        location.reload();
     }
 </script>
 
@@ -26,10 +25,10 @@
 
     let layoutPromise = import("./_layout.svelte");
     let layoutReady = false;
-    $: console.log(layoutPromise)
-    $: layoutPromise ? layoutPromise.then(() => layoutReady = true) : (layoutReady = false);
+    $: console.log(layoutPromise);
+    $: layoutPromise ? layoutPromise.then(() => (layoutReady = true)) : (layoutReady = false);
 
-    $: loading = !layoutReady || !$ipfsClient || $walletState !== 'ready'
+    $: loading = !layoutReady || !$ipfsClient || $walletState !== "ready";
 
     window.dispatchEvent(new Event("_app-ready"));
 </script>

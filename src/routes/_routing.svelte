@@ -50,17 +50,15 @@
 </script>
 
 <script lang="ts">
-    let keyCache: string = null
+    let keyCache: string = null;
 
     const pageStates: Record<string, { props: Record<string, any> }> = {};
 
-    $: $currentPageInfo, onPageInfoChange()
-    function onPageInfoChange()
-    {
+    $: $currentPageInfo, onPageInfoChange();
+    function onPageInfoChange() {
         const key = $currentRoute.path;
         const state = (pageStates[$currentPageInfo.page.name] = { ...pageStates[$currentPageInfo.page.name], props: $currentPageInfo.props });
         const scroll = routeScrolls[key];
-
 
         // Scroll
         if (key !== keyCache) {
@@ -76,7 +74,7 @@
             });
         }
 
-        keyCache = key
+        keyCache = key;
     }
 
     $: id = $page.url.hash.substring(1);
@@ -88,7 +86,7 @@
 {#each pages as page (page.name)}
     <div class="page" style:display={$currentPageInfo.page.name === page.name ? "block" : "none"}>
         {#if pageStates[page.name]}
-            <svelte:component this={page} {...pageStates[page.name].props} />
+            <svelte:component this={page} {...pageStates[page.name].props} active={$currentPageInfo.page.name === page.name} />
         {/if}
     </div>
 {/each}

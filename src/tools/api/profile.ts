@@ -1,8 +1,9 @@
-import { ensReverseRecord, ensReverseResolver, profileContract } from "$/tools/wallet"
-import { listenContract } from "$/tools/wallet/listen"
+import { ensReverseRecord, ensReverseResolver, ethProvider, profileContract } from "$/tools/wallet"
 import { hexToUtf8, utf8AsBytes32 } from "$/utils/bytes"
 import { createPromiseResultCacher, createTempStore } from "$/utils/common/store"
 import { writable, type Writable } from "svelte/store"
+import type { TypedListener } from "../hardhat/typechain-types/common"
+import type { ProfileSetEvent } from "../hardhat/typechain-types/contracts/Profile"
 
 export interface ProfileInfo
 {
@@ -22,14 +23,13 @@ export async function getProfileData(address: string, key: string)
 
         function listen()
         {
+            const filter = profileContract.filters.ProfileSet(address, utf8AsBytes32(key))
+            const listener: TypedListener<ProfileSetEvent> = (owner, key, value, timestamp) => result.set(hexToUtf8(value))
+            profileContract.on(filter, listener)
+
             if (listeners[uniqueKey]) listeners[uniqueKey].count++
             else listeners[uniqueKey] = {
-                count: 1, unlisten: listenContract(
-                    profileContract, profileContract.filters.ProfileSet(address, utf8AsBytes32(key)),
-                    async (owner, key, value: string, timestamp) =>
-                    {
-                        result.set(hexToUtf8(value))
-                    })
+                count: 1, unlisten() { profileContract.off(filter, listener) }
             }
         }
 
@@ -48,7 +48,7 @@ export async function getProfileData(address: string, key: string)
     })
 }
 
-const ensNameStore = createTempStore<{ ensName: string }>('ens-name', 1000 * 60 * 10)
+const ensNameStore = createTempStore<{ ensName: string }>('ens-name', 1000 * 60 * 5)
 const ensNameCacher = createPromiseResultCacher()
 export async function ensNameOf(address: string)
 {
@@ -60,6 +60,22 @@ export async function ensNameOf(address: string)
 
         const response = await ensReverseResolver.name(await ensReverseRecord.node(address))
         if (response) await ensNameStore.put(key, { ensName: response })
+        return response
+    })
+}
+
+const ensAddressStore = createTempStore<{ address: string }>('ens-address', 1000 * 60 * 5)
+const ensAddressCacher = createPromiseResultCacher()
+export async function ensResolve(ensName: string)
+{
+    const key = ensName.toLowerCase()
+    return await ensAddressCacher.cache(key, async () => 
+    {
+        const cache = await ensAddressStore.get(key)
+        if (cache) return cache.address
+
+        const response = await (await ethProvider.getResolver(ensName)).getAddress()
+        if (response) await ensAddressStore.put(key, { address: response })
         return response
     })
 }

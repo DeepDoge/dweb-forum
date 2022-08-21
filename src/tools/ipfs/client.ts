@@ -33,8 +33,8 @@ export const defaultIpfsConfigs: () => Config[] = () => [
 ]
 export const ipfsConfigs: Writable<Config[]> = writable(JSON.parse(localStorage.getItem("ipfs-config")) ?? defaultIpfsConfigs())
 
-const _noIpfsClientFound = writable(false) 
-export const noIpfsClientFound: Readable<boolean> = _noIpfsClientFound 
+const _noIpfsClientFound = writable(false)
+export const noIpfsClientFound: Readable<boolean> = _noIpfsClientFound
 ipfsConfigs.subscribe((configs) => localStorage.setItem('ipfs-config', JSON.stringify(configs)))
 
 const cache = weakRecord<Uint8Array>()

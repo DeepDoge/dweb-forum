@@ -9,7 +9,6 @@
     <div class="item">
         <h2>Current chain</h2>
         <div class="current-chain">
-            
             <ChainButton chainId={currentChainOption.chainId} />
         </div>
         <h2>Pick a chain</h2>

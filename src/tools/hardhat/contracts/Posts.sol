@@ -44,7 +44,7 @@ contract Posts is PostWritable {
     Post
     ==========================
     */
-    function _getPost(uint160 postId) internal view override returns(Post memory) {
+    function _getPost(uint160 postId) internal view override returns (Post memory) {
         return posts[postId];
     }
 

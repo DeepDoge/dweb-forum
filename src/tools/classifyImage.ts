@@ -64,6 +64,6 @@ export async function classifyImage(img: HTMLImageElement): Promise<Predictions>
 
         await imageClassStore.put(img.src, value.array)
 
-        return value 
+        return value
     })
 }

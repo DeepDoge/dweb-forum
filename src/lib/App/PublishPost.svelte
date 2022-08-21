@@ -1,10 +1,10 @@
 <script lang="ts">
     import { getPostData, packTimelineId, TimelineGroup, TimelineId } from "$/tools/api/feed";
+    import type { TypedListener } from "$/tools/hardhat/typechain-types/common";
+    import type { TimelineAddPostEvent } from "$/tools/hardhat/typechain-types/contracts/Posts";
     import { ipfsClient } from "$/tools/ipfs/client";
     import { postsContract, wallet } from "$/tools/wallet";
-    import { waitContractUntil } from "$/tools/wallet/listen";
-    import { IpfsHashToBytes32 } from "$/utils/bytes";
-    import { addPostContentItemsDataToIpfs, encodePostContentItems, parseContent } from "$/utils/content";
+    import { encodePostContentItems, parseContent } from "$/utils/content";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
@@ -25,6 +25,8 @@
     $: encodedContent = content ? encodePostContentItems(content.items) : null;
     $: length = encodedContent?.length ?? 0;
 
+    let waitingForUserConfirmation = false;
+
     async function publish() {
         try {
             const content = parseContent(
@@ -37,25 +39,28 @@
                     : []
             );
 
-            uploadingFile = true;
-            const contentData = encodePostContentItems(content.items)
-            uploadingFile = false;
+            const contentData = encodePostContentItems(content.items);
 
+            waitingForUserConfirmation = true;
             const tx = await globalTaskNotificationManager.append(
                 postsContract.publishPost(timelineId.group, timelineId.key, contentData, content.mentions),
-                "Awaiting Publish Confirmation"
+                "Waiting Publish Confirmation"
             );
+            waitingForUserConfirmation = false;
 
             showPostPreview = false;
             setTimeout(() => {
                 contentText = null;
             }, 500);
 
+            const filterTimelineAddPost = postsContract.filters.TimelineAddPost(packTimelineId(timelineId));
+            const onTimelineAddPost: TypedListener<TimelineAddPostEvent> = (x, y, z, w, event) => {
+                const result = tx.hash === event.transactionHash;
+                if (result) postsContract.off(filterTimelineAddPost, onTimelineAddPost);
+                return result;
+            };
             await globalTaskNotificationManager.append(
-                waitContractUntil(postsContract, postsContract.filters.TimelineAddPost(packTimelineId(timelineId)), (x, y, z, w, event) => {
-                    console.log(tx.hash, event.transactionHash);
-                    return tx.hash === event.transactionHash;
-                }),
+                new Promise<void>((resolve) => postsContract.on(filterTimelineAddPost, onTimelineAddPost)),
                 "Publishing Post"
             );
         } catch (error) {
@@ -79,7 +84,8 @@
         on:change={async (event) => {
             uploadingFile = true;
 
-            if (!(await globalDialogManager.confirm(`Are you sure you wanna upload "${uploadElement.files[0].name}"?`))) return uploadingFile = false;
+            if (!(await globalDialogManager.confirm(`Are you sure you wanna upload "${uploadElement.files[0].name}"?`)))
+                return (uploadingFile = false);
 
             try {
                 await globalTaskNotificationManager.append(
@@ -91,7 +97,9 @@
                     `Uploading file (${uploadElement.files[0].name}) to IPFS`
                 );
             } catch (err) {
-                globalDialogManager.alert("There was an error while uploading the file. See the console for details.\nThis might happen when IPFS API doesn't allow file uploads.\nYou can still post media using `image,Qm...` or `image,bafy...`");
+                globalDialogManager.alert(
+                    "There was an error while uploading the file. See the console for details.\nThis might happen when IPFS API doesn't allow file uploads.\nYou can still post media using `image,Qm...` or `image,bafy...`"
+                );
                 console.error(err);
             } finally {
                 uploadingFile = false;
@@ -124,7 +132,9 @@
             </div>
             <div class="actions">
                 <input type="submit" style="opacity:0;position:absolute;pointer-events:none;width:0;height:0" />
-                <KButton color="master" radius="rounded" disabled={busy} on:click={publish}>Post on Chain</KButton>
+                <KButton color="master" loading={waitingForUserConfirmation} radius="rounded" disabled={busy} on:click={publish}>
+                    Post on Chain
+                </KButton>
             </div>
         </form>
     </KModal>

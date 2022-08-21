@@ -12,7 +12,7 @@ abstract contract ERC721UriExternal is Ownable, ERC721Enumerable {
         _setUriGetterAddress(uriGetterAddress);
     }
 
-    function getUriGetterAddress() public view returns(address) {
+    function getUriGetterAddress() public view returns (address) {
         return address(_uriGetter);
     }
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { currentRoute } from "$/routes/_routing";
+    import { currentRoute } from "$/routes/_routing";
 
     import { blankImageData } from "$/utils/common/blankImage";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";

@@ -10,6 +10,8 @@ import type { PostMetadata, PostNFT, PostResolver, Posts, Profile } from '../har
 import { ReverseRegistrar__factory } from '../hardhat/typechain-types/factories/contracts/others/ens/ENSReverseResolve.sol'
 import { type ChainOption, defaultChainOptions } from './chains'
 
+export const NULL_ADDREESS = '0x0000000000000000000000000000000000000000'
+
 export const chainOptions: readonly ChainOption[] = Object.freeze(Object.values(defaultChainOptions).filter((option) =>
     deployed[parseInt(option.chainId, 16)]
 ).map((option) => ({
@@ -38,11 +40,12 @@ let account: string = null
 let provider: Web3Provider | JsonRpcProvider = null
 
 
-const ethProvider = new ethers.providers.JsonRpcProvider(
+export const ethProvider = new ethers.providers.JsonRpcProvider(
     defaultChainOptions.Ethereum.rpcUrls[0],
     {
         chainId: parseInt(defaultChainOptions.Ethereum.chainId, 16),
-        name: defaultChainOptions.Ethereum.chainName
+        name: defaultChainOptions.Ethereum.chainName,
+        ensAddress: '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e'
     }
 )
 
@@ -53,17 +56,15 @@ export const wallet = {
     state: readable(get(state), (set) => state.subscribe((value) => set(value)))
 }
 
+const ethSigner = ethProvider.getSigner(NULL_ADDREESS)
+export let ensReverseRecord = ReverseRegistrar__factory.connect('0x084b1c3C81545d370f3634392De611CaaBFf8148', ethSigner)
+export let ensReverseResolver = DefaultReverseResolver__factory.connect('0xA2C122BE93b0074270ebeE7f6b7292C7deB45047', ethSigner)
+
 export let postsContract: Posts = null
 export let postMetadataContract: PostMetadata = null
 export let postResolverContract: PostResolver = null
 export let profileContract: Profile = null
 export let postNftContract: PostNFT = null
-
-export const NULL_ADDREESS = '0x0000000000000000000000000000000000000000'
-
-const ethSigner = ethProvider.getSigner(NULL_ADDREESS)
-export let ensReverseRecord = ReverseRegistrar__factory.connect('0x084b1c3C81545d370f3634392De611CaaBFf8148', ethSigner)
-export let ensReverseResolver = DefaultReverseResolver__factory.connect('0xA2C122BE93b0074270ebeE7f6b7292C7deB45047', ethSigner)
 
 if (web3Provider)
 {

@@ -2,10 +2,10 @@
     import { currentRoute } from "$/routes/_routing";
     import { getPostData, getTimelineInfo, PostData, PostId, TimelineGroup } from "$/tools/api/feed";
     import { mintPostNft } from "$/tools/api/mint";
-    import { postNftContract, wallet } from "$/tools/wallet";
-    import { bigNumberAsUtf8, bytes32ToIpfsHash, hexToBytes, hexToUtf8 } from "$/utils/bytes";
+    import { NULL_ADDREESS, postNftContract, wallet } from "$/tools/wallet";
+    import { bigNumberAsUtf8, hexToBytes, hexToUtf8 } from "$/utils/bytes";
     import { promiseQueue } from "$/utils/common/promiseQueue";
-    import { ContentType, decodePostContentItems, getPostContentItemsDataFromIpfs, PostContentData } from "$/utils/content";
+    import { ContentType, decodePostContentItems, PostContentData } from "$/utils/content";
     import { second } from "$/utils/second";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
@@ -29,19 +29,25 @@
 
     let postData: Writable<PostData> = null;
     let postContent: PostContentData = null;
+    let isNft = false;
 
     let parentPostData: Writable<PostData> = null;
-
     let repliesTimelineLength: Writable<BigNumber> = null;
 
     $: (!$postData || !postId.eq($postData.postId)) && updatePost();
     const updatePost = promiseQueue(async () => {
         postData = null;
         parentPostData = null;
+        isNft = false;
 
         if (postId.lt(0)) return;
 
         await Promise.all([
+            (async () => {
+                try {
+                    isNft = (await postNftContract.ownerOf(postId)) !== NULL_ADDREESS;
+                } catch {}
+            })(),
             (async () => {
                 postData = await getPostData(postId);
                 postContent = null;
@@ -105,7 +111,12 @@
                     </div>
                 </div>
 
-                <div class="chip">
+                <div class="chips">
+                    {#if isNft}
+                        <a href="https://opensea.io/assets/matic/{postNftContract.address}/{postId}" target="_blank">
+                            <KChip color="slave">NFT</KChip>
+                        </a>
+                    {/if}
                     {#if parentPostData}
                         <a href="#{$currentRoute.chainId}#{$currentRoute.path}#{$parentPostData.postId}">
                             <KChip color="slave">
@@ -209,7 +220,7 @@
         font-size: var(--k-font-xx-smaller);
     }
 
-    .chip {
+    .chips {
         grid-area: chip;
         display: grid;
         grid-auto-flow: column;

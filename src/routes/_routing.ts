@@ -31,7 +31,7 @@ function parseURL(url: URL): Route
 }
 
 let cacheHref = null
-export const currentRoute = readable<Route>(parseURL(new URL(location.href)), (set) => 
+export const currentRoute = readable<Route>(parseURL(new URL(location.href)), (set) =>
     window.addEventListener("hashchange", () => 
     {
         if (cacheHref === location.href) return

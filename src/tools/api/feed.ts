@@ -3,10 +3,10 @@ import { hexToBytes, utf8AsBytes32 } from '$/utils/bytes'
 import { createPermaStore, createPromiseResultCacher, createTempStore } from "$/utils/common/store"
 import { BigNumber, type BigNumberish } from "ethers"
 import { get, writable, type Writable } from "svelte/store"
+import type { TypedListener } from '../hardhat/typechain-types/common'
 import type { PostResolver } from '../hardhat/typechain-types/contracts/PostResolver'
 import type { TimelineAddPostEvent } from '../hardhat/typechain-types/contracts/Posts'
-import { postsContract, postResolverContract, wallet } from '../wallet'
-import { listenContract } from "../wallet/listen"
+import { postResolverContract, postsContract, wallet } from '../wallet'
 
 const followedTopics = wallet.account ? createPermaStore<{ topic: string }>(`${deployed[wallet.provider.network.chainId]['Posts']}:${wallet.account}:followed`) : null
 export async function followTopic(topic: string)
@@ -112,9 +112,9 @@ export async function getTimelinePost(timelineId: TimelineId, postIndex: BigNumb
 
         await timelinePostStore.put(key, respose.postId)
 
-        const postData: PostData = { 
-            postId: respose.postId, 
-            ...respose.post, 
+        const postData: PostData = {
+            postId: respose.postId,
+            ...respose.post,
             ...respose.postContent,
             hidden: hexToBytes(respose.metadata[0][1])[0] !== 0
         }
@@ -139,17 +139,18 @@ export async function getTimelineInfo(timelineId: TimelineId)
 
         function listen()
         {
+            const filter = postsContract.filters.TimelineAddPost(timelineIdPacked)
+            const listener: TypedListener<TimelineAddPostEvent> = (timelineIdPacked, postId, owner, timelineLength, event) =>
+            {
+                if (get(length) >= timelineLength) return
+                length.set(timelineLength)
+                lastEvent.set(event)
+            }
+            postsContract.on(filter, listener)
+
             if (timelineInfoListeners[uniqueKey]) timelineInfoListeners[uniqueKey].count++
             else timelineInfoListeners[uniqueKey] = {
-                count: 1, unlisten: listenContract(
-                    postsContract, postsContract.filters.TimelineAddPost(timelineIdPacked
-                    ),
-                    async (timelineIdPacked, postId, owner, timelineLength, event) =>
-                    {
-                        if (get(length) >= timelineLength) return
-                        length.set(timelineLength)
-                        lastEvent.set(event)
-                    })
+                count: 1, unlisten() { postsContract.off(filter, listener) }
             }
         }
 
@@ -217,9 +218,10 @@ export function getFeed(timelineIds: TimelineId[])
                     }
 
                     let first = true
-                    info.lastEvent.subscribe((event) =>
+                    info.lastEvent.subscribe(async (event) =>
                     {
                         if (first) return first = false
+                        await new Promise((r) => setTimeout(r, 1500))
                         if (event.args.owner.toLowerCase() === wallet.account?.toLowerCase())
                         {
                             loadedByCurrentSessionPostIds.unshift(event.args.postId)

@@ -3,7 +3,6 @@ import { globalEventNotificationManager } from "$lib/kicho-ui/components/KEventN
 import { globalTaskNotificationManager } from "$lib/kicho-ui/components/KTaskNotification.svelte"
 import { BigNumber } from "ethers"
 import { NULL_ADDREESS, postNftContract, wallet } from "../wallet"
-import { waitContractUntil } from "../wallet/listen"
 import type { PostId } from "./feed"
 
 export async function mintPostNft(postId: PostId)
@@ -23,12 +22,9 @@ export async function mintPostNft(postId: PostId)
     }
 
     await globalTaskNotificationManager.append(postNftContract.mintPostNft(postId), "Waiting for user approval...")
-    await globalTaskNotificationManager.append(
-        waitContractUntil(
-            postNftContract, 
-            postNftContract.filters.Transfer(NULL_ADDREESS, wallet.account, postId), 
-            () => true
-        ), 
+    await globalTaskNotificationManager.append(new Promise<void>((resolve) =>
+        postNftContract.once(postNftContract.filters.Transfer(NULL_ADDREESS, wallet.account, postId), () => resolve())
+    ),
         "Minting Post as NFT..."
     )
     globalEventNotificationManager.append("Post Minted")

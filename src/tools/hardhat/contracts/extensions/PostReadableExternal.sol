@@ -11,7 +11,7 @@ abstract contract PostReadableExternal is PostReadable {
         _posts = Posts(postsContractAddress);
     }
 
-    function _getPost(uint160 postId) internal view override returns(Post memory) {
+    function _getPost(uint160 postId) internal view override returns (Post memory) {
         (uint96 timelineGroup, uint160 timelineKey, address owner, address contentPointer) = _posts.posts(postId);
         return Post(timelineGroup, timelineKey, owner, contentPointer);
     }

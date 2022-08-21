@@ -11,7 +11,7 @@
     import ProfileMiniCard from "./ProfileMiniCard.svelte";
 
     export let content: PostContentData;
-    export let limitHeight = false
+    export let limitHeight = false;
 
     $: items = content?.items.filter((item) => item.type !== ContentType.IpfsImage);
     let imageItems: ContentImage["$$prop_def"][];

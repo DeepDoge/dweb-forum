@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { chainOptionsByChainId, changeChain } from "$/tools/wallet";
+    import { chainOptionsByChainId } from "$/tools/wallet";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
 
     export let chainId: string;
