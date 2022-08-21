@@ -28,7 +28,7 @@ export async function mintPostNft(postId: PostId)
     globalEventNotificationManager.append("Post Minted")
 }
 
-const isNftStore = createTempStore<{value: boolean}>('is-post-nft', 100 * 60 * 5)
+const isNftStore = createTempStore<{value: boolean}>(`is-post-nft-${postNftContract.address}`, 100 * 60 * 5)
 const isNftCache = createPromiseResultCacher()
 export async function isPostNft(postId: PostId)
 {
