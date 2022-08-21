@@ -1,7 +1,7 @@
 <script lang="ts">
     import { currentRoute } from "$/routes/_routing";
     import { getPostData, getTimelineInfo, PostData, PostId, TimelineGroup } from "$/tools/api/feed";
-    import { mintPostNft } from "$/tools/api/mint";
+    import { isPostNft, mintPostNft } from "$/tools/api/mint";
     import { NULL_ADDREESS, postNftContract, wallet } from "$/tools/wallet";
     import { bigNumberAsUtf8, hexToBytes, hexToUtf8 } from "$/utils/bytes";
     import { promiseQueue } from "$/utils/common/promiseQueue";
@@ -45,7 +45,7 @@
         await Promise.all([
             (async () => {
                 try {
-                    isNft = (await postNftContract.ownerOf(postId)) !== NULL_ADDREESS;
+                    isNft = await isPostNft(postId);
                 } catch {}
             })(),
             (async () => {
