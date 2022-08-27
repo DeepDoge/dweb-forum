@@ -18,7 +18,7 @@ if (!get(currentRoute).chainId)
     location.replace(`#${web3Provider?.network?.chainId ?? parseInt(defaultChainId, 16)}`)
     location.reload()
 }
-export const currentChainOption = chainOptionsByChainId[ethers.utils.hexValue(get(currentRoute).chainId) ?? defaultChainId] ?? chainOptionsByChainId[defaultChainId]
+const currentChainOption = chainOptionsByChainId[ethers.utils.hexValue(get(currentRoute).chainId) ?? defaultChainId] ?? chainOptionsByChainId[defaultChainId]
 
 
 export const wallet = service('Web3', {
@@ -57,6 +57,7 @@ export const wallet = service('Web3', {
         get ethProvider() { return ethProvider },
         get web3Provider() { return web3Provider },
         get account() { return account },
+        get currentChainOption() { return currentChainOption },
         contracts: {
             postsContract,
             postMetadataContract,

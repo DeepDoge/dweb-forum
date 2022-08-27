@@ -12,7 +12,7 @@
 </script>
 
 <script lang="ts">
-    import { changeChain, changeWalletChain, connectWallet, currentChainOption, wallet, walletState } from "$/tools/wallet";
+    import { changeChain, changeWalletChain, connectWallet, wallet, walletState } from "$/tools/wallet";
     import { chainOptionsByChainId } from "$/tools/wallet/chains";
     import ChainButton from "$lib/App/ChainButton.svelte";
     import KApp from "$lib/kicho-ui/components/KApp.svelte";
@@ -58,7 +58,7 @@
             Wrong Wallet Network
             <div class="change-chain">
                 <span>Switch to</span>
-                <ChainButton chainId={currentChainOption.chainId} on:click={() => changeWalletChain(currentChainOption.chainId)} />
+                <ChainButton chainId={wallet.service.currentChainOption.chainId} on:click={() => changeWalletChain(wallet.service.currentChainOption.chainId)} />
             </div>
             {#if wallet.service.account && chainOptionsByChainId[ethers.utils.hexValue(wallet.service.web3Provider.network.chainId)]}
                 <div class="change-chain">

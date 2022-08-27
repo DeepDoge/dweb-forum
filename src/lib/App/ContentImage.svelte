@@ -43,8 +43,7 @@
     let show = false;
     $: nsfw =
         predictions &&
-        ((predictions.array[0].className === "Sexy" && predictions.map.Neutral.probability < 0.05) ||
-            ["Porn", "Hentai"].some((name) => predictions.array[0].className === name));
+        (["Porn", "Hentai", "Sexy"].some((name) => predictions.array[0].className === name) && predictions.map.Neutral.probability < 0.0299);
     $: blur = (hide || !show) && (loading || !predictions || nsfw);
 
     $: text = nsfw && blur ? "NSFW" : null;

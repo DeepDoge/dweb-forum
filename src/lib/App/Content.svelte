@@ -9,6 +9,7 @@
     import type ContentImage from "./ContentImage.svelte";
     import NicknameOf from "./NicknameOf.svelte";
     import ProfileMiniCard from "./ProfileMiniCard.svelte";
+    import noIpfsSvg from "$/assets/no-ipfs-media-placeholder.svg"
 
     $: ipfsClient = ipfs.client;
 
@@ -19,7 +20,7 @@
     let imageItems: ContentImage["$$prop_def"][];
     $: imageItems = content?.items
         .filter((item) => item.type === ContentType.IpfsImage)
-        .map((item) => ({ src: $ipfsClient?.toURL(item.data), alt: item.data }));
+        .map((item) => ({ src: $ipfsClient?.toURL(item.data) ?? noIpfsSvg, alt: item.data }));
 </script>
 
 <div class="content" class:limit-height={limitHeight}>

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { changeChain, changeWalletChain, currentChainOption } from "$/tools/wallet";
+    import { changeChain, changeWalletChain, wallet } from "$/tools/wallet";
     import { chainOptions } from "$/tools/wallet/chains";
     import ChainButton from "./ChainButton.svelte";
     import IpfsConfigs from "./IpfsConfigs.svelte";
@@ -10,12 +10,12 @@
     <div class="item">
         <h2>Current chain</h2>
         <div class="current-chain">
-            <ChainButton chainId={currentChainOption.chainId} />
+            <ChainButton chainId={wallet.service.currentChainOption.chainId} />
         </div>
         <h2>Pick a chain</h2>
         <div class="chains">
             {#each chainOptions as chainOption (chainOption.chainId)}
-                {#if chainOption.chainId !== currentChainOption.chainId}
+                {#if chainOption.chainId !== wallet.service.currentChainOption.chainId}
                     <ChainButton
                         chainId={chainOption.chainId}
                         on:click={() => changeWalletChain(chainOption.chainId).then(() => changeChain(chainOption.chainId))}

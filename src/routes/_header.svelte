@@ -1,17 +1,18 @@
 <script lang="ts">
     import KBoxEffect from "$/lib/kicho-ui/components/effects/KBoxEffect.svelte";
-import { ipfs } from "$/tools/ipfs";
-    import { connectWallet, currentChainOption, wallet } from "$/tools/wallet";
+    import { ipfs } from "$/tools/ipfs";
+    import { connectWallet, wallet } from "$/tools/wallet";
     import AddressOf from "$lib/App/AddressOf.svelte";
     import AvatarOf from "$lib/App/AvatarOf.svelte";
     import NicknameOf from "$lib/App/NicknameOf.svelte";
     import Notifications from "$lib/App/Notifications.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import { currentRoute } from "./_routing";
+    import ipfsLogoSvg from "$/assets/ipfs-logo.svg"
 
     let height: number = 0;
 
-    $: ipfsClient = ipfs.client
+    $: ipfsClient = ipfs.client;
     $: document.body.style.setProperty("--header-height", `${height}px`);
 </script>
 
@@ -38,9 +39,10 @@ import { ipfs } from "$/tools/ipfs";
             <KButton text radius="fab" href="#{$currentRoute.chainId}#{$currentRoute.path}#settings">
                 <div
                     class="settings-gear"
-                    style:--ipfs={$ipfsClient ? "'x'" : "'o'"}
-                    style:--chain-icon="url({currentChainOption.iconSrc})"
-                    style:--chain-theme={currentChainOption.themeColor}
+                    class:ipfs-connected={$ipfsClient}
+                    style:--ipfs-icon="url({ipfsLogoSvg})"
+                    style:--chain-icon="url({wallet.service.currentChainOption.iconSrc})"
+                    style:--chain-theme={wallet.service.currentChainOption.themeColor}
                 >
                     <svg x="0px" y="0px" viewBox="0 0 512.003 512.003" fill="currentColor">
                         <g>
@@ -128,6 +130,7 @@ import { ipfs } from "$/tools/ipfs";
         background-repeat: no-repeat;
 
         position: absolute;
+        z-index: var(--k-z-index-floating);
     }
 
     .settings-gear::after {
@@ -139,11 +142,14 @@ import { ipfs } from "$/tools/ipfs";
     }
 
     .settings-gear::before {
-        content: var(--ipfs);
-        background-color: #78c0ca;
+        background-color: #fff;
+        background-image: var(--ipfs-icon);
         bottom: 0;
         right: 0;
         transform: translate(70%, 25%);
+    }
+    .settings-gear:not(.ipfs-connected)::before {
+        filter: saturate(0);
     }
 
     .account-info {
