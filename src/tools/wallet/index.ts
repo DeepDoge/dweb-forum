@@ -4,8 +4,7 @@ import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers"
 import { ethers } from "ethers"
 import { get } from 'svelte/store'
 import type { PostMetadata, PostNFT, PostResolver, Posts, Profile } from '../hardhat/typechain-types'
-import { DefaultReverseResolver__factory, PostMetadata__factory, PostNFT__factory, PostResolver__factory, Posts__factory, Profile__factory } from '../hardhat/typechain-types'
-import { ReverseRegistrar__factory } from '../hardhat/typechain-types/factories/contracts/others/ens/ENSReverseResolve.sol'
+import { PostMetadata__factory, PostNFT__factory, PostResolver__factory, Posts__factory, Profile__factory } from '../hardhat/typechain-types'
 import { chainOptionsByChainId, defaultChainOptions } from './chains'
 import { NULL_ADDREESS } from './common'
 import { deployedContracts } from './deployed'
@@ -34,18 +33,6 @@ export const wallet = service('Web3', {
     let account: string = null
     let provider: Web3Provider | JsonRpcProvider = null
 
-    const ethProvider = new ethers.providers.JsonRpcProvider(
-        defaultChainOptions.Ethereum.rpcUrls[0],
-        {
-            chainId: parseInt(defaultChainOptions.Ethereum.chainId, 16),
-            name: defaultChainOptions.Ethereum.chainName,
-            ensAddress: '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e'
-        }
-    )
-    const ethSigner = ethProvider.getSigner(NULL_ADDREESS)
-    let ensReverseRecord = ReverseRegistrar__factory.connect('0x084b1c3C81545d370f3634392De611CaaBFf8148', ethSigner)
-    let ensReverseResolver = DefaultReverseResolver__factory.connect('0xA2C122BE93b0074270ebeE7f6b7292C7deB45047', ethSigner)
-
     let postsContract: Posts = null
     let postMetadataContract: PostMetadata = null
     let postResolverContract: PostResolver = null
@@ -54,7 +41,6 @@ export const wallet = service('Web3', {
 
     const wallet = {
         get provider() { return provider },
-        get ethProvider() { return ethProvider },
         get web3Provider() { return web3Provider },
         get account() { return account },
         get currentChainOption() { return currentChainOption },
@@ -63,9 +49,7 @@ export const wallet = service('Web3', {
             postMetadataContract,
             postResolverContract,
             profileContract,
-            postNftContract,
-            ensReverseRecord,
-            ensReverseResolver
+            postNftContract
         }
     };
 
@@ -116,9 +100,7 @@ export const wallet = service('Web3', {
                 postMetadataContract,
                 postResolverContract,
                 profileContract,
-                postNftContract,
-                ensReverseRecord,
-                ensReverseResolver
+                postNftContract
             })
 
             setState('ready')
@@ -180,7 +162,7 @@ export function changeChain(chainId: string)
     location.assign(`#${parseInt(chainId, 16)}`)
 }
 
-import { readable, type Readable, type Subscriber } from "svelte/store"
+import { readable, type Readable } from "svelte/store"
 
 export interface ServiceState
 {

@@ -1,5 +1,9 @@
+import { DefaultReverseResolver__factory, ReverseRegistrar__factory } from "$/tools/hardhat/typechain-types"
+import { defaultChainOptions } from "$/tools/wallet/chains"
+import { NULL_ADDREESS } from "$/tools/wallet/common"
 import { hexToUtf8, utf8AsBytes32 } from "$/utils/bytes"
 import { createPromiseResultCacher, createTempStore } from "$/utils/common/store"
+import { ethers } from "ethers"
 import { writable, type Writable } from "svelte/store"
 import type { TypedListener } from "../tools/hardhat/typechain-types/common"
 import type { ProfileSetEvent } from "../tools/hardhat/typechain-types/contracts/Profile"
@@ -11,6 +15,18 @@ export interface ProfileInfo
     listen(): void
     unlisten(): void
 }
+
+const ethProvider = new ethers.providers.JsonRpcProvider(
+    defaultChainOptions.Ethereum.rpcUrls[0],
+    {
+        chainId: parseInt(defaultChainOptions.Ethereum.chainId, 16),
+        name: defaultChainOptions.Ethereum.chainName,
+        ensAddress: '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e'
+    }
+)
+const ethSigner = ethProvider.getSigner(NULL_ADDREESS)
+const ensReverseRecord = ReverseRegistrar__factory.connect('0x084b1c3C81545d370f3634392De611CaaBFf8148', ethSigner)
+const ensReverseResolver = DefaultReverseResolver__factory.connect('0xA2C122BE93b0074270ebeE7f6b7292C7deB45047', ethSigner)
 
 const listeners: Record<string, { count: number, unlisten: () => void }> = {}
 const profileDataCacher = createPromiseResultCacher()
@@ -58,7 +74,7 @@ export async function ensNameOf(address: string)
         const cache = await ensNameStore.get(key)
         if (cache) return cache.ensName
 
-        const response = await wallet.service.contracts.ensReverseResolver.name(await wallet.service.contracts.ensReverseRecord.node(address))
+        const response = await ensReverseResolver.name(await ensReverseRecord.node(address))
         if (response) await ensNameStore.put(key, { ensName: response })
         return response
     })
@@ -74,7 +90,7 @@ export async function ensResolve(ensName: string)
         const cache = await ensAddressStore.get(key)
         if (cache) return cache.address
 
-        const response = await (await wallet.service.ethProvider.getResolver(ensName)).getAddress()
+        const response = await (await ethProvider.getResolver(ensName)).getAddress()
         if (response) await ensAddressStore.put(key, { address: response })
         return response
     })
