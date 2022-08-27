@@ -12,23 +12,19 @@
 </script>
 
 <script lang="ts">
-    import { defaultIpfsConfigs, ipfsClient, ipfsConfigs, noIpfsClientFound } from "$/tools/ipfs/client";
-    import { chainOptionsByChainId, changeChain, connectWallet, currentChainOption, changeWalletChain, wallet } from "$/tools/wallet";
+    import { changeChain, changeWalletChain, connectWallet, currentChainOption, wallet, walletState } from "$/tools/wallet";
+    import { chainOptionsByChainId } from "$/tools/wallet/chains";
     import ChainButton from "$lib/App/ChainButton.svelte";
-    import IpfsConfigs from "$lib/App/IpfsConfigs.svelte";
     import KApp from "$lib/kicho-ui/components/KApp.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KSpinner from "$lib/kicho-ui/components/KSpinner.svelte";
     import { ethers } from "ethers";
 
-    $: walletState = wallet.state;
-
     let layoutPromise = import("./_layout.svelte");
     let layoutReady = false;
-    $: console.log(layoutPromise);
     $: layoutPromise ? layoutPromise.then(() => (layoutReady = true)) : (layoutReady = false);
 
-    $: loading = !layoutReady || !$ipfsClient || $walletState !== "ready";
+    $: loading = !layoutReady || $walletState.type !== "ready";
 
     window.dispatchEvent(new Event("_app-ready"));
 </script>
@@ -38,59 +34,46 @@
         {#if loading}
             <KSpinner />
         {/if}
-        {#if $walletState === "ready"}
-            {#if $noIpfsClientFound}
-                No IPFS Client is accessable.
-                {#if JSON.stringify(defaultIpfsConfigs) !== JSON.stringify($ipfsConfigs)}
-                    <div>It seems that you are not using the default IPFS settings.</div>
-                    <div>You might try resetting the settings.</div>
-                {/if}
-                <div>
-                    Change IPFS settings:
-                    <IpfsConfigs />
-                </div>
-            {:else if $ipfsClient}
-                {#await layoutPromise}
-                    Loading App Layout...
-                {:then Layout}
-                    <layout>
-                        <svelte:component this={Layout.default} />
-                    </layout>
-                {:catch err}
-                    Failed to Load App Layout. Reloading...
-                    {(() => {
-                        setTimeout(() => location.reload(), 3000);
-                        console.error(err);
-                        return "";
-                    })()}
-                {/await}
-            {:else}
-                Waiting for IPFS Client...
-            {/if}
-        {:else if $walletState === "wrongNetwork"}
+
+        {#if $walletState.type === "ready"}
+            {#await layoutPromise}
+                Loading App Layout...
+            {:then Layout}
+                <layout>
+                    <svelte:component this={Layout.default} />
+                </layout>
+            {:catch err}
+                Failed to Load App Layout. Reloading...
+                {(() => {
+                    setTimeout(() => location.reload(), 3000);
+                    console.error(err);
+                    return "";
+                })()}
+            {/await}
+        {:else}
+            {$walletState.text}
+        {/if}
+
+        {#if $walletState.type === "wrong-network"}
             Wrong Wallet Network
             <div class="change-chain">
                 <span>Switch to</span>
                 <ChainButton chainId={currentChainOption.chainId} on:click={() => changeWalletChain(currentChainOption.chainId)} />
             </div>
-            {#if wallet.account && chainOptionsByChainId[ethers.utils.hexValue(wallet.web3Provider.network.chainId)]}
+            {#if wallet.service.account && chainOptionsByChainId[ethers.utils.hexValue(wallet.service.web3Provider.network.chainId)]}
                 <div class="change-chain">
                     <span>Or use</span>
                     <ChainButton
-                        chainId={ethers.utils.hexValue(wallet.web3Provider.network.chainId)}
-                        on:click={() => changeChain(ethers.utils.hexValue(wallet.web3Provider.network.chainId))}
+                        chainId={ethers.utils.hexValue(wallet.service.web3Provider.network.chainId)}
+                        on:click={() => changeChain(ethers.utils.hexValue(wallet.service.web3Provider.network.chainId))}
                     />
                 </div>
             {/if}
-        {:else if $walletState === "notConnected"}
+        {:else if $walletState.type === "not-connected"}
             No Wallet Connected
             <span>
                 <KButton color="master" on:click={() => connectWallet()}>Connect Wallet</KButton>
             </span>
-        {:else if $walletState === "connecting"}
-            Connecting Wallet...
-        {:else if $walletState === "loading"}
-            Getting Contracts...
         {/if}
     </div>
 </KApp>

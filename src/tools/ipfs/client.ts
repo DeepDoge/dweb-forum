@@ -1,18 +1,18 @@
 import { promiseQueue } from '$/utils/common/promiseQueue'
 import { weakRecord } from '$/utils/common/weakRecord'
+import { service } from '$/utils/service'
 import { globalEventNotificationManager } from '$lib/kicho-ui/components/KEventNotification.svelte'
 import { globalTaskNotificationManager } from '$lib/kicho-ui/components/KTaskNotification.svelte'
 import CID from 'cids'
 import type { IPFSHTTPClient } from 'ipfs-http-client'
 import { get, readable, writable, type Readable, type Subscriber, type Writable } from 'svelte/store'
 
-interface Client
+export interface IpfsClient
 {
     api: IPFSHTTPClient
     config: Config
     toURL(hash: string): string
     getBytes(hash: string): Promise<Uint8Array>
-    isIpfsHash(hash: string): boolean
 }
 
 interface Config
@@ -33,67 +33,79 @@ export const defaultIpfsConfigs: () => Config[] = () => [
 ]
 export const ipfsConfigs: Writable<Config[]> = writable(JSON.parse(localStorage.getItem("ipfs-config")) ?? defaultIpfsConfigs())
 
-const _noIpfsClientFound = writable(false)
-export const noIpfsClientFound: Readable<boolean> = _noIpfsClientFound
-ipfsConfigs.subscribe((configs) => localStorage.setItem('ipfs-config', JSON.stringify(configs)))
-
-const cache = weakRecord<Uint8Array>()
-const onIpfsAPIsUpdate = promiseQueue(async (set: Subscriber<Client>, configs: Config[]) => 
+const ipfs = service('IPFS', {
+    'connecting': 'Connecting...',
+    'nothing': 'No IPFS connection is accessible',
+    'ready': 'Ready'
+}, (setState) =>
 {
-    _noIpfsClientFound.set(false)
-    for (const config of configs)
+    ipfsConfigs.subscribe((configs) => localStorage.setItem('ipfs-config', JSON.stringify(configs)))
+
+    const cache = weakRecord<Uint8Array>()
+    const onIpfsAPIsUpdate = promiseQueue(async (set: Subscriber<IpfsClient>, configs: Config[]) => 
     {
-        try
+        set(null)
+        setState('connecting')
+        for (const config of configs)
         {
-            const api: IPFSHTTPClient = (window as any).IpfsHttpClient.create({ url: config.api })
-            await api.version()
-            set({
-                api,
-                config,
-                toURL(hash)
-                {
-                    hash = new CID(hash).toV1().toString('base32')
-                    const url = new URL(config.gateway)
-                    return `${url.protocol}//${hash}.${url.host}`
-                },
-                async getBytes(hash)
-                {
-                    if (cache.has(hash)) return cache.get(hash)
-                    cache.set(hash, new Uint8Array(await (await fetch((this as Client).toURL(hash))).arrayBuffer()))
-                    return cache.get(hash)
-                },
-                isIpfsHash(hash)
-                {
-                    return /[A-Za-z0-9]/.test(hash) &&
-                        (
-                            hash.startsWith('Qm') ? hash.length === 46 :
-                                hash.startsWith('bafy') ? hash.length === 59 : false
-                        )
-                },
-            })
-            console.log(`Using IPFS API ${config.api}`)
+            try
+            {
+                const api: IPFSHTTPClient = (window as any).IpfsHttpClient.create({ url: config.api })
+                await api.version()
+                set({
+                    api,
+                    config,
+                    toURL(hash)
+                    {
+                        hash = new CID(hash).toV1().toString('base32')
+                        const url = new URL(config.gateway)
+                        return `${url.protocol}//${hash}.${url.host}`
+                    },
+                    async getBytes(hash)
+                    {
+                        if (cache.has(hash)) return cache.get(hash)
+                        cache.set(hash, new Uint8Array(await (await fetch((this as IpfsClient).toURL(hash))).arrayBuffer()))
+                        return cache.get(hash)
+                    }
+                })
+                console.log(`Using IPFS API ${config.api}`)
+                setState('ready')
+                return
+            }
+            catch (error)
+            {
+                console.log(`IPFS API ${config.api} is not accessible`)
+            }
+        }
+
+        console.error('No IPFS connection is accessible')
+        globalEventNotificationManager.append('No IPFS connection is accessible. Some features may not work.')
+        setState('nothing')
+    })
+
+    const ipfsClient: Readable<IpfsClient> = readable(null, (set) => ipfsConfigs.subscribe(async (configs) => 
+    {
+        const cache = get(ipfsClient)
+        if (cache === null) 
+        {
+            onIpfsAPIsUpdate(set, configs)
             return
         }
-        catch (error)
-        {
-            console.log(`IPFS API ${config.api} is not accessible`)
-        }
-    }
-    console.error('No IPFS API is accessible')
-    globalEventNotificationManager.append('No IPFS API is accessible. Some features may not work.')
-    if (get(ipfsClient)) setTimeout(() => location.reload(), 1000)
-    set(null)
-    _noIpfsClientFound.set(true)
+        await globalTaskNotificationManager.append(onIpfsAPIsUpdate(set, configs), "IPFS Client Updating...")
+        await globalEventNotificationManager.append("IPFS Client Updated")
+    }))
+
+    return ipfsClient
 })
 
-export const ipfsClient: Readable<Client> = readable(null, (set) => ipfsConfigs.subscribe(async (configs) => 
+export const ipfsClient = ipfs.service
+export const ipfsState = ipfs.state
+
+export function isIpfsHash(hash: string)
 {
-    const cache = get(ipfsClient)
-    if (cache === null) 
-    {
-        onIpfsAPIsUpdate(set, configs)
-        return
-    }
-    await globalTaskNotificationManager.append(onIpfsAPIsUpdate(set, configs), "IPFS Client Updating...")
-    await globalEventNotificationManager.append("IPFS Client Updated")
-}))
+    return /[A-Za-z0-9]/.test(hash) &&
+        (
+            hash.startsWith('Qm') ? hash.length === 46 :
+                hash.startsWith('bafy') ? hash.length === 59 : false
+        )
+}

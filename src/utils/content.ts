@@ -1,9 +1,7 @@
-import { ipfsClient } from "$/tools/ipfs/client"
+import { isIpfsHash } from "$/tools/ipfs/client"
 import CID from "cids"
 import { ethers } from "ethers"
-import { get } from "svelte/store"
 import { bytesToUtf8, utf8AsBytes } from "./bytes"
-import { createPromiseResultCacher, createTempStore } from "./common/store"
 
 export const enum ContentType
 {
@@ -56,6 +54,7 @@ export function decodePostContentItems(encodedItems: Uint8Array): PostContentIte
     const encodedContentString = bytesToUtf8(encodedItems)
     const parts = encodedContentString.split(' ')
     const items: PostContentItemData[] = []
+
     parts.forEach((part) =>
     {
         const index = part.indexOf(',')
@@ -66,12 +65,12 @@ export function decodePostContentItems(encodedItems: Uint8Array): PostContentIte
             switch (type)
             {
                 case 'img':
-                    if (get(ipfsClient).isIpfsHash(data))
+                    if (isIpfsHash(data))
                         return items.push({ type: ContentType.IpfsImage, data })
             }
         }
 
-        if (get(ipfsClient).isIpfsHash(part))
+        if (isIpfsHash(part))
             items.push({ type: ContentType.IpfsLink, data: part })
         else if (part.startsWith('0x') && part.length === '0x0'.length)
             items.push({ type: ContentType.Mention, data: parseInt(part, 16).toString() })
@@ -98,12 +97,12 @@ export function parseContent(account: string, contentText: string, mentions: str
             switch (type)
             {
                 case 'image':
-                    if (get(ipfsClient).isIpfsHash(data))
+                    if (isIpfsHash(data))
                         return items.push({ type: ContentType.IpfsImage, data })
             }
         }
 
-        if (get(ipfsClient).isIpfsHash(part))
+        if (isIpfsHash(part))
             items.push({ type: ContentType.IpfsLink, data: part })
         else if (ethers.utils.isAddress(part))
         {
@@ -118,25 +117,4 @@ export function parseContent(account: string, contentText: string, mentions: str
     })
 
     return { mentions, items }
-}
-
-export async function addPostContentItemsDataToIpfs(items: PostContentItemData[]): Promise<string>
-{
-    return (await get(ipfsClient).api.add(encodePostContentItems(items), { pin: true })).cid.toString()
-}
-
-const ipfsBytesStore = createTempStore<number[]>("ipfs-bytes")
-const ipfsBytesCacher = createPromiseResultCacher()
-export async function getPostContentItemsDataFromIpfs(hash: string): Promise<PostContentItemData[]>
-{
-    return ipfsBytesCacher.cache(hash, async () =>
-    {
-        const cache = await ipfsBytesStore.get(hash)
-        if (cache) return decodePostContentItems(Uint8Array.from(cache))
-
-        const bytes = await get(ipfsClient).getBytes(hash)
-        await ipfsBytesStore.put(hash, [...bytes])
-
-        return decodePostContentItems(bytes)
-    })
 }

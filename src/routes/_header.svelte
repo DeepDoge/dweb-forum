@@ -1,5 +1,6 @@
 <script lang="ts">
     import KBoxEffect from "$/lib/kicho-ui/components/effects/KBoxEffect.svelte";
+    import { ipfsClient } from "$/tools/ipfs/client";
     import { connectWallet, currentChainOption, wallet } from "$/tools/wallet";
     import AddressOf from "$lib/App/AddressOf.svelte";
     import AvatarOf from "$lib/App/AvatarOf.svelte";
@@ -16,25 +17,30 @@
 <header style:--height={height} bind:offsetHeight={height}>
     <KBoxEffect color="mode" blur size="smaller" background radius="tile">
         <div class="layout">
-            {#if wallet.account}
+            {#if wallet.service.account}
                 <div class="account-info">
                     <div class="avatar">
-                        <AvatarOf address={wallet.account} />
+                        <AvatarOf address={wallet.service.account} />
                     </div>
                     <div class="nickname">
                         <KButton text href="#{$currentRoute.chainId}#{$currentRoute.path}#claim-name" title="Claim Nickname">
-                            <NicknameOf address={wallet.account} />
+                            <NicknameOf address={wallet.service.account} />
                         </KButton>
                     </div>
                     <div class="address">
-                        <AddressOf address={wallet.account} />
+                        <AddressOf address={wallet.service.account} />
                     </div>
                 </div>
             {:else}
                 <KButton color="gradient" glow="gradient" glowMultiplier={0.5} on:click={() => connectWallet()}>Connect Wallet</KButton>
             {/if}
             <KButton text radius="fab" href="#{$currentRoute.chainId}#{$currentRoute.path}#settings">
-                <div class="settings-gear" style:--chain-icon="url({currentChainOption.iconSrc})" style:--chain-theme={currentChainOption.themeColor}>
+                <div
+                    class="settings-gear"
+                    style:--ipfs={$ipfsClient ? "'x'" : "'o'"}
+                    style:--chain-icon="url({currentChainOption.iconSrc})"
+                    style:--chain-theme={currentChainOption.themeColor}
+                >
                     <svg x="0px" y="0px" viewBox="0 0 512.003 512.003" fill="currentColor">
                         <g>
                             <path
@@ -74,8 +80,8 @@
                     </svg>
                 </div>
             </KButton>
-            {#if wallet.account}
-                <Notifications account={wallet.account} />
+            {#if wallet.service.account}
+                <Notifications account={wallet.service.account} />
             {/if}
             <KButton radius="fab" color={$currentRoute.path || $currentRoute.hash ? "mode-pop" : "master"} href="#{$currentRoute.chainId}#"
                 >Home</KButton
@@ -110,21 +116,33 @@
         background-image: var(--icon);
     }
 
-    .settings-gear::after {
+    .settings-gear::after,
+    .settings-gear::before {
         content: "";
         width: 1.2em;
         aspect-ratio: 1/1;
         border-radius: var(--k-border-radius-fab);
-        background-color: var(--chain-theme);
-        background-image: var(--chain-icon);
         background-position: center;
         background-size: 50%;
         background-repeat: no-repeat;
 
         position: absolute;
+    }
+
+    .settings-gear::after {
+        background-color: var(--chain-theme);
+        background-image: var(--chain-icon);
         top: 0;
         right: 0;
         transform: translate(70%, -70%);
+    }
+
+    .settings-gear::before {
+        content: var(--ipfs);
+        background-color: #78c0ca;
+        bottom: 0;
+        right: 0;
+        transform: translate(70%, 25%);
     }
 
     .account-info {

@@ -2,7 +2,7 @@
     import { currentRoute } from "$/routes/_routing";
     import { getPostData, getTimelineInfo, PostData, PostId, TimelineGroup } from "$/tools/api/feed";
     import { isPostNft, mintPostNft } from "$/tools/api/mint";
-    import { NULL_ADDREESS, postNftContract, wallet } from "$/tools/wallet";
+    import { wallet } from "$/tools/wallet";
     import { bigNumberAsUtf8, hexToBytes, hexToUtf8 } from "$/utils/bytes";
     import { promiseQueue } from "$/utils/common/promiseQueue";
     import { ContentType, decodePostContentItems, PostContentData } from "$/utils/content";
@@ -62,7 +62,10 @@
                                     items: decodePostContentItems(contentBytes),
                                     mentions: $postData.mentions,
                                 };
-                            } catch {
+                            } 
+                            catch(error) 
+                            {
+                                console.error('Failed to decode post', error)
                                 postContent = {
                                     items: [
                                         {
@@ -113,7 +116,7 @@
 
                 <div class="chips">
                     {#if isNft}
-                        <a href="https://opensea.io/assets/matic/{postNftContract.address}/{postId}" target="_blank">
+                        <a href="https://opensea.io/assets/matic/{wallet.service.contracts.postNftContract.address}/{postId}" target="_blank">
                             <KChip color="slave">NFT</KChip>
                         </a>
                     {/if}
@@ -156,7 +159,7 @@
                         {repliesTimelineLength ? $repliesTimelineLength : "..."}
                     </div>
                     <div class="actions">
-                        {#if $postData?.owner.toLowerCase() === wallet.account?.toLowerCase()}
+                        {#if $postData?.owner.toLowerCase() === wallet.service.account?.toLowerCase()}
                             <KButton text on:click={() => mintPostNft(postId)}>Mint as NFT</KButton>
                         {/if}
                     </div>

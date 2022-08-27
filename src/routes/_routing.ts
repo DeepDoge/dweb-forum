@@ -1,4 +1,3 @@
-import { currentChainOption } from "$/tools/wallet"
 import { goto } from "$app/navigation"
 import { get, readable } from "svelte/store"
 

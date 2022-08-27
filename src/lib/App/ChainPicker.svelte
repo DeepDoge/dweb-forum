@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { chainOptions, changeChain, changeWalletChain, currentChainOption } from "$/tools/wallet";
+    import { changeChain, changeWalletChain, currentChainOption } from "$/tools/wallet";
+    import { chainOptions } from "$/tools/wallet/chains";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
     import ChainButton from "./ChainButton.svelte";
 </script>

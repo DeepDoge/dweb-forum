@@ -6,7 +6,8 @@
 
     updateBalance();
     async function updateBalance() {
-        if (wallet.account && wallet.provider) balance = ethers.utils.formatEther(await wallet.provider.getBalance(wallet.account));
+        if (wallet.service.account && wallet.service.provider)
+            balance = ethers.utils.formatEther(await wallet.service.provider.getBalance(wallet.service.account));
         else balance = null;
     }
 </script>

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { postsContract, profileContract, wallet } from "$/tools/wallet";
+    import { wallet } from "$/tools/wallet";
     import { catchContract } from "$/tools/wallet/catch";
     import { utf8AsBytes32 } from "$/utils/bytes";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
@@ -15,13 +15,16 @@
         claming = true;
         try {
             await globalTaskNotificationManager.append(
-                profileContract.setProfile(utf8AsBytes32("nickname"), utf8AsBytes32(nickname)),
+                wallet.service.contracts.profileContract.setProfile(utf8AsBytes32("nickname"), utf8AsBytes32(nickname)),
                 "Waiting Set Profile Confirmation"
             );
             dispatcher("done");
             await globalTaskNotificationManager.append(
                 new Promise<void>((resolve) =>
-                    postsContract.once(profileContract.filters.ProfileSet(wallet.account, utf8AsBytes32("nickname")), () => resolve())
+                    wallet.service.contracts.profileContract.once(
+                        wallet.service.contracts.profileContract.filters.ProfileSet(wallet.service.account, utf8AsBytes32("nickname")),
+                        () => resolve()
+                    )
                 ),
                 "Setting Profile"
             );

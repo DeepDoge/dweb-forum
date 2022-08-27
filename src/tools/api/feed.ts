@@ -1,4 +1,3 @@
-import deployed from '$/tools/hardhat/scripts/deployed.json'
 import { hexToBytes, utf8AsBytes32 } from '$/utils/bytes'
 import { createPermaStore, createPromiseResultCacher, createTempStore } from "$/utils/common/store"
 import { BigNumber, type BigNumberish } from "ethers"
@@ -6,12 +5,13 @@ import { get, writable, type Writable } from "svelte/store"
 import type { TypedListener } from '../hardhat/typechain-types/common'
 import type { PostResolver } from '../hardhat/typechain-types/contracts/PostResolver'
 import type { TimelineAddPostEvent } from '../hardhat/typechain-types/contracts/Posts'
-import { postResolverContract, postsContract, wallet } from '../wallet'
+import { wallet } from '../wallet'
+import { deployedContracts } from '../wallet/deployed'
 
-const followedTopics = wallet.account ? createPermaStore<{ topic: string }>(`${deployed[wallet.provider.network.chainId]['Posts']}:${wallet.account}:followed`) : null
+const followedTopics = wallet.service.account ? createPermaStore<{ topic: string }>(`${deployedContracts[wallet.service.provider.network.chainId]['Posts']}:${wallet.service.account}:followed`) : null
 export async function followTopic(topic: string)
 {
-    await followedTopics.put(wallet.account, { topic })
+    await followedTopics.put(wallet.service.account, { topic })
 }
 
 export type PostId = BigNumber
@@ -31,7 +31,7 @@ function deserializeBigNumbers(thing: object)
     )
 }
 
-const postDataStore = createTempStore(`${deployed[wallet.provider.network.chainId]?.['Posts']}:posts`)
+const postDataStore = createTempStore(`${deployedContracts[wallet.service.provider.network.chainId]?.['Posts']}:posts`)
 const postDataCacher = createPromiseResultCacher()
 export async function getPostData(postId: PostId): Promise<Writable<PostData>>
 {
@@ -40,7 +40,7 @@ export async function getPostData(postId: PostId): Promise<Writable<PostData>>
         const cache = await postDataStore.get(postId._hex)
         if (cache) return writable(deserializeBigNumbers(cache) as PostData)
 
-        const response = await postResolverContract.getPostData(postId, [[utf8AsBytes32("hidden"), new Uint8Array(32)]])
+        const response = await wallet.service.contracts.postResolverContract.getPostData(postId, [[utf8AsBytes32("hidden"), new Uint8Array(32)]])
         const postData: PostData = {
             postId: response.postId,
             ...response.post,
@@ -97,7 +97,7 @@ export function packTimelineId(timelineId: TimelineId)
     return BigNumber.from(timelineId.group).shl(160).or(timelineId.key)
 }
 
-const timelinePostStore = createTempStore(`${deployed[wallet.provider.network.chainId]?.['Posts']}:timelines`)
+const timelinePostStore = createTempStore(`${deployedContracts[wallet.service.provider.network.chainId]?.['Posts']}:timelines`)
 const timelinePostCacher = createPromiseResultCacher()
 export async function getTimelinePost(timelineId: TimelineId, postIndex: BigNumber)
 {
@@ -108,7 +108,7 @@ export async function getTimelinePost(timelineId: TimelineId, postIndex: BigNumb
         if (cache) return await getPostData(BigNumber.from(cache))
 
         const timelineIdPacked = packTimelineId(timelineId)
-        const respose = await postResolverContract.getPostDataFromTimeline(timelineIdPacked, postIndex, [[utf8AsBytes32('hidden'), new Uint8Array(32)]])
+        const respose = await wallet.service.contracts.postResolverContract.getPostDataFromTimeline(timelineIdPacked, postIndex, [[utf8AsBytes32('hidden'), new Uint8Array(32)]])
 
         await timelinePostStore.put(key, respose.postId)
 
@@ -134,23 +134,23 @@ export async function getTimelineInfo(timelineId: TimelineId)
     const timelineIdPacked = packTimelineId(timelineId)
     return await timelineInfoCacher.cache(uniqueKey, async () =>
     {
-        const length = writable(await postsContract.getTimelineLengh(timelineIdPacked))
+        const length = writable(await wallet.service.contracts.postsContract.getTimelineLengh(timelineIdPacked))
         const lastEvent: Writable<TimelineAddPostEvent> = writable(null)
 
         function listen()
         {
-            const filter = postsContract.filters.TimelineAddPost(timelineIdPacked)
+            const filter = wallet.service.contracts.postsContract.filters.TimelineAddPost(timelineIdPacked)
             const listener: TypedListener<TimelineAddPostEvent> = (timelineIdPacked, postId, owner, timelineLength, event) =>
             {
                 if (get(length) >= timelineLength) return
                 length.set(timelineLength)
                 lastEvent.set(event)
             }
-            postsContract.on(filter, listener)
+            wallet.service.contracts.postsContract.on(filter, listener)
 
             if (timelineInfoListeners[uniqueKey]) timelineInfoListeners[uniqueKey].count++
             else timelineInfoListeners[uniqueKey] = {
-                count: 1, unlisten() { postsContract.off(filter, listener) }
+                count: 1, unlisten() { wallet.service.contracts.postsContract.off(filter, listener) }
             }
         }
 
@@ -222,7 +222,7 @@ export function getFeed(timelineIds: TimelineId[])
                     {
                         if (first) return first = false
                         await new Promise((r) => setTimeout(r, 1500))
-                        if (event.args.owner.toLowerCase() === wallet.account?.toLowerCase())
+                        if (event.args.owner.toLowerCase() === wallet.service.account?.toLowerCase())
                         {
                             loadedByCurrentSessionPostIds.unshift(event.args.postId)
                             refreshPostIds()

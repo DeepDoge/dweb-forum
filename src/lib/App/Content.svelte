@@ -17,7 +17,7 @@
     let imageItems: ContentImage["$$prop_def"][];
     $: imageItems = content?.items
         .filter((item) => item.type === ContentType.IpfsImage)
-        .map((item) => ({ src: $ipfsClient.toURL(item.data), alt: item.data }));
+        .map((item) => ({ src: $ipfsClient?.toURL(item.data), alt: item.data }));
 </script>
 
 <div class="content" class:limit-height={limitHeight}>
@@ -35,7 +35,7 @@
                     </div>
                 </a>
             {:else if item.type === ContentType.IpfsLink}
-                <a target="_blank" href={$ipfsClient.toURL(item.data)}>{item.data}</a>
+                <a target="_blank" href={$ipfsClient?.toURL(item.data)}>{item.data}</a>
             {:else if item.type === ContentType.Text}
                 {#each item.data.trim().split(/(\n)/g) as part}
                     {#if part === "\n"}

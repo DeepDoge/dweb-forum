@@ -1,10 +1,10 @@
 <script lang="ts">
-    import { getPostData, packTimelineId, TimelineGroup, TimelineId } from "$/tools/api/feed";
+    import { getPostData,packTimelineId,TimelineGroup,TimelineId } from "$/tools/api/feed";
     import type { TypedListener } from "$/tools/hardhat/typechain-types/common";
     import type { TimelineAddPostEvent } from "$/tools/hardhat/typechain-types/contracts/Posts";
     import { ipfsClient } from "$/tools/ipfs/client";
-    import { postsContract, wallet } from "$/tools/wallet";
-    import { encodePostContentItems, parseContent } from "$/utils/content";
+    import { wallet } from "$/tools/wallet";
+    import { encodePostContentItems,parseContent } from "$/utils/content";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
@@ -21,7 +21,7 @@
     $: reply = timelineId.group === TimelineGroup.Replies;
 
     let contentText: string;
-    $: content = contentText?.length > 0 ? parseContent(wallet.account, contentText) : null;
+    $: content = contentText?.length > 0 ? parseContent(wallet.service.account, contentText) : null;
     $: encodedContent = content ? encodePostContentItems(content.items) : null;
     $: length = encodedContent?.length ?? 0;
 
@@ -30,11 +30,11 @@
     async function publish() {
         try {
             const content = parseContent(
-                wallet.account,
+                wallet.service.account,
                 contentText,
                 BigNumber.from(timelineId.group).eq(TimelineGroup.Replies)
                     ? [get(await getPostData(BigNumber.from(timelineId.key))).owner].filter(
-                          (mention) => mention.toLowerCase() !== wallet.account.toLowerCase()
+                          (mention) => mention.toLowerCase() !== wallet.service.account.toLowerCase()
                       )
                     : []
             );
@@ -43,7 +43,7 @@
 
             waitingForUserConfirmation = true;
             const tx = await globalTaskNotificationManager.append(
-                postsContract.publishPost(timelineId.group, timelineId.key, contentData, content.mentions),
+                wallet.service.contracts.postsContract.publishPost(timelineId.group, timelineId.key, contentData, content.mentions),
                 "Waiting Publish Confirmation"
             );
             waitingForUserConfirmation = false;
@@ -53,14 +53,14 @@
                 contentText = null;
             }, 500);
 
-            const filterTimelineAddPost = postsContract.filters.TimelineAddPost(packTimelineId(timelineId));
+            const filterTimelineAddPost = wallet.service.contracts.postsContract.filters.TimelineAddPost(packTimelineId(timelineId));
             const onTimelineAddPost: TypedListener<TimelineAddPostEvent> = (x, y, z, w, event) => {
                 const result = tx.hash === event.transactionHash;
-                if (result) postsContract.off(filterTimelineAddPost, onTimelineAddPost);
+                if (result) wallet.service.contracts.postsContract.off(filterTimelineAddPost, onTimelineAddPost);
                 return result;
             };
             await globalTaskNotificationManager.append(
-                new Promise<void>((resolve) => postsContract.on(filterTimelineAddPost, onTimelineAddPost)),
+                new Promise<void>((resolve) => wallet.service.contracts.postsContract.on(filterTimelineAddPost, onTimelineAddPost)),
                 "Publishing Post"
             );
         } catch (error) {
@@ -90,7 +90,7 @@
             try {
                 await globalTaskNotificationManager.append(
                     (async () => {
-                        const pinned = await $ipfsClient.api.add(uploadElement.files[0], { pin: true });
+                        const pinned = await $ipfsClient?.api.add(uploadElement.files[0], { pin: true });
                         if (contentText && !/\s/.test(contentText[contentText.length - 1])) contentText += " ";
                         contentText = `${contentText ?? ""}${uploadElement.files[0].type.startsWith("image/") ? "image," : ""}${pinned.cid.toV0()}`;
                     })(),
@@ -108,7 +108,7 @@
     />
 </svelte:head>
 
-{#if wallet.account}
+{#if wallet.service.account}
     <KModal bind:active={showPostPreview}>
         <form class="preview" on:submit|preventDefault>
             <b>Preview</b>
@@ -116,10 +116,10 @@
                 <KBoxEffect color="mode" background radius="rounded">
                     <div class="content-field">
                         <div class="avatar">
-                            <AvatarOf address={wallet.account} />
+                            <AvatarOf address={wallet.service.account} />
                         </div>
                         <div class="nickname">
-                            <NicknameOf address={wallet.account} />
+                            <NicknameOf address={wallet.service.account} />
                         </div>
                         <div class="field k-text-multiline">
                             <Content {content} />
@@ -145,10 +145,10 @@
             <div class="fields">
                 <div class="content-field">
                     <div class="avatar">
-                        <AvatarOf address={wallet.account} />
+                        <AvatarOf address={wallet.service.account} />
                     </div>
                     <div class="nickname">
-                        <NicknameOf address={wallet.account} />
+                        <NicknameOf address={wallet.service.account} />
                     </div>
                     <div class="field">
                         <!-- {encodedContent && bytesToUtf8(encodedContent.itemsData)} -->

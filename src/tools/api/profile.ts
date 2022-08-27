@@ -1,9 +1,9 @@
-import { ensReverseRecord, ensReverseResolver, ethProvider, profileContract } from "$/tools/wallet"
 import { hexToUtf8, utf8AsBytes32 } from "$/utils/bytes"
 import { createPromiseResultCacher, createTempStore } from "$/utils/common/store"
 import { writable, type Writable } from "svelte/store"
 import type { TypedListener } from "../hardhat/typechain-types/common"
 import type { ProfileSetEvent } from "../hardhat/typechain-types/contracts/Profile"
+import { wallet } from "../wallet"
 
 export interface ProfileInfo
 {
@@ -19,17 +19,17 @@ export async function getProfileData(address: string, key: string)
     const uniqueKey = `${address}:${key}`
     return await profileDataCacher.cache(uniqueKey, async () =>
     {
-        const result = writable(hexToUtf8(await profileContract.profiles(address, utf8AsBytes32(key))))
+        const result = writable(hexToUtf8(await wallet.service.contracts.profileContract.profiles(address, utf8AsBytes32(key))))
 
         function listen()
         {
-            const filter = profileContract.filters.ProfileSet(address, utf8AsBytes32(key))
+            const filter = wallet.service.contracts.profileContract.filters.ProfileSet(address, utf8AsBytes32(key))
             const listener: TypedListener<ProfileSetEvent> = (owner, key, value, timestamp) => result.set(hexToUtf8(value))
-            profileContract.on(filter, listener)
+            wallet.service.contracts.profileContract.on(filter, listener)
 
             if (listeners[uniqueKey]) listeners[uniqueKey].count++
             else listeners[uniqueKey] = {
-                count: 1, unlisten() { profileContract.off(filter, listener) }
+                count: 1, unlisten() { wallet.service.contracts.profileContract.off(filter, listener) }
             }
         }
 
@@ -58,7 +58,7 @@ export async function ensNameOf(address: string)
         const cache = await ensNameStore.get(key)
         if (cache) return cache.ensName
 
-        const response = await ensReverseResolver.name(await ensReverseRecord.node(address))
+        const response = await wallet.service.contracts.ensReverseResolver.name(await wallet.service.contracts.ensReverseRecord.node(address))
         if (response) await ensNameStore.put(key, { ensName: response })
         return response
     })
@@ -74,7 +74,7 @@ export async function ensResolve(ensName: string)
         const cache = await ensAddressStore.get(key)
         if (cache) return cache.address
 
-        const response = await (await ethProvider.getResolver(ensName)).getAddress()
+        const response = await (await wallet.service.ethProvider.getResolver(ensName)).getAddress()
         if (response) await ensAddressStore.put(key, { address: response })
         return response
     })

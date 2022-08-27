@@ -2,9 +2,10 @@ import { createPromiseResultCacher, createTempStore } from "$/utils/common/store
 import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte"
 import { globalEventNotificationManager } from "$lib/kicho-ui/components/KEventNotification.svelte"
 import { globalTaskNotificationManager } from "$lib/kicho-ui/components/KTaskNotification.svelte"
-import { NULL_ADDREESS, postNftContract, wallet } from "../wallet"
+import { wallet } from "../wallet"
+import { NULL_ADDREESS } from "../wallet/common"
+import { deployedContracts } from "../wallet/deployed"
 import type { PostId } from "./feed"
-import deployed from '$/tools/hardhat/scripts/deployed.json'
 
 export async function mintPostNft(postId: PostId)
 {
@@ -20,16 +21,16 @@ export async function mintPostNft(postId: PostId)
         console.warn(error)
     }
 
-    await globalTaskNotificationManager.append(postNftContract.mintPostNft(postId), "Waiting for user approval...")
+    await globalTaskNotificationManager.append(wallet.service.contracts.postNftContract.mintPostNft(postId), "Waiting for user approval...")
     await globalTaskNotificationManager.append(new Promise<void>((resolve) =>
-        postNftContract.once(postNftContract.filters.Transfer(NULL_ADDREESS, wallet.account, postId), () => resolve())
+        wallet.service.contracts.postNftContract.once(wallet.service.contracts.postNftContract.filters.Transfer(NULL_ADDREESS, wallet.service.account, postId), () => resolve())
     ),
         "Minting Post as NFT..."
     )
     globalEventNotificationManager.append("Post Minted")
 }
 
-const isNftStore = createTempStore<{ value: boolean }>(`is-post-nft-${deployed[wallet.provider.network.chainId]?.['PostNFT']}`, 100 * 60 * 5)
+const isNftStore = createTempStore<{ value: boolean }>(`is-post-nft-${deployedContracts[wallet.service.provider.network.chainId]?.['PostNFT']}`, 100 * 60 * 5)
 const isNftCache = createPromiseResultCacher()
 export async function isPostNft(postId: PostId)
 {
@@ -41,7 +42,7 @@ export async function isPostNft(postId: PostId)
             const cache = await isNftStore.get(key)
             if (cache) return cache.value
 
-            const result = await postNftContract.ownerOf(postId) !== NULL_ADDREESS
+            const result = await wallet.service.contracts.postNftContract.ownerOf(postId) !== NULL_ADDREESS
             await isNftStore.put(key, { value: result })
             return result
         }

@@ -3,6 +3,7 @@ import ethereumLogo from '$/assets/ethereum.svg'
 import optimismLogo from '$/assets/optimism.svg'
 import polygonImage from '$/assets/polygon.svg'
 import { BigNumber, ethers } from "ethers"
+import { deployedContracts } from './deployed'
 
 export interface JsonRpcProviderConfig
 {
@@ -73,3 +74,16 @@ export const defaultChainOptions = Object.freeze({
         iconSrc: optimismLogo
     })
 } as const)
+
+export const chainOptions: readonly ChainOption[] = Object.freeze(Object.values(defaultChainOptions).filter((option) =>
+    deployedContracts[parseInt(option.chainId, 16)]
+).map((option) => ({
+    ...option,
+    rpcUrls: [localStorage.getItem(`custom-chain-${option.chainId}-rpc`) ?? option.rpcUrls[0]]
+}))) as any
+
+export const chainOptionsByChainId = Object.freeze(
+    Object.fromEntries(
+        chainOptions.map((info) => [info.chainId, info])
+    )
+)
