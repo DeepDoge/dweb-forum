@@ -1,23 +1,24 @@
 <script lang="ts">
-    import { defaultIpfsConfigs, ipfsConfigs } from "$/tools/ipfs/client";
+import { ipfs } from "$/tools/ipfs";
+
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
     import { get } from "svelte/store";
 
-    let localIpfsConfig = get(ipfsConfigs)[0];
-    let remoteIpfsConfig = get(ipfsConfigs)[1];
+    let localIpfsConfig = get(ipfs.configs)[0];
+    let remoteIpfsConfig = get(ipfs.configs)[1];
     function update() {
-        localIpfsConfig = get(ipfsConfigs)[0];
-        remoteIpfsConfig = get(ipfsConfigs)[1];
+        localIpfsConfig = get(ipfs.configs)[0];
+        remoteIpfsConfig = get(ipfs.configs)[1];
     }
 
     function save() {
-        ipfsConfigs.set([localIpfsConfig, remoteIpfsConfig]);
+        ipfs.configs.set([localIpfsConfig, remoteIpfsConfig]);
         update();
     }
 
     function reset() {
-        ipfsConfigs.set(defaultIpfsConfigs());
+        ipfs.configs.set(ipfs.defaultConfigs());
         update();
     }
 </script>

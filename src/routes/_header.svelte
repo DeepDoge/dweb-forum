@@ -1,6 +1,6 @@
 <script lang="ts">
     import KBoxEffect from "$/lib/kicho-ui/components/effects/KBoxEffect.svelte";
-    import { ipfsClient } from "$/tools/ipfs/client";
+import { ipfs } from "$/tools/ipfs";
     import { connectWallet, currentChainOption, wallet } from "$/tools/wallet";
     import AddressOf from "$lib/App/AddressOf.svelte";
     import AvatarOf from "$lib/App/AvatarOf.svelte";
@@ -11,6 +11,7 @@
 
     let height: number = 0;
 
+    $: ipfsClient = ipfs.client
     $: document.body.style.setProperty("--header-height", `${height}px`);
 </script>
 

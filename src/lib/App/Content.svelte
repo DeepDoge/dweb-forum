@@ -1,6 +1,6 @@
 <script lang="ts">
     import { currentRoute } from "$/routes/_routing";
-    import { ipfsClient } from "$/tools/ipfs/client";
+    import { ipfs } from "$/tools/ipfs";
     import type { PostContentData } from "$/utils/content";
     import { ContentType } from "$/utils/content";
     import KHoverMenu from "$lib/kicho-ui/components/KHoverMenu.svelte";
@@ -9,6 +9,8 @@
     import type ContentImage from "./ContentImage.svelte";
     import NicknameOf from "./NicknameOf.svelte";
     import ProfileMiniCard from "./ProfileMiniCard.svelte";
+
+    $: ipfsClient = ipfs.client;
 
     export let content: PostContentData;
     export let limitHeight = false;

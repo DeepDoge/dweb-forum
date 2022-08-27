@@ -1,5 +1,4 @@
 import { currentRoute } from '$/routes/_routing'
-import { service } from '$/utils/service'
 import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte"
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers"
 import { ethers } from "ethers"
@@ -121,8 +120,6 @@ export const wallet = service('Web3', {
                 ensReverseResolver
             })
 
-            console.log(wallet)
-
             setState('ready')
         }
     })()
@@ -180,4 +177,44 @@ export function changeChain(chainId: string)
 {
     if (!chainOptionsByChainId[chainId]) throw `No option for chain ${chainId} found.`
     location.assign(`#${parseInt(chainId, 16)}`)
+}
+
+import { readable, type Readable, type Subscriber } from "svelte/store"
+
+export interface ServiceState
+{
+    type: string
+    text: string
+}
+
+export interface Service<S>
+{
+    service: S
+    state: Readable<ServiceState>
+}
+
+export type StateSetter<States extends Record<string, string>> = (state: Extract<keyof States, string>) => void
+export type ServiceLoader<S, States extends Record<string, string>> = (setState: StateSetter<States>) => S
+
+export function service<S, States extends Record<string, string>>(name: string, states: States, loader: ServiceLoader<S, States>): Readonly<Service<S>>
+{
+    const service: Service<S> = {
+        service: null,
+        state: readable<ServiceState>(null, (set) =>
+        {
+            try
+            {
+                service.service = loader((state: Extract<keyof States, string>) => set({
+                    type: state,
+                    text: `${name}: ${states[state]}`
+                }))
+            }
+            catch (error)
+            {
+                console.error(error)
+            }
+        })
+    }
+
+    return service
 }

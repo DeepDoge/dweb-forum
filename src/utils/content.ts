@@ -1,6 +1,7 @@
-import { isIpfsHash } from "$/tools/ipfs/client"
+import { ipfs } from "$/tools/ipfs"
 import CID from "cids"
 import { ethers } from "ethers"
+import { get } from "svelte/store"
 import { bytesToUtf8, utf8AsBytes } from "./bytes"
 
 export const enum ContentType
@@ -65,12 +66,12 @@ export function decodePostContentItems(encodedItems: Uint8Array): PostContentIte
             switch (type)
             {
                 case 'img':
-                    if (isIpfsHash(data))
+                    if (ipfs.utils.isIpfsHash(data))
                         return items.push({ type: ContentType.IpfsImage, data })
             }
         }
 
-        if (isIpfsHash(part))
+        if (ipfs.utils.isIpfsHash(part))
             items.push({ type: ContentType.IpfsLink, data: part })
         else if (part.startsWith('0x') && part.length === '0x0'.length)
             items.push({ type: ContentType.Mention, data: parseInt(part, 16).toString() })
@@ -97,12 +98,12 @@ export function parseContent(account: string, contentText: string, mentions: str
             switch (type)
             {
                 case 'image':
-                    if (isIpfsHash(data))
+                    if (ipfs.utils.isIpfsHash(data))
                         return items.push({ type: ContentType.IpfsImage, data })
             }
         }
 
-        if (isIpfsHash(part))
+        if (ipfs.utils.isIpfsHash(part))
             items.push({ type: ContentType.IpfsLink, data: part })
         else if (ethers.utils.isAddress(part))
         {

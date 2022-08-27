@@ -2,7 +2,7 @@
     import { getPostData,packTimelineId,TimelineGroup,TimelineId } from "$/tools/api/feed";
     import type { TypedListener } from "$/tools/hardhat/typechain-types/common";
     import type { TimelineAddPostEvent } from "$/tools/hardhat/typechain-types/contracts/Posts";
-    import { ipfsClient } from "$/tools/ipfs/client";
+import { ipfs } from "$/tools/ipfs";
     import { wallet } from "$/tools/wallet";
     import { encodePostContentItems,parseContent } from "$/utils/content";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
@@ -16,6 +16,8 @@
     import AvatarOf from "./AvatarOf.svelte";
     import Content from "./Content.svelte";
     import NicknameOf from "./NicknameOf.svelte";
+
+    $: ipfsClient = ipfs.client
 
     export let timelineId: TimelineId;
     $: reply = timelineId.group === TimelineGroup.Replies;
@@ -65,6 +67,7 @@
             );
         } catch (error) {
             await globalDialogManager.alert(error.message);
+            waitingForUserConfirmation = false
             throw error;
         }
     }
