@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Feed, getFeed, TimelineId } from "$/tools/api/feed";
+    import { Feed, getFeed, TimelineId } from "$/api/feed";
     import { createTheThingThatLetsYouInitializeAndFinalize_A_ValueWhenItsSetAndSomeBooelanIsTrue } from "$/utils/thing";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import KIntersectionObserver from "$lib/kicho-ui/components/KIntersectionObserver.svelte";

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { getPostData,packTimelineId,TimelineGroup,TimelineId } from "$/tools/api/feed";
+    import { getPostData,packTimelineId,TimelineGroup,TimelineId } from "$/api/feed";
     import type { TypedListener } from "$/tools/hardhat/typechain-types/common";
     import type { TimelineAddPostEvent } from "$/tools/hardhat/typechain-types/contracts/Posts";
 import { ipfs } from "$/tools/ipfs";

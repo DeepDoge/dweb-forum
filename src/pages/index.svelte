@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { TimelineGroup } from "$/tools/api/feed";
+    import { TimelineGroup } from "$/api/feed";
     import { pageTitle } from "$/utils/pageTitle";
     import TimelinePage from "$lib/App/TimelinePage.svelte";
 

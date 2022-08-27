@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { ensNameOf } from "$/tools/api/profile";
+    import { ensNameOf } from "$/api/profile";
 
     import { promiseQueue } from "$/utils/common/promiseQueue";
 

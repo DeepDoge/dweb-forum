@@ -12,7 +12,7 @@
 
 <script lang="ts">
     import { currentRoute } from "$/routes/_routing";
-    import { TimelineGroup } from "$/tools/api/feed";
+    import { TimelineGroup } from "$/api/feed";
     import { pageTitle } from "$/utils/pageTitle";
     import AddressOf from "$lib/App/AddressOf.svelte";
     import AvatarOf from "$lib/App/AvatarOf.svelte";

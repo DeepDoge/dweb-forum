@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { ensResolve } from "$/tools/api/profile";
+    import { ensResolve } from "$/api/profile";
 
     import ClaimName from "$lib/App/ClaimName.svelte";
     import Settings from "$lib/App/Settings.svelte";

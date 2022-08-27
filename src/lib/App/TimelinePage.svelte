@@ -1,6 +1,6 @@
 <script lang="ts">
     import { currentRoute } from "$/routes/_routing";
-    import type { PostId, TimelineId } from "$/tools/api/feed";
+    import type { PostId, TimelineId } from "$/api/feed";
     import Timeline from "$lib/App/Timeline.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import { BigNumber } from "ethers";

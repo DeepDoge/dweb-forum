@@ -2,9 +2,9 @@ import { createPromiseResultCacher, createTempStore } from "$/utils/common/store
 import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte"
 import { globalEventNotificationManager } from "$lib/kicho-ui/components/KEventNotification.svelte"
 import { globalTaskNotificationManager } from "$lib/kicho-ui/components/KTaskNotification.svelte"
-import { wallet } from "../wallet"
-import { NULL_ADDREESS } from "../wallet/common"
-import { deployedContracts } from "../wallet/deployed"
+import { wallet } from "../tools/wallet"
+import { NULL_ADDREESS } from "../tools/wallet/common"
+import { deployedContracts } from "../tools/wallet/deployed"
 import type { PostId } from "./feed"
 
 export async function mintPostNft(postId: PostId)

@@ -1,7 +1,7 @@
 <script lang="ts">
     import { currentRoute } from "$/routes/_routing";
-    import { getPostData, getTimelineInfo, PostData, PostId, TimelineGroup } from "$/tools/api/feed";
-    import { isPostNft, mintPostNft } from "$/tools/api/mint";
+    import { getPostData, getTimelineInfo, PostData, PostId, TimelineGroup } from "$/api/feed";
+    import { isPostNft, mintPostNft } from "$/api/mint";
     import { wallet } from "$/tools/wallet";
     import { bigNumberAsUtf8, hexToBytes, hexToUtf8 } from "$/utils/bytes";
     import { promiseQueue } from "$/utils/common/promiseQueue";

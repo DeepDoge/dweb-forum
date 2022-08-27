@@ -1,9 +1,9 @@
 import { hexToUtf8, utf8AsBytes32 } from "$/utils/bytes"
 import { createPromiseResultCacher, createTempStore } from "$/utils/common/store"
 import { writable, type Writable } from "svelte/store"
-import type { TypedListener } from "../hardhat/typechain-types/common"
-import type { ProfileSetEvent } from "../hardhat/typechain-types/contracts/Profile"
-import { wallet } from "../wallet"
+import type { TypedListener } from "../tools/hardhat/typechain-types/common"
+import type { ProfileSetEvent } from "../tools/hardhat/typechain-types/contracts/Profile"
+import { wallet } from "../tools/wallet"
 
 export interface ProfileInfo
 {

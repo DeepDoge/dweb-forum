@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { getProfileData, ProfileInfo } from "$/tools/api/profile";
+    import { getProfileData, ProfileInfo } from "$/api/profile";
     import { createTheThingThatLetsYouInitializeAndFinalize_A_ValueWhenItsSetAndSomeBooelanIsTrue } from "$/utils/thing";
     import KIntersectionObserver from "$lib/kicho-ui/components/KIntersectionObserver.svelte";
 

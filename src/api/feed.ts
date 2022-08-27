@@ -2,11 +2,11 @@ import { hexToBytes, utf8AsBytes32 } from '$/utils/bytes'
 import { createPermaStore, createPromiseResultCacher, createTempStore } from "$/utils/common/store"
 import { BigNumber, type BigNumberish } from "ethers"
 import { get, writable, type Writable } from "svelte/store"
-import type { TypedListener } from '../hardhat/typechain-types/common'
-import type { PostResolver } from '../hardhat/typechain-types/contracts/PostResolver'
-import type { TimelineAddPostEvent } from '../hardhat/typechain-types/contracts/Posts'
-import { wallet } from '../wallet'
-import { deployedContracts } from '../wallet/deployed'
+import type { TypedListener } from '../tools/hardhat/typechain-types/common'
+import type { PostResolver } from '../tools/hardhat/typechain-types/contracts/PostResolver'
+import type { TimelineAddPostEvent } from '../tools/hardhat/typechain-types/contracts/Posts'
+import { wallet } from '../tools/wallet'
+import { deployedContracts } from '../tools/wallet/deployed'
 
 const followedTopics = wallet.service.account ? createPermaStore<{ topic: string }>(`${deployedContracts[wallet.service.provider.network.chainId]['Posts']}:${wallet.service.account}:followed`) : null
 export async function followTopic(topic: string)

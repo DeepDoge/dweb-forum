@@ -1,6 +1,6 @@
 <script lang="ts">
-    import type { Feed as FeedType } from "$/tools/api/feed";
-    import { TimelineGroup, TimelineId } from "$/tools/api/feed";
+    import type { Feed as FeedType } from "$/api/feed";
+    import { TimelineGroup, TimelineId } from "$/api/feed";
     import Feed from "./Feed.svelte";
     import PublishPost from "./PublishPost.svelte";
 

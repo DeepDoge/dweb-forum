@@ -1,7 +1,7 @@
 <script lang="ts">
     import { currentRoute } from "$/routes/_routing";
 
-    import { Feed, getPostRoot, PostId, TimelineGroup } from "$/tools/api/feed";
+    import { Feed, getPostRoot, PostId, TimelineGroup } from "$/api/feed";
     import { bigNumberAsUtf8 } from "$/utils/bytes";
     import { promiseQueue } from "$/utils/common/promiseQueue";
     import Post from "$lib/App/Post.svelte";
