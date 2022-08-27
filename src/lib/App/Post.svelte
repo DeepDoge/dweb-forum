@@ -138,8 +138,7 @@
                 </div>
                 <a
                     class="content k-text-multiline"
-                    draggable={selected ? "false" : "true"}
-                    href={postId ? `#${$currentRoute.chainId}#${$currentRoute.path}#${postId}` : null}
+                    href={postId && !selected ? `#${$currentRoute.chainId}#${$currentRoute.path}#${postId}` : null}
                 >
                     {#if postContent}
                         <Content limitHeight={!fullHeight} content={postContent} />

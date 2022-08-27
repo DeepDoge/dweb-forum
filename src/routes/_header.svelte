@@ -149,7 +149,7 @@
         transform: translate(70%, 25%);
     }
     .settings-gear:not(.ipfs-connected)::before {
-        filter: saturate(0);
+        filter: saturate(0) invert();
     }
 
     .account-info {

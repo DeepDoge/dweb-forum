@@ -73,11 +73,12 @@ const onIpfsAPIsUpdate = promiseQueue(async (set: Subscriber<Client>, configs: C
     if (get(client)) setTimeout(() => location.reload(), 1000)
 })
 
+let first = true
 const client: Readable<Client> = readable(null, (set) => configs.subscribe(async (configs) => 
 {
-    const cache = get(client)
-    if (cache === null) 
+    if (first) 
     {
+        first = false
         onIpfsAPIsUpdate(set, configs)
         return
     }
