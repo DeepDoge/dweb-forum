@@ -80,7 +80,7 @@ contract PostNFTUriGetter is ERC721UriGetter, PostReadableExternal {
                                 _svg(tokenIdString),
                                 '",',
                                 '"external_url":',
-                                '"https://dforum.eth.link/#',
+                                '"https://dforum-eth.ipns.cf-ipfs.com/#',
                                 _getChainID().toString(),
                                 "##",
                                 tokenIdString,
