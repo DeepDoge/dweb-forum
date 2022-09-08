@@ -4,7 +4,6 @@ But if you wanna try it,
 the latest published version is live on Polygon Network at: <br /> 
 **IPNS:**
 - ipns://dforum.eth
-- https://dforum.eth.link
 - https://dforum-eth.ipns.dweb.link
 - https://dforum-eth.ipns.cf-ipfs.com
 
