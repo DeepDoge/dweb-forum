@@ -1,13 +1,14 @@
 <script lang="ts">
-    import { getPostData,packTimelineId,TimelineGroup,TimelineId } from "$/api/feed";
+    import { getPostData, packTimelineId, TimelineGroup, TimelineId } from "$/api/feed";
     import type { TypedListener } from "$/tools/hardhat/typechain-types/common";
     import type { TimelineAddPostEvent } from "$/tools/hardhat/typechain-types/contracts/Posts";
-import { ipfs } from "$/tools/ipfs";
+    import { ipfs } from "$/tools/ipfs";
     import { wallet } from "$/tools/wallet";
-    import { encodePostContentItems,parseContent } from "$/utils/content";
+    import { encodePostContentItems, parseContent } from "$/utils/content";
     import KBoxEffect from "$lib/kicho-ui/components/effects/KBoxEffect.svelte";
     import KButton from "$lib/kicho-ui/components/KButton.svelte";
     import { globalDialogManager } from "$lib/kicho-ui/components/KDialog.svelte";
+    import { globalEventNotificationManager } from "$lib/kicho-ui/components/KEventNotification.svelte";
     import KModal from "$lib/kicho-ui/components/KModal.svelte";
     import { globalTaskNotificationManager } from "$lib/kicho-ui/components/KTaskNotification.svelte";
     import KTextField from "$lib/kicho-ui/components/KTextField.svelte";
@@ -17,7 +18,7 @@ import { ipfs } from "$/tools/ipfs";
     import Content from "./Content.svelte";
     import NicknameOf from "./NicknameOf.svelte";
 
-    $: ipfsClient = ipfs.client
+    $: ipfsClient = ipfs.client;
 
     export let timelineId: TimelineId;
     $: reply = timelineId.group === TimelineGroup.Replies;
@@ -55,19 +56,24 @@ import { ipfs } from "$/tools/ipfs";
                 contentText = null;
             }, 500);
 
-            const filterTimelineAddPost = wallet.service.contracts.postsContract.filters.TimelineAddPost(packTimelineId(timelineId));
-            const onTimelineAddPost: TypedListener<TimelineAddPostEvent> = (x, y, z, w, event) => {
-                const result = tx.hash === event.transactionHash;
-                if (result) wallet.service.contracts.postsContract.off(filterTimelineAddPost, onTimelineAddPost);
-                return result;
-            };
             await globalTaskNotificationManager.append(
-                new Promise<void>((resolve) => wallet.service.contracts.postsContract.on(filterTimelineAddPost, onTimelineAddPost)),
+                new Promise<void>((resolve) => {
+                    const filterTimelineAddPost = wallet.service.contracts.postsContract.filters.TimelineAddPost(packTimelineId(timelineId));
+                    const onTimelineAddPost: TypedListener<TimelineAddPostEvent> = (timelineId, postId, owner, timelineLength, event) => {
+                        if (tx.hash === event.transactionHash) 
+                        {
+                            wallet.service.contracts.postsContract.off(filterTimelineAddPost, onTimelineAddPost);
+                            resolve()
+                            globalEventNotificationManager.append(`Post #${postId} Published`)
+                        }
+                    };
+                    wallet.service.contracts.postsContract.on(filterTimelineAddPost, onTimelineAddPost);
+                }),
                 "Publishing Post"
             );
         } catch (error) {
             await globalDialogManager.alert(error.message);
-            waitingForUserConfirmation = false
+            waitingForUserConfirmation = false;
             throw error;
         }
     }
