@@ -19,4 +19,4 @@ This is a Web3 + IPFS based forum, or social media, or how ever you wanna call i
 ![](https://bafybeib7nnvsb6xn5xaqmic75ud6efvdxuct77zl254e3wbkj2xxzgklku.ipfs.infura-ipfs.io) 
  
 # Be aware
-Only working on Chrome atm and not gonna fix it because this project will become obsolute. I'm gonna make a new one with a new stack.
+Only working on Chrome atm and not gonna fix it because this project will become obsolute. I'm gonna make a new one with a new stack that will be on Ethereum and not Polygon
