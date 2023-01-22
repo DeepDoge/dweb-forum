@@ -12,6 +12,7 @@ the latest published version is live on Polygon Network at: <br />
 This is a Web3 + IPFS based forum, or social media, or how ever you wanna call it, idk. <br />
  that has no admins, stake holders, or dao, it just exists <br />
  just works on browser like any other site
+Only working on Chrome atm and not gonna fix it because this project will become obsolute I'm making a new one with a new stack.
 
 [![forthebadge](https://forthebadge.com/images/badges/0-percent-optimized.svg)](https://forthebadge.com) <br />
 [![forthebadge](https://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg)](https://forthebadge.com) <br />
