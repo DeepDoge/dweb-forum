@@ -1,3 +1,7 @@
+# Obsolete
+
+This project is obsolete now, making a new one with a new stack, its called [DeepDoge/eternis](https://github.com/DeepDoge/eternis) 
+
 # How to use it?
 It's still in early stages. <br />
 But if you wanna try it, 
